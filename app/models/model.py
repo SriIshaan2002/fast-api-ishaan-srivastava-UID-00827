@@ -1,7 +1,10 @@
+"""Define database models and order statuses for the restaurant management system."""
 from enum import Enum
 from tortoise import fields, models
+from tables import Tables as tab
 
 class OrderStatus(str, Enum):
+    """Represent the possible statuses of a restaurant order."""
     PENDING = "Pending"
     CONFIRMED = "Confirmed"
     PREPARING = "Preparing"
@@ -11,10 +14,12 @@ class OrderStatus(str, Enum):
     RETURNED = "Returned"
 
 class User(models.Model):
+    """Represent a user account with profile, balance, and account status."""
     id = fields.IntField(primary_key=True)
     username = fields.CharField(max_length=20)
     mobile = fields.CharField(max_length=13, unique=True)
     email = fields.CharField(max_length=254, unique=True)
+    password = fields.CharField(max_length=255)
     balance = fields.DecimalField(max_digits=10, decimal_places=3, default=0)
     is_admin = fields.BooleanField(default=False)
     is_active = fields.BooleanField(default=True)
@@ -27,22 +32,25 @@ class User(models.Model):
         on_delete=fields.SET_NULL,
     )
     class Meta:
-        table = "users"
+        """Configure the database table for user records."""
+        table = tab.USERS
 
 class Token(models.Model):
-    id = fields.IntField(primary_key=True)
+    """Store refresh-token records associated with user accounts."""
     user = fields.ForeignKeyField(
         "models.User",
         related_name="tokens",
         on_delete=fields.CASCADE,
     )
-    refresh = fields.UUIDField(unique=True)
+    uuid = fields.UUIDField(unique=True)
+    token = fields.CharField(max_length=500) 
     created_at = fields.DatetimeField(auto_now_add=True)
     revoked_at = fields.DatetimeField(null=True)
     class Meta:
-        table = "token"
+        table = tab.TOKENS
 
 class Restraunt(models.Model):
+    """Store refresh-token records associated with user accounts."""
     id = fields.IntField(primary_key=True)
     restaurant_name = fields.CharField(max_length=20, unique=True)
     location_id = fields.ForeignKeyField(
@@ -66,9 +74,11 @@ class Restraunt(models.Model):
     is_closed = fields.BooleanField(default=True)
     is_active = fields.BooleanField(default=True)
     class Meta:
-        table = "restraunts"
+        """Configure the database table for restaurant records."""
+        table = tab.RESTRAUNTS
 
 class Address(models.Model):
+    """Represent a user's address, including geographic coordinates."""
     id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField(
         "models.User",
@@ -85,9 +95,11 @@ class Address(models.Model):
     lat = fields.DecimalField(max_digits=10, decimal_places=8, null=True)
     is_active = fields.BooleanField(default=True)
     class Meta:
-        table = "address"
+        """Configure the database table for address records."""
+        table = tab.ADDRESS
 
 class Item(models.Model):
+    """Represent a menu item offered by a restaurant."""
     id = fields.IntField(primary_key=True)
     item_name = fields.CharField(max_length=20)
     restaurant = fields.ForeignKeyField(
@@ -116,9 +128,11 @@ class Item(models.Model):
     )
     is_active = fields.BooleanField(default=True)
     class Meta:
-        table = "items"
+        """Configure the database table for menu items."""
+        table = tab.ITEMS
 
 class Order(models.Model):
+    """Represent a customer's order and its delivery information."""
     id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField(
         "models.User",
@@ -168,9 +182,11 @@ class Order(models.Model):
     )
     is_active = fields.BooleanField(default=True)
     class Meta:
-        table = "orders"
+        """Configure the database table for orders."""
+        table = tab.ORDERS
 
 class OrderItem(models.Model):
+    """Represent an individual item snapshot associated with an order."""
     id = fields.IntField(primary_key=True)
     order = fields.ForeignKeyField(
         "models.Order",
@@ -186,9 +202,11 @@ class OrderItem(models.Model):
     )
     is_active = fields.BooleanField(default=True)
     class Meta:
-        table = "order_items"
+        """Configure the database table for order items."""
+        table = tab.ORDER_ITEMS
 
 class Owner(models.Model):
+    """Associate users with restaurants they own."""
     id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField(
         "models.User",
@@ -201,5 +219,5 @@ class Owner(models.Model):
         on_delete=fields.CASCADE,
     )
     class Meta:
-        table = "owners"
+        table = tab.OWNERS
         unique_together = (("user", "restraunt"),)
