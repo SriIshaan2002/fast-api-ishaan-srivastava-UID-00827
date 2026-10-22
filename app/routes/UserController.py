@@ -23,7 +23,6 @@ async def get_users():
     users = await User.all()
     return users
 
-
 @routerAdmin.get("/{user_id}")
 async def get_user(user_id: int):
     """
