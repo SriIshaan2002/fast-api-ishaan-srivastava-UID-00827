@@ -1,7 +1,14 @@
-"""
-Created common String constants by the use of named tuple"""
+"""Define reusable constants for API responses and error messages."""
 
-from collections import namedtuple
+from fastapi import namedtuple
+
+# Authentication errors
+INVALID_CREDENTIALS = "Invalid email or password"
+USER_NOT_FOUND = "User not found"
+USER_ALREADY_EXISTS = "User already exists"
+ACCOUNT_INACTIVE = "User account is inactive"
+INVALID_TOKEN = "Invalid or expired token"
+TOKEN_EXCEPTION="Exception{}"
 
 GeneralMessages = namedtuple(
     "GeneralMessages",
