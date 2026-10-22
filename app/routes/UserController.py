@@ -38,7 +38,25 @@ async def get_users():
     """Retrieve all users."""
     return await UserService.get_all_users()
 
-@routerAdmin.get("/by-email/{email}", response_model=UserResponse)
+@routerAdmin.get("/{user_id}")
+async def get_user(user_id: int):
+    """
+    Get a user by ID
+    """
+    user = await User.get_or_none(user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
+    return user
+
+@routerUser.post("/")
+async def create_user(user: UserCreate):
+    """
+    Create a new user
+    """
+    user = await User.create(**user.dict())
+    return UserResponse.from_orm(user)
+
+@routerUser.get("/{email}")
 async def get_user_by_email(email: str):
     """Retrieve a user by email address."""
     return await UserService.get_user_by_email(email)
