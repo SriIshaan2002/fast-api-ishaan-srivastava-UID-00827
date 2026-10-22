@@ -47,7 +47,7 @@ class Token(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
     revoked_at = fields.DatetimeField(null=True)
     class Meta:
-        table = tab.TOKEN
+        table = tab.TOKENS
 
 class Restraunt(models.Model):
     """Store refresh-token records associated with user accounts."""

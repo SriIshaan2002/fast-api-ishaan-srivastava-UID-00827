@@ -1,12 +1,15 @@
 """Define reusable constants for API responses and error messages."""
+START_MESSAGE="API is working! Go to /docs for Swagger."
 
 # Authentication errors
+REGISTERED_EMAIL="Email is already Registered"
+INVALID_PASSWORD="Password is Invalid"
 INVALID_CREDENTIALS = "Invalid email or password"
 USER_NOT_FOUND = "User not found"
 USER_ALREADY_EXISTS = "User already exists"
-ACCOUNT_INACTIVE = "User account is inactive"
+USER_INACTIVE = "User is inactive"
 INVALID_TOKEN = "Invalid or expired token"
-TOKEN_EXCEPTION="Exception{}"
+EXCEPTION="Exception{}"
 
 # Restaurant errors
 RESTAURANT_NOT_FOUND = "Restaurant not found"
@@ -25,5 +28,11 @@ INTERNAL_SERVER_ERROR = "An unexpected error occurred"
 # Success messages
 USER_CREATED = "User created successfully"
 USER_UPDATED = "User updated successfully"
+USER_DELETED = "User deleted successfilly"
 LOGIN_SUCCESSFUL = "Login successful"
 ORDER_CREATED = "Order created successfully"
+
+#Non success message
+USER_NOT_FOUND="User not found"
+
+ACCESS_TOKEN="access_token"

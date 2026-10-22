@@ -17,7 +17,6 @@ app.include_router(routerAdmin)
 register_tortoise(
     app,
     config=settings.TORTOISE_ORM, # Uses your exact PostgreSQL configuration
-    generate_schemas=True,         # Automatically sets up tables if they don't exist
     add_exception_handlers=True,
 )
 
