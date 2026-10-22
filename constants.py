@@ -1,76 +1,29 @@
-"""
-Created common String constants by the use of named tuple"""
+"""Define reusable constants for API responses and error messages."""
 
-from collections import namedtuple
+# Authentication errors
+INVALID_CREDENTIALS = "Invalid email or password"
+USER_NOT_FOUND = "User not found"
+USER_ALREADY_EXISTS = "User already exists"
+ACCOUNT_INACTIVE = "User account is inactive"
+INVALID_TOKEN = "Invalid or expired token"
+TOKEN_EXCEPTION="Exception{}"
 
-AuthErrors = namedtuple(
-    "AuthErrors",
-    [
-        "registered_email",
-        "invalid_password",
-        "invalid_credentials",
-        "user_not_found",
-        "user_already_exists",
-        "user_inactive",
-        "invalid_token",
-        "exception",
-    ],
-)
-RestaurantErrors = namedtuple(
-    "RestaurantErrors", ["not_found", "already_exists", "closed"]
-)
-OrderErrors = namedtuple(
-    "OrderErrors", ["not_found", "already_cancelled", "insufficient_balance"]
-)
-GeneralMessages = namedtuple(
-    "GeneralMessages",
-    ["start_message", "access_forbidden", "internal_server_error", "access_token"],
-)
-SuccessMessages = namedtuple(
-    "SuccessMessages",
-    [
-        "user_created",
-        "user_updated",
-        "user_deleted",
-        "login_successful",
-        "order_created",
-    ],
-)
+# Restaurant errors
+RESTAURANT_NOT_FOUND = "Restaurant not found"
+RESTAURANT_ALREADY_EXISTS = "Restaurant already exists"
+RESTAURANT_CLOSED = "Restaurant is closed"
 
-AUTH_ERRORS = AuthErrors(
-    registered_email="Email is already Registered",
-    invalid_password="Password is Invalid",
-    invalid_credentials="Invalid email or password",
-    user_not_found="User not found",
-    user_already_exists="User already exists",
-    user_inactive="User is inactive",
-    invalid_token="Invalid or expired token",
-    exception="Exception{}",
-)
+# Order errors
+ORDER_NOT_FOUND = "Order not found"
+ORDER_ALREADY_CANCELLED = "Order is already cancelled"
+INSUFFICIENT_BALANCE = "Insufficient balance"
 
-RESTAURANT_ERRORS = RestaurantErrors(
-    not_found="Restaurant not found",
-    already_exists="Restaurant already exists",
-    closed="Restaurant is closed",
-)
+# General errors
+ACCESS_FORBIDDEN = "You do not have permission to perform this action"
+INTERNAL_SERVER_ERROR = "An unexpected error occurred"
 
-ORDER_ERRORS = OrderErrors(
-    not_found="Order not found",
-    already_cancelled="Order is already cancelled",
-    insufficient_balance="Insufficient balance",
-)
-
-GENERAL = GeneralMessages(
-    start_message="API is working! Go to /docs for Swagger.",
-    access_forbidden="You do not have permission to perform this action",
-    internal_server_error="An unexpected error occurred",
-    access_token="access_token",
-)
-
-SUCCESS_MESSAGES = SuccessMessages(
-    user_created="User created successfully",
-    user_updated="User updated successfully",
-    user_deleted="User deleted successfully",
-    login_successful="Login successful",
-    order_created="Order created successfully",
-)
+# Success messages
+USER_CREATED = "User created successfully"
+USER_UPDATED = "User updated successfully"
+LOGIN_SUCCESSFUL = "Login successful"
+ORDER_CREATED = "Order created successfully"

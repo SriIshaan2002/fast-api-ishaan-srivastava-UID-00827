@@ -8,6 +8,7 @@ from app.routes.UserController import routerUser, routerAdmin
 from app.schemas.token import TokenResponse
 from app.models import Token, User, Owner
 import constants as const
+from enum import Enum
 
 authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -53,7 +54,7 @@ async def refresh(auth_uuid: str):
         if not payload:
             raise HTTPException(status_code=401, detail=const.INVALID_TOKEN)
     except Exception:
-        raise HTTPException(status_code=401, detail=)
+        raise HTTPException(status_code=401, detail=const.EXCEPTION.format(str(e)))
     user = await User.filter(id=existing_token.id).first()
     if not user:
         raise HTTPException(status_code=404, detail=const.USER_INACTIVE)
