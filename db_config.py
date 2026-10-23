@@ -1,7 +1,8 @@
+"""Load database and JWT authentication settings from environment variables."""
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class Setting(BaseSettings):
-
+class DatabaseConfig(BaseSettings):
+    """Manage database connection settings loaded from environment variables."""
     host:str
     port:int
     name:str
@@ -15,4 +16,4 @@ class Setting(BaseSettings):
         extra="ignore",
     )
 
-settings = Setting()
+settings = DatabaseConfig()
