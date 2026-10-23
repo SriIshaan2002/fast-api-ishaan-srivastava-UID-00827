@@ -38,6 +38,7 @@ async def get_users():
     """Retrieve all users."""
     return await UserService.get_all_users()
 
+@routerAdmin.post("/",response_model=UserResponse)
 async def get_user_by_email(email: str):
     """Retrieve a user by email address."""
     return await UserService.get_user_by_email(email)
