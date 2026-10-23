@@ -3,4 +3,5 @@ uvicorn[standard]>=0.28.0
 tortoise-orm>=0.20.0
 pydantic>=2.6.0
 pyjwt>=2.8.0
-sqlmodel
+pytest==8.3.4
+httpx==0.28.1

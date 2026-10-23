@@ -19,6 +19,7 @@ async def signup(user: UserCreate):
     user_exists = await User.filter(email=user.email).exists()
     if user_exists:
         raise HTTPException(status_code=400, detail=const.REGISTERED_EMAIL)
+    user.email= user.email.lower()
     created_user = await User.create(**user.model_dump())
     access_token = jwt_handler.create_access_token(user_id=created_user.id, username=created_user.username, is_admin=False, is_owner=False)
     refresh_token, token_uuid = jwt_handler.create_refresh_token(user_id=created_user.id, username=created_user.username, is_admin=False, is_owner=False)
