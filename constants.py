@@ -31,6 +31,7 @@ USER_UPDATED = "User updated successfully"
 USER_DELETED = "User deleted successfilly"
 LOGIN_SUCCESSFUL = "Login successful"
 ORDER_CREATED = "Order created successfully"
+LOGGED_OUT="Successfully logged out. JWT invalidated."
 
 #Non success message
 USER_NOT_FOUND="User not found"

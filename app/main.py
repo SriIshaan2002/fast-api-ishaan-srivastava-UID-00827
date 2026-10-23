@@ -1,10 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
-from app.routes.auth import authRouter
-from app.routes.UserController import routerUser,routerAdmin
 from tortoise.contrib.fastapi import register_tortoise
-import settings
+
 import constants as const
+import settings
+from app.routes.auth import authRouter
+from app.routes.UserController import routerAdmin, routerUser
 
 app = FastAPI(title="My First FastAPI Template")
 
@@ -16,7 +17,7 @@ app.include_router(routerAdmin)
 
 register_tortoise(
     app,
-    config=settings.TORTOISE_ORM, # Uses your exact PostgreSQL configuration
+    config=settings.TORTOISE_ORM,
     add_exception_handlers=True,
 )
 
