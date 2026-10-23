@@ -10,7 +10,9 @@ from fastapi import APIRouter, HTTPException
 
 import constants as const
 from app.models import User
-from app.schemas import UserCreate, UserRequest, UserResponse
+from app.schemas import UserCreate, UserUpdate, UserResponse
+from fastapi import APIRouter, HTTPException, Header, status
+from typing import Annotated # Recommended in modern FastAPI
 
 routerAdmin = APIRouter(tags=["User Management ADMIN"], prefix="/users")
 routerUser = APIRouter(tags=["User Management"], prefix="/users")
@@ -62,14 +64,20 @@ async def delete_user(user_id: int):
     return {"message": const.USER_DELETED}
 
 @routerUser.put("/")
-async def update_user(user: UserRequest):
+async def update_user(
+    user: UserUpdate,
+    x_custom_token: Annotated[str, Header(description="A required authentication or custom tracking token")] # Required Header
+):
     """
     Update a user by ID
     """
-    user_id = user[id]
+    # Fixed: Changed user[id] to user.id (Pydantic objects use dot notation)
+    user_id = user.id 
+    
     existing_user = await User.get_or_none(user_id=user_id)
-    if not existing_user or not existing_user.is_active :
-        raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
+    if not existing_user or not existing_user.is_active:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=const.USER_NOT_FOUND)
+        
     await existing_user.update_from_dict(user.dict()).save()
     return UserResponse.from_orm(existing_user)
 
