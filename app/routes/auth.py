@@ -57,7 +57,7 @@ async def refresh(auth_uuid: str):
 
 
 @authRouter.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(auth_uuid: str):
+async def logout(uuid: str):
     """
     Invalidates a refresh-token session by revoking its database record.
     """
