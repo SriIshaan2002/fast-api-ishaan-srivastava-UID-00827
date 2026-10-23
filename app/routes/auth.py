@@ -1,13 +1,13 @@
 """
 This module defines the authentication routes for user signup and login. It uses JWT for token-based authentication. The routes handle user creation, login, and token generation.
 """
-from app.auth import jwt_handler 
-from app.schemas.user import UserLogin, UserCreate, UserResponse  
 from fastapi import APIRouter, HTTPException, status
-from app.routes.UserController import routerUser, routerAdmin
-from app.schemas.token import TokenResponse
-from app.models import Token, User, Owner
+
 import constants as const
+from app.auth import jwt_handler
+from app.models import Owner, Token, User
+from app.schemas.token import TokenResponse
+from app.schemas.user import UserCreate, UserLogin
 
 authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -47,14 +47,11 @@ async def refresh(auth_uuid: str):
     This is a refresh token api which returns a JWT token
     """
     existing_token = await Token.filter(uuid=auth_uuid).first()
-    if not existing_token:
+    if not existing_token or existing_token.revoked_at is not None:
         raise HTTPException(status_code=401, detail=const.INVALID_TOKEN)
-    try:
-        payload = jwt_handler.decode_and_verify_token(existing_token.token)
-        if not payload:
-            raise HTTPException(status_code=401, detail=const.INVALID_TOKEN)
-    except Exception:
-        raise HTTPException(status_code=401, detail=const.EXCEPTION.format(str(e)))
+    payload = jwt_handler.decode_and_verify_token(existing_token.token)
+    if not payload:
+        raise HTTPException(status_code=401, detail=const.INVALID_TOKEN)
     user = await User.filter(id=existing_token.id).first()
     if not user:
         raise HTTPException(status_code=404, detail=const.USER_INACTIVE)
@@ -63,11 +60,12 @@ async def refresh(auth_uuid: str):
     return {const.ACCESS_TOKEN:access_token}
 
 @authRouter.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(uuid: str):
+async def logout(auth_uuid: str):
     """
-    Safely delete the active session token using the proper Tortoise ORM syntax.
+    Invalidates a user session by deleting the matching JWT tracking UUID 
+    from the database using Tortoise ORM.
     """
-    deleted_count = await Token.filter(uuid=uuid).delete()
+    deleted_count = await Token.filter(auth_uuid=auth_uuid).delete()    
     if deleted_count == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session already expired or invalid")
-    return {"detail": "Successfully logged out"}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session already logged out or invalid UUID.")
+    return {"detail": const.LOGGED_OUT}
