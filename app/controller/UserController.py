@@ -9,7 +9,7 @@ from app.dependency.dependency import get_active_user
 from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from app.service.UserService import UserService
-
+from fastapi import APIRouter, HTTPException
 
 async def require_admin(current_user: User = Depends(get_active_user)) -> User:
     """Allow access only to authenticated administrators."""
@@ -48,7 +48,7 @@ async def get_user(user_id: int):
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
     return user
 
-@routerUser.post("/")
+@routerAdmin.post("/")
 async def create_user(user: UserCreate):
     """
     Create a new user
@@ -56,7 +56,7 @@ async def create_user(user: UserCreate):
     user = await User.create(**user.dict())
     return UserResponse.from_orm(user)
 
-@routerUser.get("/{email}")
+@routerAdmin.get("/{email}")
 async def get_user_by_email(email: str):
     """Retrieve a user by email address."""
     return await UserService.get_user_by_email(email)
