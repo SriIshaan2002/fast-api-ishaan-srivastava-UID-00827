@@ -8,7 +8,7 @@ Creating all the apis related to user management and authentication.
 """
 from app.models import User
 from fastapi import APIRouter, HTTPException
-from app.schemas import UserCreate, UserUpdate, UserResponse
+from app.schemas import UserCreate, UserRequest, UserResponse
 import constants as const
 
 routerAdmin = APIRouter(tags=["User Management ADMIN"], prefix="/users")
@@ -33,7 +33,7 @@ async def get_user(user_id: int):
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
     return user
 
-@routerUser.post("/")
+@routerAdmin.post("/")
 async def create_user(user: UserCreate):
     """
     Create a new user
@@ -41,7 +41,7 @@ async def create_user(user: UserCreate):
     user = await User.create(**user.dict())
     return UserResponse.from_orm(user)
 
-@routerUser.get("/{email}")
+@routerAdmin.get("/{email}")
 async def get_user_by_email(email: str):
     """
     Get a user by email
@@ -51,7 +51,7 @@ async def get_user_by_email(email: str):
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
     return UserResponse.from_orm(user)
 
-@routerUser.delete("/{user_id}")
+@routerAdmin.delete("/{user_id}")
 async def delete_user(user_id: int):
     """
     Delete a user by ID
@@ -62,11 +62,12 @@ async def delete_user(user_id: int):
     await user.update_from_dict({"is_active": False}).save()
     return {"message": const.USER_DELETED}
 
-@routerUser.put("/{user_id}")
-async def update_user(user_id: int, user: UserUpdate):
+@routerUser.put("/")
+async def update_user(user: UserRequest):
     """
     Update a user by ID
     """
+    user_id = user[id]
     existing_user = await User.get_or_none(user_id=user_id)
     if not existing_user or not existing_user.is_active :
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
