@@ -1,8 +1,7 @@
+import pytest
 from fastapi.testclient import TestClient
-
 from app.main import app
 from app.models.model import User
-
 client = TestClient(app)
 mock_user = {
     "username": "Tester",
