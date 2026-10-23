@@ -1,8 +1,7 @@
+import pytest
 from fastapi.testclient import TestClient
-
 from app.main import app
 from app.models.model import User
-
 client = TestClient(app)
 mock_user = {
     "username":"Tester",
@@ -16,7 +15,6 @@ def test_signup_successful():
     response = client.post("/auth/signup", json=mock_user)
     assert response.status_code == 201
     data = response.json()
-    
     assert "access_token" in data
     assert "user_uuid" in data
 
