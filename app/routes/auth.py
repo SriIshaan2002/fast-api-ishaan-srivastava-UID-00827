@@ -47,7 +47,7 @@ async def refresh(auth_uuid: str):
     This is a refresh token api which returns a JWT token
     """
     existing_token = await Token.filter(uuid=auth_uuid).first()
-    if not existing_token or existing_token.revoked_at is not None:
+    if not existing_token:
         raise HTTPException(status_code=401, detail=const.INVALID_TOKEN)
     try:
         payload = jwt_handler.decode_and_verify_token(existing_token.token)
@@ -61,3 +61,13 @@ async def refresh(auth_uuid: str):
     is_owner = await Owner.filter(user_id=user.id).exists()
     access_token = jwt_handler.create_access_token(user_id=user.id, username=user.username, is_admin=user.is_admin, is_owner=is_owner)
     return {const.ACCESS_TOKEN:access_token}
+
+@authRouter.post("/logout", status_code=status.HTTP_200_OK)
+async def logout(uuid: str):
+    """
+    Safely delete the active session token using the proper Tortoise ORM syntax.
+    """
+    deleted_count = await Token.filter(uuid=uuid).delete()
+    if deleted_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session already expired or invalid")
+    return {"detail": "Successfully logged out"}
