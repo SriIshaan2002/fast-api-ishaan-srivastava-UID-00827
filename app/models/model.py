@@ -33,7 +33,7 @@ class User(models.Model):
     )
     class Meta:
         """Configure the database table for user records."""
-        table = tab.USERS
+        table = tab.USERS.value
 
 class Token(models.Model):
     """Store refresh-token records associated with user accounts."""
@@ -47,7 +47,7 @@ class Token(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
     revoked_at = fields.DatetimeField(null=True)
     class Meta:
-        table = tab.TOKENS
+        table = tab.TOKENS.value
 
 class Restraunt(models.Model):
     """Store refresh-token records associated with user accounts."""
@@ -75,7 +75,7 @@ class Restraunt(models.Model):
     is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for restaurant records."""
-        table = tab.RESTRAUNTS
+        table = tab.RESTRAUNTS.value
 
 class Address(models.Model):
     """Represent a user's address, including geographic coordinates."""
@@ -96,7 +96,7 @@ class Address(models.Model):
     is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for address records."""
-        table = tab.ADDRESS
+        table = tab.ADDRESS.value
 
 class Item(models.Model):
     """Represent a menu item offered by a restaurant."""
@@ -129,7 +129,7 @@ class Item(models.Model):
     is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for menu items."""
-        table = tab.ITEMS
+        table = tab.ITEMS.value
 
 class Order(models.Model):
     """Represent a customer's order and its delivery information."""
@@ -183,7 +183,7 @@ class Order(models.Model):
     is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for orders."""
-        table = tab.ORDERS
+        table = tab.ORDERS.value
 
 class OrderItem(models.Model):
     """Represent an individual item snapshot associated with an order."""
@@ -203,7 +203,7 @@ class OrderItem(models.Model):
     is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for order items."""
-        table = tab.ORDER_ITEMS
+        table = tab.ORDER_ITEMS.value
 
 class Owner(models.Model):
     """Associate users with restaurants they own."""
@@ -219,5 +219,5 @@ class Owner(models.Model):
         on_delete=fields.CASCADE,
     )
     class Meta:
-        table = tab.OWNERS
+        table = tab.OWNERS.value
         unique_together = (("user", "restraunt"),)
