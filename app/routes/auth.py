@@ -8,7 +8,6 @@ from app.routes.UserController import routerUser, routerAdmin
 from app.schemas.token import TokenResponse
 from app.models import Token, User, Owner
 import constants as const
-from enum import Enum
 
 authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
