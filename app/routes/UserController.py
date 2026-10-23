@@ -8,6 +8,10 @@ Creating all the apis related to user management and authentication.
 """
 from fastapi import APIRouter, HTTPException
 
+from constants import GENERAL
+from app.models import User
+from app.schemas import UserCreate, UserRequest, UserResponse
+
 import constants as const
 from app.models import User
 from app.schemas import UserCreate, UserUpdate, UserResponse

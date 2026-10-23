@@ -48,9 +48,10 @@ async def refresh(auth_uuid: str):
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 @authRouter.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(uuid: str):
+async def logout(auth_uuid: str):
     """
-    Safely delete the active session token using the proper Tortoise ORM syntax.
+    Invalidates a user session by deleting the matching JWT tracking UUID 
+    from the database using Tortoise ORM.
     """
     try:
         return await AuthService.logout(auth_uuid=auth_uuid)
