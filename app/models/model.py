@@ -56,6 +56,7 @@ class User(ActiveModel):
         table = tab.USER.value
 
 class Token(BaseModel):
+
     """Store refresh-token records associated with user accounts."""
     user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
         "models.User",
