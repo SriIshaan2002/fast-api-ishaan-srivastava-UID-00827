@@ -38,16 +38,6 @@ async def get_users():
     """Retrieve all users."""
     return await UserService.get_all_users()
 
-@routerAdmin.get("/{user_id}")
-async def get_user(user_id: int):
-    """
-    Get a user by ID
-    """
-    user = await User.get_or_none(user_id=user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
-    return user
-
 @routerAdmin.post("/")
 async def create_user(user: UserCreate):
     """

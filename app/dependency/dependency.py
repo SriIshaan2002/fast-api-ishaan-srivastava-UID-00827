@@ -2,11 +2,7 @@
 File to get the current signed in user details
 """
 from typing import Annotated
-
-import jwt
-from fastapi import Header, HTTPException, status
-
-from app.auth.jwt_handler import TokenPayload
+from app.models.model import User 
 from app.auth.jwt_handler import decode_and_verify_token as decode
 from app.models.model import User
 from constants import AUTH_ERRORS
@@ -20,17 +16,9 @@ from constants import AUTH_ERRORS
 
 
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
-    """
-    Gets the user details by analysing the incomming JWT token
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=AUTH_ERRORS.invalid_credentials,
-    )
+    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=const.INVALID_TOKEN,)
     try:
-        payload: TokenPayload = decode(
-            x_custom_token,
-        )
+        payload: TokenPayload = decode(x_custom_token,)
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         raise credentials_exception
     current_user: User | None = await User.get_or_none(id=payload.user_id)
