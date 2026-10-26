@@ -2,3 +2,18 @@
 tortoise_orm = "settings.TORTOISE_ORM"
 location = "./migrations"
 src_folder = "./."
+
+[tool.ruff]
+# Target Python version
+target-version = "py310"
+# Line length standard (88 matches Black format)
+line-length = 88
+
+[tool.ruff.lint]
+# Enable Pyflakes (F) and Error (E) codes by default
+select = ["E", "F", "I"] # 'I' automatically sorts imports alphabetically
+ignore = []
+
+[tool.ruff.format]
+# Use double quotes for strings (standard style)
+quote-style = "double"

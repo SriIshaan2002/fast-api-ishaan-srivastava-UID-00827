@@ -1,10 +1,10 @@
 from app.models.model import (
-    User,
-    Token,
-    Restraunt,
-    Address,
-    Item,
-    Order,
-    OrderItem,
-    Owner,
+    Addresses,
+    Items,
+    OrderItems,
+    Orders,
+    Owners,
+    Restraunts,
+    Tokens,
+    Users,
 )
