@@ -54,7 +54,6 @@ def test_login_wrong_password():
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid email or password"
 
-
 async def delete_user():
     user = await User.get_or_none(email=mock_user["email"])
     if user:
