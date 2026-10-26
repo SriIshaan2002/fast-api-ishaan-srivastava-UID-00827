@@ -1,3 +1,6 @@
+"""
+file to add middleware, implementing RBAC on Admins, Users
+"""
 import jwt
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
@@ -9,6 +12,9 @@ app = FastAPI()
 
 @app.middleware("http")
 async def unified_auth_middleware(request: Request, call_next):
+    """
+    Protecting the non public endpoints
+    """
     path = request.url.path
     if path.startswith("/auth"):
         return await call_next(request)

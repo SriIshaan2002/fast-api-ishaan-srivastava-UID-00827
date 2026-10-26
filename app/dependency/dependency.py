@@ -1,3 +1,6 @@
+"""
+File to get the current signed in user details
+"""
 from fastapi import Depends, HTTPException, Header, status
 from typing import Annotated
 from app.models.model import User 
@@ -7,6 +10,9 @@ import constants as const
 import jwt
 
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
+    """
+    Gets the user details by analysing the incomming JWT token
+    """
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=const.INVALID_TOKEN,)
     try:
         payload: TokenPayload = decode(x_custom_token,)
