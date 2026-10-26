@@ -4,6 +4,23 @@ from enum import Enum
 from tortoise import fields, models
 from tables import Tables as tab
 
+class BaseAuditModel(models.Model):
+    """Abstract interface enforcing tracking parameters on subordinate tables."""
+    id = fields.IntField(primary_key=True)
+    is_active = fields.BooleanField(default=True)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(null=True)
+    class Meta:
+        abstract = True 
+
+class AuditModel(BaseAuditModel):
+    updated_by = fields.ForeignKeyField(
+            "models.Users",
+            related_name="%(class)s_updates",
+            null=True,
+            on_delete=fields.SET_NULL,
+        )
+
 class OrderStatus(str, Enum):
     """Represent the possible statuses of a restaurant order."""
     PENDING = "Pending"
@@ -14,24 +31,15 @@ class OrderStatus(str, Enum):
     CANCELLED = "Cancelled"
     RETURNED = "Returned"
 
-class Users(models.Model):
+class Users(AuditModel):
     """Represent a user account with profile, balance, and account status."""
-    id = fields.IntField(primary_key=True)
     username = fields.CharField(max_length=20)
     mobile = fields.CharField(max_length=13, unique=True)
     email = fields.CharField(max_length=50, unique=True)
     password = fields.CharField(max_length=255)
     balance = fields.DecimalField(max_digits=10, decimal_places=3, default=0)
     is_admin = fields.BooleanField(default=False)
-    is_active = fields.BooleanField(default=True)
-    created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
-    updated_by = fields.ForeignKeyField(
-        "models.Users",
-        related_name="updated_users",
-        null=True,
-        on_delete=fields.SET_NULL,
-    )
+    
     class Meta:
         """Configure the database table for user records."""
 
@@ -51,44 +59,33 @@ class Tokens(models.Model):
     class Meta:
         table = tab.TOKENS.value
 
-class Restraunts(models.Model):
+class Restraunts(BaseAuditModel):
     """Store refresh-token records associated with user accounts."""
-    id = fields.IntField(primary_key=True)
     restaurant_name = fields.CharField(max_length=20, unique=True)
     location_id = fields.ForeignKeyField(
         "models.Addresses",
         related_name="restaurants",
         on_delete=fields.RESTRICT,
     )
-    created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
     created_by = fields.ForeignKeyField(
         "models.Users",
         related_name="created_restaurants",
         on_delete=fields.RESTRICT,
     )
-    updated_by = fields.ForeignKeyField(
-        "models.Users",
-        related_name="updated_restaurants",
-        null=True,
-        on_delete=fields.SET_NULL,
-    )
+    
     is_closed = fields.BooleanField(default=True)
-    is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for restaurant records."""
 
         table = tab.RESTRAUNTS.value
 
-class Addresses(models.Model):
+class Addresses(BaseAuditModel):
     """Represent a user's address, including geographic coordinates."""
-    id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField(
         "models.Users",
         related_name="addresses",
         on_delete=fields.RESTRICT,
     )
-    created_at = fields.DatetimeField(auto_now_add=True)
     city = fields.CharField(max_length=50)
     street = fields.CharField(max_length=50)
     house = fields.CharField(max_length=20)
@@ -96,46 +93,34 @@ class Addresses(models.Model):
     nearby_location = fields.CharField(max_length=50, null=True)
     long = fields.DecimalField(max_digits=11, decimal_places=8, null=True)
     lat = fields.DecimalField(max_digits=10, decimal_places=8, null=True)
-    is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for address records."""
         table = tab.ADDRESS.value
 
-class Items(models.Model):
+class Items(BaseAuditModel):
     """Represent a menu item offered by a restaurant."""
-    id = fields.IntField(primary_key=True)
     item_name = fields.CharField(max_length=20)
     restaurant = fields.ForeignKeyField(
         "models.Restraunts",
         related_name="items",
         on_delete=fields.RESTRICT,
     )
-    created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
     created_by = fields.ForeignKeyField(
         "models.Users",
         related_name="created_items",
         on_delete=fields.RESTRICT,
     )
-    updated_by = fields.ForeignKeyField(
-        "models.Users",
-        related_name="updated_items",
-        null=True,
-        on_delete=fields.SET_NULL,
-    )
     quantity = fields.IntField(default=0)
     is_veg = fields.BooleanField()
     description = fields.CharField(max_length=255, null=True)
     price = fields.DecimalField(max_digits=10, decimal_places=3)
-    is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for menu items."""
 
         table = tab.ITEMS.value
 
-class Orders(models.Model):
+class Orders(BaseAuditModel):
     """Represent a customer's order and its delivery information."""
-    id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField(
         "models.Users",
         related_name="orders",
@@ -146,17 +131,9 @@ class Orders(models.Model):
         related_name="orders",
         on_delete=fields.RESTRICT,
     )
-    created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
     created_by = fields.ForeignKeyField(
         "models.Users",
         related_name="created_orders",
-        null=True,
-        on_delete=fields.SET_NULL,
-    )
-    updated_by = fields.ForeignKeyField(
-        "models.Users",
-        related_name="updated_orders",
         null=True,
         on_delete=fields.SET_NULL,
     )
@@ -179,7 +156,6 @@ class Orders(models.Model):
         null=True,
         on_delete=fields.SET_NULL,
     )
-    is_active = fields.BooleanField(default=True)
     class Meta:
         """Configure the database table for orders."""
 
