@@ -37,4 +37,5 @@ class AuthConfig(BaseSettings):
         extra="ignore",
     )
 
+
 jwt_config = AuthConfig()
