@@ -3,7 +3,6 @@ This module defines the authentication routes for user signup and login.
 It uses JWT for token-based authentication.
 The routes handle user creation, login, and token generation.
 """
-
 from fastapi import APIRouter, HTTPException, status
 
 import constants as const
