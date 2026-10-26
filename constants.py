@@ -1,13 +1,41 @@
 """
-Created common String constants by the use of named tuple """
+Created common String constants by the use of named tuple"""
 
 from collections import namedtuple
 
-AuthErrors = namedtuple("AuthErrors", ["registered_email", "invalid_password", "invalid_credentials", "user_not_found", "user_already_exists", "user_inactive", "invalid_token", "exception"])
-RestaurantErrors = namedtuple("RestaurantErrors", ["not_found", "already_exists", "closed"])
-OrderErrors = namedtuple("OrderErrors", ["not_found", "already_cancelled", "insufficient_balance"])
-GeneralMessages = namedtuple("GeneralMessages", ["start_message", "access_forbidden", "internal_server_error", "access_token"])
-SuccessMessages = namedtuple("SuccessMessages", ["user_created", "user_updated", "user_deleted", "login_successful", "order_created"])
+AuthErrors = namedtuple(
+    "AuthErrors",
+    [
+        "registered_email",
+        "invalid_password",
+        "invalid_credentials",
+        "user_not_found",
+        "user_already_exists",
+        "user_inactive",
+        "invalid_token",
+        "exception",
+    ],
+)
+RestaurantErrors = namedtuple(
+    "RestaurantErrors", ["not_found", "already_exists", "closed"]
+)
+OrderErrors = namedtuple(
+    "OrderErrors", ["not_found", "already_cancelled", "insufficient_balance"]
+)
+GeneralMessages = namedtuple(
+    "GeneralMessages",
+    ["start_message", "access_forbidden", "internal_server_error", "access_token"],
+)
+SuccessMessages = namedtuple(
+    "SuccessMessages",
+    [
+        "user_created",
+        "user_updated",
+        "user_deleted",
+        "login_successful",
+        "order_created",
+    ],
+)
 
 AUTH_ERRORS = AuthErrors(
     registered_email="Email is already Registered",
