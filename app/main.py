@@ -5,11 +5,12 @@ from tortoise.contrib.fastapi import register_tortoise
 import settings
 from constants import GENERAL
 
+from app.routes.auth import authRouter
+
 app = FastAPI(title="My First FastAPI Template")
 
 app.include_router(authRouter)
-app.include_router(routerUser)
-app.include_router(routerAdmin)
+
 # Plug in the user routes under the "/api" prefix
 # app.include_router(user_router, prefix="/api")
 
