@@ -70,6 +70,7 @@ class User(ActiveModel):
 
 
 class Token(BaseModel):
+
     """Store refresh-token records associated with user accounts."""
 
     user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
