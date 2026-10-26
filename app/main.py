@@ -9,6 +9,8 @@ from app.routes.auth import authRouter
 app = FastAPI(title="My First FastAPI Template")
 
 app.include_router(authRouter, prefix="/auth", tags=["Authentication"])
+app.include_router(routerUser)
+app.include_router(routerAdmin)
 
 register_tortoise(
     app,
