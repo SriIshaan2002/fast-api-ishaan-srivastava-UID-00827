@@ -4,9 +4,9 @@ from tortoise.contrib.fastapi import register_tortoise
 
 import settings
 from app.middleware.auth import unified_auth_middleware
-from app.routes.AddressController import router as addressRouter
-from app.routes.auth import authRouter
-from app.routes.OwnerController import router as ownerRouter
+from app.controller.AddressController import router as addressRouter
+from app.controller.AuthController import authRouter
+from app.controller.OwnerController import router as ownerRouter
 from app.routes.UserController import routerAdmin, routerUser
 from constants import GENERAL
 
