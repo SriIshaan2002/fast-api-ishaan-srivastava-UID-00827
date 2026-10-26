@@ -6,6 +6,9 @@ import uuid
 class BaseAuditModel(models.Model):
     """Abstract interface enforcing tracking parameters on subordinate tables."""
 
+class BaseAuditModel(models.Model):
+    """Abstract interface enforcing tracking parameters on subordinate tables."""
+
 class BaseModel(models.Model):
     """Provide a primary key for database models."""
     id: int = fields.IntField(primary_key=True)

@@ -1,21 +1,24 @@
 """
- 1.MODULE DOCSTRING
-    --------------------------------------------------
- Creating all the apis related to user management and authentication.
- 2.IMPORTS
-    --------------------------------------------------
+1.MODULE DOCSTRING
+   --------------------------------------------------
+Creating all the apis related to user management and authentication.
+2.IMPORTS
+   --------------------------------------------------
 
 """
-from fastapi import APIRouter, HTTPException
+
+from typing import Annotated  # Recommended in modern FastAPI
+
+from fastapi import APIRouter, Header, HTTPException, status
 
 import constants as const
 from app.models import User
-from app.schemas import UserCreate, UserUpdate, UserResponse
-from fastapi import APIRouter, HTTPException, Header, status
-from typing import Annotated # Recommended in modern FastAPI
+from app.schemas import UserCreate, UserResponse, UserUpdate
 
 routerAdmin = APIRouter(tags=["User Management ADMIN"], prefix="/users")
 routerUser = APIRouter(tags=["User Management"], prefix="/users")
+
+
 @routerAdmin.get("/")
 async def get_users():
     """
@@ -23,6 +26,7 @@ async def get_users():
     """
     users = await User.all()
     return users
+
 
 @routerAdmin.get("/{user_id}")
 async def get_user(user_id: int):
@@ -34,6 +38,7 @@ async def get_user(user_id: int):
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
     return user
 
+
 @routerAdmin.post("/")
 async def create_user(user: UserCreate):
     """
@@ -41,6 +46,7 @@ async def create_user(user: UserCreate):
     """
     user = await User.create(**user.dict())
     return UserResponse.from_orm(user)
+
 
 @routerAdmin.get("/{email}")
 async def get_user_by_email(email: str):
@@ -51,6 +57,7 @@ async def get_user_by_email(email: str):
     if not user:
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
     return UserResponse.from_orm(user)
+
 
 @routerAdmin.delete("/{user_id}")
 async def delete_user(user_id: int):
@@ -63,21 +70,25 @@ async def delete_user(user_id: int):
     await user.update_from_dict({"is_active": False}).save()
     return {"message": const.USER_DELETED}
 
+
 @routerUser.put("/")
 async def update_user(
     user: UserUpdate,
-    x_custom_token: Annotated[str, Header(description="A required authentication or custom tracking token")] # Required Header
+    x_custom_token: Annotated[
+        str, Header(description="A required authentication or custom tracking token")
+    ],  # Required Header
 ):
     """
     Update a user by ID
     """
     # Fixed: Changed user[id] to user.id (Pydantic objects use dot notation)
-    user_id = user.id 
-    
+    user_id = user.id
+
     existing_user = await User.get_or_none(user_id=user_id)
     if not existing_user or not existing_user.is_active:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=const.USER_NOT_FOUND)
-        
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=const.USER_NOT_FOUND
+        )
+
     await existing_user.update_from_dict(user.dict()).save()
     return UserResponse.from_orm(existing_user)
-
