@@ -1,5 +1,7 @@
 """
-Creating schema for the Login and Signup response contains access token and uuid of revoked at.
+Schemas for login and signup responses.
+
+These schemas contain access token and token revocation information.
 """
 
 from pydantic import BaseModel
