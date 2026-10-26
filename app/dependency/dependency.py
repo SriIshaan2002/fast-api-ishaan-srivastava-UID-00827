@@ -1,7 +1,6 @@
 """
 File to get the current signed in user details
 """
-
 from typing import Annotated
 
 import jwt
