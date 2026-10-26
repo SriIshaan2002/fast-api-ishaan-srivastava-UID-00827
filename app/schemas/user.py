@@ -15,6 +15,7 @@ class UserCreate(BaseModel):
     email: EmailStr
 
 
+
 class UserResponse(BaseModel):
     """Represent user details returned by the API."""
 

@@ -26,6 +26,7 @@ async def signup(user: UserCreate):
     except AuthServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
+
 @authRouter.post("/login", status_code=status.HTTP_200_OK, response_model=TokenResponse)
 async def login(user: UserLogin):
     """
@@ -35,6 +36,7 @@ async def login(user: UserLogin):
         return await AuthService.login(user)
     except AuthServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
+
 
 @authRouter.get("/refresh")
 async def refresh(auth_uuid: str):
