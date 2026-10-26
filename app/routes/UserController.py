@@ -1,9 +1,9 @@
 """
- 1.MODULE DOCSTRING
-    --------------------------------------------------
- Creating all the apis related to user management and authentication.
- 2.IMPORTS
-    --------------------------------------------------
+1.MODULE DOCSTRING
+   --------------------------------------------------
+Creating all the apis related to user management and authentication.
+2.IMPORTS
+   --------------------------------------------------
 
 """
 from app.models import User
@@ -13,6 +13,8 @@ import constants as const
 
 routerAdmin = APIRouter(tags=["User Management ADMIN"], prefix="/users")
 routerUser = APIRouter(tags=["User Management"], prefix="/users")
+
+
 @routerAdmin.get("/")
 async def get_users():
     """
@@ -20,6 +22,7 @@ async def get_users():
     """
     users = await User.all()
     return users
+
 
 @routerAdmin.get("/{user_id}")
 async def get_user(user_id: int):
@@ -70,4 +73,3 @@ async def update_user(user_id: int, user: UserUpdate):
         raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
     await existing_user.update_from_dict(user.dict()).save()
     return UserResponse.from_orm(existing_user)
-
