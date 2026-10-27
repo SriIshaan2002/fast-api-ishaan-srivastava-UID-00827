@@ -32,6 +32,7 @@ class UserResponse(BaseModel):
     balance: Decimal
     is_active: bool
     created_at: datetime
+    model_config['from_attributes']=True
 
 
 class UserLogin(BaseModel):
