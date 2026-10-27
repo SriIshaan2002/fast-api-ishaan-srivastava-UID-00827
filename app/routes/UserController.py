@@ -8,9 +8,9 @@ Creating all the apis related to user management and authentication.
 """
 from fastapi import APIRouter, HTTPException
 
-from constants import GENERAL
+from constants import GENERAL, AUTH_ERRORS, SUCCESS_MESSAGES
 from app.models import User
-from app.schemas import UserCreate, UserRequest, UserResponse
+from app.schemas import UserCreate, UserResponse
 
 import constants as const
 from app.models import User
@@ -42,7 +42,7 @@ async def get_user(user_id: int):
     """
     user = await User.get_or_none(user_id=user_id)
     if not user:
-        raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
+        raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
     return user
 
 @routerAdmin.post("/")
@@ -60,7 +60,7 @@ async def get_user_by_email(email: str):
     """
     user = await User.get_or_none(email=email)
     if not user:
-        raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
+        raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
     return UserResponse.from_orm(user)
 
 @routerAdmin.delete("/{user_id}")
@@ -70,9 +70,9 @@ async def delete_user(user_id: int, current_user = Depends(get_active_user)):
     """
     user = await User.get_or_none(id=user_id)
     if not user or not user.is_active:
-        raise HTTPException(status_code=404, detail=const.USER_NOT_FOUND)
+        raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
     await user.update_from_dict({"is_active": False, "updated_by_id" : current_user.id}).save()
-    return {"message": const.USER_DELETED}
+    return {"message": SUCCESS_MESSAGES.user_deleted}
 
 @routerAdmin.put("/users/{user_id}/role")
 async def update_user_admin_status(
@@ -86,12 +86,12 @@ async def update_user_admin_status(
     if current_user.id == user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=const.CHANGING_SELF_STATUS
+            detail="Cannot delete same user"
         )
     target_user = await User.get_or_none(id=user_id)
     if not target_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-            detail=const.USER_NOT_FOUND)
+            detail=AUTH_ERRORS.user_not_found)
     target_user.is_admin = admin_change
     await target_user.save()
     return {
@@ -125,4 +125,4 @@ async def deactivate_my_account(current_user: User = Depends(get_active_user)):
     current_user.is_active = False
     current_user.updated_by = current_user.id
     await current_user.save()
-    return {"message":"User Deleted Successfully"}
+    return {"message":SUCCESS_MESSAGES.user_deleted}
