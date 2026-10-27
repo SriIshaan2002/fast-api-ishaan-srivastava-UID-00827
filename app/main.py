@@ -36,22 +36,6 @@ register_tortoise(
 )
 
 
-register_tortoise(
-    app,
-    config=settings.TORTOISE_ORM,
-    generate_schemas=True,
-    add_exception_handlers=True,
-)
-
-
-register_tortoise(
-    app,
-    config=settings.TORTOISE_ORM,
-    generate_schemas=True,
-    add_exception_handlers=True,
-)
-
-
 @app.get("/")
 def index():
     return {"message": GENERAL.start_message}
