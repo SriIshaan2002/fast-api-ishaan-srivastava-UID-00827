@@ -50,5 +50,4 @@ async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive"
         )
-
     return current_user

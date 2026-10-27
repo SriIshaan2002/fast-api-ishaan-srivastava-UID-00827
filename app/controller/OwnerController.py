@@ -28,6 +28,7 @@ async def create_owner(data: OwnerCreate):
     return await OwnerService.create_owner(data)
 
 
+
 @router.get("/", response_model=list[OwnerResponse])
 async def get_all_owners():
     """Retrieve all user-restaurant ownership assignment records.
@@ -37,6 +38,7 @@ async def get_all_owners():
         serialized representations of all ownership entries.
     """
     return await OwnerService.get_all_owners()
+
 
 
 @router.get("/{owner_id}", response_model=OwnerResponse)
@@ -53,6 +55,7 @@ async def get_owner(owner_id: int):
         of the requested ownership record.
     """
     return await OwnerService.get_owner(owner_id)
+
 
 
 @router.patch("/{owner_id}", response_model=OwnerResponse)

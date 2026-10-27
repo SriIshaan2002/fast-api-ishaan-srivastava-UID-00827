@@ -55,7 +55,6 @@ async def get_users():
     """
     return await UserService.get_all_users()
 
-
 async def get_user_by_email(email: str):
     """Retrieve a single user using their email address.
 
@@ -153,6 +152,7 @@ async def get_profile(current_user: User = Depends(get_active_user)):
         of the current authenticated user.
     """
     return current_user
+
 
 
 @routerUser.delete("/")
