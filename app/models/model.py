@@ -7,9 +7,6 @@ from enums import OrderStatus
 from enums import Tables as tab
 
 
-class BaseAuditModel(models.Model):
-    """Abstract interface enforcing tracking parameters on subordinate tables."""
-
 
 class BaseAuditModel(models.Model):
     """Abstract interface enforcing tracking parameters on subordinate tables."""
