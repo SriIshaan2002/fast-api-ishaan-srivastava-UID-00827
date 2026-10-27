@@ -3,6 +3,7 @@ This module defines the authentication routes for user signup and login.
 It uses JWT for token-based authentication.
 The routes handle user creation, login, token generation, refresh, and logout.
 """
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.exception import (
@@ -11,6 +12,7 @@ from app.exception import (
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService
+
 
 authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -45,7 +47,7 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 
-@authRouter.post("/refresh")
+@authRouter.get("/refresh", status_code=status.HTTP_200_OK)
 async def refresh(auth_uuid: str):
     """
     Validates a refresh token and generates a new access token.
