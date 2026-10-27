@@ -166,7 +166,7 @@ class OrderItem(BaseModel):
     class Meta:
         table = tab.ORDER_ITEM.value
 
-class Owner(BaseModel):
+class Owner(AuditModel):
     """Associate a user with restaurants they own."""
     user = fields.ForeignKeyField(
         "models.User",
@@ -181,4 +181,3 @@ class Owner(BaseModel):
     class Meta:
         table = tab.OWNER.value
         unique_together = (("user", "restraunt"),)
-        
