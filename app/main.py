@@ -5,12 +5,19 @@ from tortoise.contrib.fastapi import register_tortoise
 import settings
 from constants import GENERAL
 from app.routes.auth import authRouter
+from app.routes.UserController import routerAdmin, routerUser
+from app.routes.AddressController import router as addressRouter
+from app.routes.OwnerController import router as ownerRouter
 
 app = FastAPI(title="My First FastAPI Template")
 
-app.include_router(authRouter, prefix="/auth", tags=["Authentication"])
-app.include_router(routerUser)
-app.include_router(routerAdmin)
+app.include_router(authRouter) 
+app.include_router(routerUser) 
+app.include_router(routerAdmin) 
+app.include_router(addressRouter)
+app.include_router(ownerRouter)
+# Plug in the user routes under the "/api" prefix
+# app.include_router(user_router, prefix="/api")
 
 register_tortoise(
     app,
