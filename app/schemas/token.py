@@ -11,5 +11,6 @@ class TokenResponse(BaseModel):
     """
     Response for Login and signup api
     """
+
     access_token: str | None
     user_uuid: str | None
