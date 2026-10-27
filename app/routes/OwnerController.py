@@ -20,6 +20,7 @@ async def create_owner(data: OwnerCreate):
 
 
 
+
 @router.get("/", response_model=list[OwnerResponse])
 async def get_all_owners():
     """Retrieve all owners."""
@@ -27,10 +28,12 @@ async def get_all_owners():
 
 
 
+
 @router.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):
     """Retrieve an owner by ID."""
     return await OwnerService.get_owner(owner_id)
+
 
 
 
