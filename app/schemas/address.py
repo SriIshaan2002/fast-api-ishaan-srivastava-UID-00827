@@ -5,13 +5,13 @@ class AddressCreate(BaseModel):
     """Schema for creating an address."""
 
     street: str = Field(
-        ..., validation_alias="address_line", min_length=3, max_length=255
+        validation_alias="address_line", min_length=3, max_length=255
     )
-    city: str = Field(..., min_length=2, max_length=100)
-    zip: str = Field(..., validation_alias="postal_code", min_length=4, max_length=12)
+    city: str = Field( min_length=2, max_length=100)
+    zip: str = Field(validation_alias="postal_code", min_length=4, max_length=12)
     house: str = Field(default="N/A", min_length=1, max_length=50)
-    state: str = Field(..., min_length=2, max_length=100)
-    country: str = Field(..., min_length=2, max_length=100)
+    state: str = Field(min_length=2, max_length=100)
+    country: str = Field(min_length=2, max_length=100)
 
 
 class AddressUpdate(BaseModel):
