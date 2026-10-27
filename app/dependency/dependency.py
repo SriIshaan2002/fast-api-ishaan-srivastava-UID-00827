@@ -7,8 +7,7 @@ from typing import Annotated
 from app.models.model import User 
 from app.auth.jwt_handler import decode_and_verify_token as decode
 from app.auth.jwt_handler import TokenPayload
-import constants as const
-import jwt
+from constants import AUTH_ERRORS
 
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
     """Extract and validate the currently authenticated
