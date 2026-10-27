@@ -7,6 +7,7 @@ from enums import OrderStatus
 from enums import Tables as tab
 
 
+
 class BaseModel(models.Model):
     """Provide a primary key for database models."""
 

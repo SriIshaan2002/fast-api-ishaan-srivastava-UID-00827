@@ -13,6 +13,7 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=5, max_length=15)
     email: EmailStr
 
+
 class UserUpdate(BaseModel):
     """
     Validate optional fields for updating an existing user's profile.
