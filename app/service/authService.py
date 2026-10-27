@@ -22,27 +22,26 @@ class AuthService:
     @staticmethod
     async def signup(user_data) -> TokenResponse:
         """
-        Register a new user and generate authentication tokens.
-
-        Args:
-            user_data: Validated user registration data.
-
-        Returns:
-            Access token and refresh-token UUID.
-
-        Raises:
-            AuthServiceError: If the email is already registered.
+        Register a new user or reactivate a soft-deleted account.
         """
         user_data.email = user_data.email.lower()
-        user_exists = await User.filter(email=user_data.email).exists()
-        if user_exists:
-            raise AuthServiceError(400, AUTH_ERRORS.registered_email)
+        existing_user = await User.filter(email=user_data.email).first()
+        if existing_user:
+            if existing_user.is_active:
+                raise AuthServiceError(400, AUTH_ERRORS.registered_email)
+            update_payload = user_data.model_dump(exclude_unset=True)
+            update_payload["is_active"] = True
+            existing_user.update_from_dict(update_payload)
+            await existing_user.save()
+            return await AuthService._generate_tokens(
+                user=existing_user,
+                is_admin=existing_user.is_admin,
+                is_owner=False,
+            )
         try:
             created_user = await User.create(**user_data.model_dump())
         except IntegrityError as exc:
-            raise AuthServiceError(
-                400, AUTH_ERRORS.registered_email
-            ) from exc
+            raise AuthServiceError(400, AUTH_ERRORS.registered_email) from exc
         return await AuthService._generate_tokens(
             user=created_user,
             is_admin=created_user.is_admin,
