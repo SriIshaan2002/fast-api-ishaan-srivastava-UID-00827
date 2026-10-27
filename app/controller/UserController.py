@@ -39,16 +39,6 @@ async def get_users():
     return await UserService.get_all_users()
 
 
-@routerAdmin.post("/")
-async def create_user(user: UserCreate):
-    """
-    Create a new user
-    """
-    user = await User.create(**user.model_dump())
-    return UserResponse.model_validate(user)
-
-
-@routerAdmin.get("/{email}")
 async def get_user_by_email(email: str):
     """Retrieve a user by email address."""
     return await UserService.get_user_by_email(email)
@@ -89,7 +79,6 @@ async def update_user(data: UserUpdate, current_user: User = Depends(get_active_
 async def get_profile(current_user: User = Depends(get_active_user)):
     """Retrieve the authenticated user's profile."""
     return current_user
-
 
 
 @routerUser.delete("/")
