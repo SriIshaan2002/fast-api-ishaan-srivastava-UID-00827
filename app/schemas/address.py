@@ -14,6 +14,7 @@ class AddressCreate(BaseModel):
     country: str = Field(min_length=2, max_length=100)
 
 
+
 class AddressUpdate(BaseModel):
     """Schema for updating address details."""
 
