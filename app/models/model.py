@@ -7,6 +7,7 @@ from enums import OrderStatus
 from enums import Tables as tab
 
 
+
 class BaseModel(models.Model):
     """Provide a primary key for database models."""
 
@@ -147,6 +148,7 @@ class Item(AuditModel):
     is_veg: bool = fields.BooleanField()
     description: str | None = fields.CharField(max_length=500, null=True)
     price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
+
     class Meta:
         table = tab.ITEM.value
 
