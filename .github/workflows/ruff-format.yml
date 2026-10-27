@@ -3,8 +3,8 @@ name: Auto Format and Sort Imports
 on:
   pull_request:
     branches: 
-    - feature**
-    - feature-*
+    - 'feature**'
+    - 'feature-*'
 
 jobs:
   ruff:
