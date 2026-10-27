@@ -35,6 +35,7 @@ register_tortoise(
     add_exception_handlers=True,
 )
 
+
 @app.get("/")
 def index():
     return {"message": GENERAL.start_message}
