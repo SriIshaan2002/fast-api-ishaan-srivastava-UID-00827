@@ -3,15 +3,12 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 import settings
-from app.routes.auth import authRouter
 from constants import GENERAL
+from app.routes.auth import authRouter
 
 app = FastAPI(title="My First FastAPI Template")
 
-app.include_router(authRouter)
-
-# Plug in the user routes under the "/api" prefix
-# app.include_router(user_router, prefix="/api")
+app.include_router(authRouter, prefix="/auth", tags=["Authentication"])
 
 register_tortoise(
     app,
@@ -23,7 +20,6 @@ register_tortoise(
 @app.get("/")
 def index():
     return {"message": GENERAL.start_message}
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
