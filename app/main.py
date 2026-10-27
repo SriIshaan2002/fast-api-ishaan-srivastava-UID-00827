@@ -23,12 +23,6 @@ app.include_router(ownerRouter)
 # Plug in the user routes under the "/api" prefix
 # app.include_router(user_router, prefix="/api")
 
-register_tortoise(
-    app,
-    config=settings.TORTOISE_ORM,
-    add_exception_handlers=True,
-)
-
 
 register_tortoise(
     app,
