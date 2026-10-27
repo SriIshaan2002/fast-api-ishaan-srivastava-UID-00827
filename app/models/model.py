@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING
 from enums import Tables as tab, OrderStatus
 from tortoise import fields, models
-
-if TYPE_CHECKING:
-    from decimal import Decimal
-    import uuid
+from decimal import Decimal
+import uuid
 
 class BaseAuditModel(models.Model):
     """Abstract interface enforcing tracking parameters on subordinate tables."""
