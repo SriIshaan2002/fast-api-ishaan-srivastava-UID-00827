@@ -4,11 +4,6 @@ from tortoise.contrib.fastapi import register_tortoise
 
 import settings
 from app.middleware.auth import unified_auth_middleware
-from app.routes.AddressController import router as addressRouter
-from app.routes.auth import authRouter
-from app.routes.OwnerController import router as ownerRouter
-from app.routes.UserController import routerAdmin, routerUser
-from constants import GENERAL
 
 from app.controller.AuthController import authRouter
 from app.controller.UserController import routerAdmin, routerUser
@@ -34,15 +29,6 @@ register_tortoise(
     generate_schemas=True,
     add_exception_handlers=True,
 )
-
-
-register_tortoise(
-    app,
-    config=settings.TORTOISE_ORM,
-    generate_schemas=True,
-    add_exception_handlers=True,
-)
-
 
 @app.get("/")
 def index():
