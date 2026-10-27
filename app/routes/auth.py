@@ -13,7 +13,6 @@ from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService
 
-
 authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
