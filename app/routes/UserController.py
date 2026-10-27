@@ -1,134 +1,91 @@
 """
-1.MODULE DOCSTRING
-   --------------------------------------------------
-Creating all the apis related to user management and authentication.
-2.IMPORTS
-   --------------------------------------------------
-
+This module defines APIs for user management and authentication-related
+user operations.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
-from constants import AUTH_ERRORS, SUCCESS_MESSAGES
+from app.service.UserService import UserService
+
+
+async def require_admin(current_user: User = Depends(get_active_user)) -> User:
+    """Allow access only to authenticated administrators."""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator privileges required",
+        )
+    return current_user
+
 
 routerAdmin = APIRouter(
-    tags=["User Management ADMIN"],
     prefix="/admin",
-    dependencies=[Depends(get_active_user)],
+    tags=["User Management ADMIN"],
+    dependencies=[Depends(require_admin)],
 )
 routerUser = APIRouter(
-    tags=["User Management"], prefix="/users", dependencies=[Depends(get_active_user)]
+    prefix="/users",
+    tags=["User Management"],
+    dependencies=[Depends(get_active_user)],
 )
 
 
-@routerAdmin.get("/")
+@routerAdmin.get("/", response_model=list[UserResponse])
 async def get_users():
-    """
-    Get all users
-    """
-    users = await User.all()
-    return users
+    """Retrieve all users."""
+    return await UserService.get_all_users()
 
 
-@routerAdmin.get("/{user_id}")
-async def get_user(user_id: int):
-    """
-    Get a user by ID
-    """
-    user = await User.get_or_none(user_id=user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
-    return user
-
-
-@routerAdmin.post("/")
-async def create_user(user: UserCreate):
-    """
-    Create a new user
-    """
-    user = await User.create(**user.model_dump())
-    return UserResponse.model_validate(user)
-
-
-@routerAdmin.get("/{email}")
+@routerAdmin.get("/by-email/{email}", response_model=UserResponse)
 async def get_user_by_email(email: str):
-    """
-    Get a user by email
-    """
-    user = await User.get_or_none(email=email)
-    if not user:
-        raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
-    return UserResponse.model_validate(user)
+    """Retrieve a user by email address."""
+    return await UserService.get_user_by_email(email)
+
+
+@routerAdmin.get("/{user_id}", response_model=UserResponse)
+async def get_user(user_id: int):
+    """Retrieve a user by ID."""
+    return await UserService.get_user(user_id)
+
+
+@routerAdmin.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(data: UserCreate):
+    """Create a new user."""
+    return await UserService.create_user(data)
 
 
 @routerAdmin.delete("/{user_id}")
-async def delete_user(user_id: int, current_user=Depends(get_active_user)):
-    """
-    Delete a user by ID
-    """
-    user = await User.get_or_none(id=user_id)
-    if not user or not user.is_active:
-        raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
-    await user.update_from_dict(
-        {"is_active": False, "updated_by_id": current_user.id}
-    ).save()
-    return {"message": SUCCESS_MESSAGES.user_deleted}
+async def delete_user(user_id: int, current_user: User = Depends(get_active_user)):
+    """Soft-delete a user by ID."""
+    user = await UserService.get_user(user_id)
+    return await UserService.deactivate_user(
+        user=user,
+        updated_by_id=current_user.id,
+    )
 
 
-# @routerAdmin.put("/users/{user_id}/role")
-# async def update_user_admin_status(
-#     user_id: int,
-#     admin_change: bool,
-#     current_user: User = Depends(get_active_user)
-# ):
-#     """
-#     Admin only: Update a specific user's is_admin status by their ID path parameter.
-#     """
-#     if current_user.id == user_id:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail="Cannot delete same user"
-#         )
-#     target_user = await User.get_or_none(id=user_id)
-#     if not target_user:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-#             detail=AUTH_ERRORS.user_not_found)
-#     target_user.is_admin = admin_change
-#     await target_user.save()
-#     return {
-#         "status": "success",
-#         "message": const.STATUS_UPDATE
-#     }
+@routerUser.put("/", response_model=UserResponse)
+async def update_user(data: UserUpdate, current_user: User = Depends(get_active_user)):
+    """Update the authenticated user's profile."""
+    return await UserService.update_user(
+        user=current_user,
+        data=data,
+    )
 
 
-@routerUser.put("/")
-async def update_user(user: UserUpdate, current_user: User = Depends(get_active_user)):
-    """
-    Update a user by ID
-    """
-    update_data = user.model_dump(exclude_unset=True)
-    current_user.update_from_dict(update_data)
-    await current_user.save()
-    return UserResponse.model_validate(current_user)
-
-
-@routerUser.get("/profile")
+@routerUser.get("/profile", response_model=UserResponse)
 async def get_profile(current_user: User = Depends(get_active_user)):
-    """
-    Getting the current user profile with the help of jwt token
-    """
-    return UserResponse.model_validate(current_user)
+    """Retrieve the authenticated user's profile."""
+    return current_user
 
 
 @routerUser.delete("/")
 async def deactivate_my_account(current_user: User = Depends(get_active_user)):
-    """
-    Self-deactivation / soft delete by the user with the help of jwt token
-    """
-    current_user.is_active = False
-    current_user.updated_by = current_user.id
-    await current_user.save()
-    return {"message": SUCCESS_MESSAGES.user_deleted}
+    """Deactivate the authenticated user's account."""
+    return await UserService.deactivate_user(
+        user=current_user,
+        updated_by_id=current_user.id,
+    )
