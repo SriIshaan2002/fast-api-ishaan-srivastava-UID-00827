@@ -23,7 +23,6 @@ from constants import AUTH_ERRORS, AUTH_SUCCESS, GENERAL
 
 
 
-
 class AuthService:
     """Provide business logic for authentication operations."""
 

@@ -11,6 +11,13 @@ from app.auth.jwt_handler import decode_and_verify_token as decode
 from app.models.model import User
 from constants import AUTH_ERRORS
 import jwt
+from fastapi import Header, HTTPException, status
+
+from app.auth.jwt_handler import TokenPayload
+from app.auth.jwt_handler import decode_and_verify_token as decode
+from app.models.model import User
+from constants import AUTH_ERRORS
+
 
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
     """
