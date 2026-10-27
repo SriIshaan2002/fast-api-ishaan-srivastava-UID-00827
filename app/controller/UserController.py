@@ -43,8 +43,8 @@ async def create_user(user: UserCreate):
     """
     Create a new user
     """
-    user = await User.create(**user.dict())
-    return UserResponse.from_orm(user)
+    user = await User.create(**user.model_dump())
+    return UserResponse.model_validate(user)
 
 @routerAdmin.get("/{email}")
 async def get_user_by_email(email: str):
