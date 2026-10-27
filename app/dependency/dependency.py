@@ -19,9 +19,14 @@ async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
     """
     Gets the user details by analysing the incomming JWT token
     """
-    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=AUTH_ERRORS.invalid_credentials,)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=AUTH_ERRORS.invalid_credentials,
+    )
     try:
-        payload: TokenPayload = decode(x_custom_token,)
+        payload: TokenPayload = decode(
+            x_custom_token,
+        )
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         raise credentials_exception
     current_user: User | None = await User.get_or_none(id=payload.user_id)

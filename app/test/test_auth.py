@@ -1,7 +1,8 @@
-import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 from app.models.model import User
+
 client = TestClient(app)
 mock_user = {
     "username": "Tester",
@@ -51,6 +52,7 @@ def test_login_wrong_password():
     response = client.post("/auth/login", json=invalid_payload)
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid email or password"
+
 
 async def delete_user():
     user = await User.get_or_none(email=mock_user["email"])
