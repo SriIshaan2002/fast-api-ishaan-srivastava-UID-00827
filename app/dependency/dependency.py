@@ -10,6 +10,7 @@ from app.auth.jwt_handler import TokenPayload
 from app.auth.jwt_handler import decode_and_verify_token as decode
 from app.models.model import User
 from constants import AUTH_ERRORS
+import jwt
 
 
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
