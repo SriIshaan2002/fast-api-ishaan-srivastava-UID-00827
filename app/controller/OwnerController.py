@@ -1,93 +1,43 @@
 """
-This module provides CRUD operations for owners.
+This module provides CRUD routes for owners.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from tortoise.exceptions import IntegrityError
+from fastapi import APIRouter, Depends, status
 
 from app.dependency.dependency import get_active_user
-from app.models import Owner
 from app.schemas import OwnerCreate, OwnerResponse, OwnerUpdate
-from constants import OWNER_ERRORS
+from app.service.OwnerService import OwnerService
 
 router = APIRouter(
     prefix="/owners", tags=["Owners"], dependencies=[Depends(get_active_user)]
 )
 
 
-@router.post(
-    "/",
-    response_model=OwnerResponse,
-    status_code=status.HTTP_201_CREATED,
-)
+@router.post("/", response_model=OwnerResponse, status_code=status.HTTP_201_CREATED)
 async def create_owner(data: OwnerCreate):
     """Create a new owner."""
-    try:
-        owner = await Owner.create(
-            username=data.username,
-            email=str(data.email).lower(),
-            mobile=data.mobile,
-            password=data.password,
-        )
-        return owner
-    except IntegrityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=OWNER_ERRORS.already_exists,
-        ) from exc
+    return await OwnerService.create_owner(data)
 
 
 @router.get("/", response_model=list[OwnerResponse])
 async def get_all_owners():
     """Retrieve all owners."""
-    return await Owner.all().order_by("id")
+    return await OwnerService.get_all_owners()
 
 
 @router.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):
     """Retrieve an owner by ID."""
-    owner = await Owner.get_or_none(id=owner_id)
-    if owner is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=OWNER_ERRORS.not_found,
-        )
-    return owner
+    return await OwnerService.get_owner(owner_id)
 
 
 @router.patch("/{owner_id}", response_model=OwnerResponse)
 async def update_owner(owner_id: int, data: OwnerUpdate):
     """Update an owner's permitted fields."""
-    owner = await Owner.get_or_none(id=owner_id)
-    if owner is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=OWNER_ERRORS.not_found,
-        )
-    changes = data.model_dump(exclude_unset=True)
-    for field, value in changes.items():
-        setattr(owner, field, value)
-    if changes:
-        try:
-            await owner.save()
-        except IntegrityError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=OWNER_ERRORS.already_exists,
-            ) from exc
-    return owner
+    return await OwnerService.update_owner(owner_id=owner_id, data=data)
 
 
-@router.delete(
-    "/{owner_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def delete_owner(owner_id: int):
+@router.delete("/{owner_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_owner(owner_id: int) -> None:
     """Delete an owner."""
-    owner = await Owner.get_or_none(id=owner_id)
-    if owner is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=OWNER_ERRORS.not_found,
-        )
-    await owner.delete()
+    await OwnerService.delete_owner(owner_id)
