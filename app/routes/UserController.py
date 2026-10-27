@@ -14,8 +14,14 @@ from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from constants import AUTH_ERRORS, SUCCESS_MESSAGES
 
-routerAdmin = APIRouter(tags=["User Management ADMIN"], prefix="/admin")
-routerUser = APIRouter(tags=["User Management"], prefix="/users")
+routerAdmin = APIRouter(
+    tags=["User Management ADMIN"],
+    prefix="/admin",
+    dependencies=[Depends(get_active_user)],
+)
+routerUser = APIRouter(
+    tags=["User Management"], prefix="/users", dependencies=[Depends(get_active_user)]
+)
 
 
 @routerAdmin.get("/")
@@ -114,7 +120,7 @@ async def get_profile(current_user: User = Depends(get_active_user)):
     """
     Getting the current user profile with the help of jwt token
     """
-    return UserResponse.from_orm(current_user)
+    return UserResponse.model_validate(current_user)
 
 
 @routerUser.delete("/")

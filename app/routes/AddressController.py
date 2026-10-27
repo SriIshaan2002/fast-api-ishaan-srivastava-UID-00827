@@ -9,7 +9,9 @@ from app.models import Address
 from app.schemas import AddressCreate, AddressResponse, AddressUpdate
 from constants import ADDRESS_ERRORS
 
-router = APIRouter(prefix="/addresses", tags=["Addresses"])
+router = APIRouter(
+    prefix="/addresses", tags=["Addresses"], dependencies=[Depends(get_active_user)]
+)
 
 
 @router.post(
