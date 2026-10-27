@@ -82,8 +82,8 @@ class Address(AuditModel):
     house: str = fields.CharField(max_length=50)
     zip: str = fields.CharField(max_length=10)
     nearby_location: str | None = fields.CharField(max_length=100, null=True)
-    long: "Decimal" | None = fields.DecimalField(max_digits=11, decimal_places=8, null=True)
-    lat: "Decimal" | None = fields.DecimalField(max_digits=10, decimal_places=8, null=True)
+    long: Decimal | None = fields.DecimalField(max_digits=11, decimal_places=8, null=True)
+    lat: Decimal | None = fields.DecimalField(max_digits=10, decimal_places=8, null=True)
     class Meta:
         table = tab.ADDRESS.value
 
@@ -120,7 +120,7 @@ class Item(AuditModel):
     quantity: int = fields.IntField(default=0)
     is_veg: bool = fields.BooleanField()
     description: str | None = fields.CharField(max_length=500, null=True)
-    price: "Decimal" = fields.DecimalField(max_digits=10, decimal_places=3)
+    price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
     class Meta:
         table = tab.ITEM.value
 
