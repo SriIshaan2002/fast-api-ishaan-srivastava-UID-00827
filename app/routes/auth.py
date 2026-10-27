@@ -6,13 +6,9 @@ The routes handle user creation, login, token generation, refresh, and logout.
 
 from fastapi import APIRouter, HTTPException, status
 
-from constants import AUTH_ERRORS, GENERAL, SUCCESS_MESSAGES
-from app.auth import jwt_handler
-from app.models import Owner, Token, User
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService, AuthServiceError
-
 
 authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -57,6 +53,7 @@ async def refresh(auth_uuid: str):
     except AuthServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
+
 @authRouter.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(auth_uuid: str):
     """
@@ -66,4 +63,3 @@ async def logout(auth_uuid: str):
         return await AuthService.logout(auth_uuid=auth_uuid)
     except AuthServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
-    
