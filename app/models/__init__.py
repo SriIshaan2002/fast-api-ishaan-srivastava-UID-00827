@@ -9,4 +9,13 @@ from app.models.model import (
     User,
 )
 
-__all__ = [Address, Item, Order, OrderItem, Owner, Restraunt, Token, User]
+__all__ = [
+    "Address",
+    "Item",
+    "Order",
+    "OrderItem",
+    "Owner",
+    "Restraunt",
+    "Token",
+    "User",
+]
