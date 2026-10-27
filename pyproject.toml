@@ -1,3 +1,20 @@
+[project]
+name = "fastapi-assignment"
+version = "0.1.0"
+description = "FastAPI Backend Assignment"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.0",
+    "pydantic[email]>=2.6.0",
+    "pydantic-settings>=2.16.1",
+    "uvicorn[standard]>=0.28.0",
+    "tortoise-orm>=0.20.0",
+    "asyncpg==0.30.0",
+    "ruff>=0.17.3",
+    "aerich>=0.10.1",
+]
+
 [tool.tortoise]
 tortoise_orm = "settings.TORTOISE_ORM"
 location = "./migrations"

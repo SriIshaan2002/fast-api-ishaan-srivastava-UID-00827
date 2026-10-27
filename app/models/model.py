@@ -1,38 +1,39 @@
 """Define database models and order statuses for the restaurant management system."""
 
-from enums import Tables as tab, OrderStatus
-
+from enums import OrderStatus, Tables as tab
 from tortoise import fields, models
 
-
-class BaseAuditModel(models.Model):
-    """Abstract interface enforcing tracking parameters on subordinate tables."""
-
+class BaseModel(models.Model):
+    """Provide a primary key for database models."""
     id = fields.IntField(primary_key=True)
-    is_active = fields.BooleanField(default=True)
-    created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
-
     class Meta:
         abstract = True
 
+class TimestampModel(BaseModel):
+    """Provide creation and modification timestamps."""
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(null=True)
+    class Meta:
+        abstract = True
 
-class AuditModel(BaseAuditModel):
-    """Extended abstract interface incorporating modifier tracking capabilities."""
+class ActiveModel(TimestampModel):
+    """Provide timestamps and an active-status flag."""
+    is_active = fields.BooleanField(default=True)
+    class Meta:
+        abstract = True
 
+class AuditModel(ActiveModel):
+    """Provide active status, timestamps, and modifier tracking."""
     updated_by = fields.ForeignKeyField(
         "models.User",
         null=True,
         on_delete=fields.SET_NULL,
     )
-
     class Meta:
         abstract = True
 
-
-class User(BaseAuditModel):
+class User(ActiveModel):
     """Represent a user account with profile, balance, and account status."""
-
     username = fields.CharField(max_length=20)
     mobile = fields.CharField(max_length=13, unique=True)
     email = fields.CharField(max_length=254, unique=True)
@@ -45,17 +46,11 @@ class User(BaseAuditModel):
         null=True,
         on_delete=fields.SET_NULL,
     )
-
     class Meta:
-        """Configure the database table for user records."""
-
         table = tab.USER.value
 
-
-class Token(models.Model):
+class Token(BaseModel):
     """Store refresh-token records associated with user accounts."""
-
-    id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField(
         "models.User",
         related_name="tokens",
@@ -65,14 +60,11 @@ class Token(models.Model):
     token = fields.CharField(max_length=500)
     created_at = fields.DatetimeField(auto_now_add=True)
     revoked_at = fields.DatetimeField(null=True)
-
     class Meta:
         table = tab.TOKEN.value
 
-
 class Address(AuditModel):
     """Represent a user's address, including geographic coordinates."""
-
     user = fields.ForeignKeyField(
         "models.User",
         related_name="addresses",
@@ -85,16 +77,11 @@ class Address(AuditModel):
     nearby_location = fields.CharField(max_length=100, null=True)
     long = fields.DecimalField(max_digits=11, decimal_places=8, null=True)
     lat = fields.DecimalField(max_digits=10, decimal_places=8, null=True)
-
     class Meta:
-        """Configure the database table for address records."""
-
         table = tab.ADDRESS.value
-
 
 class Restraunt(AuditModel):
     """Store restaurant operational records."""
-
     restaurant_name = fields.CharField(max_length=50, unique=True)
     location_id = fields.ForeignKeyField(
         "models.Address",
@@ -107,16 +94,11 @@ class Restraunt(AuditModel):
         on_delete=fields.RESTRICT,
     )
     is_closed = fields.BooleanField(default=True)
-
     class Meta:
-        """Configure the database table for restaurant records."""
-
         table = tab.RESTRAUNT.value
-
 
 class Item(AuditModel):
     """Represent a menu item offered by a restaurant."""
-
     item_name = fields.CharField(max_length=50)
     restaurant = fields.ForeignKeyField(
         "models.Restraunt",
@@ -132,16 +114,11 @@ class Item(AuditModel):
     is_veg = fields.BooleanField()
     description = fields.CharField(max_length=500, null=True)
     price = fields.DecimalField(max_digits=10, decimal_places=3)
-
     class Meta:
-        """Configure the database table for menu Item."""
-
         table = tab.ITEM.value
-
 
 class Order(AuditModel):
     """Represent a customer's order and its delivery information."""
-
     user = fields.ForeignKeyField(
         "models.User",
         related_name="user_orders",
@@ -170,17 +147,11 @@ class Order(AuditModel):
         max_length=20,
         default=OrderStatus.PENDING,
     )
-
     class Meta:
-        """Configure the database table for Order."""
-
         table = tab.ORDER.value
 
-
-class OrderItem(models.Model):
+class OrderItem(BaseModel):
     """Represent an individual item snapshot associated with an order."""
-
-    id = fields.IntField(primary_key=True)
     order = fields.ForeignKeyField(
         "models.Order",
         related_name="order_items",
@@ -192,17 +163,11 @@ class OrderItem(models.Model):
     discount = fields.IntField(default=0)
     price = fields.DecimalField(max_digits=10, decimal_places=3)
     is_active = fields.BooleanField(default=True)
-
     class Meta:
-        """Configure the database table for order Item."""
-
         table = tab.ORDER_ITEM.value
 
-
-class Owner(models.Model):
-    """Associate User with restaurants they own."""
-
-    id = fields.IntField(primary_key=True)
+class Owner(BaseModel):
+    """Associate a user with restaurants they own."""
     user = fields.ForeignKeyField(
         "models.User",
         related_name="ownerships",
@@ -213,7 +178,7 @@ class Owner(models.Model):
         related_name="owners",
         on_delete=fields.CASCADE,
     )
-
     class Meta:
         table = tab.OWNER.value
         unique_together = (("user", "restraunt"),)
+        
