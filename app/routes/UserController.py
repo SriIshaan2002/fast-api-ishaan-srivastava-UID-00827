@@ -6,22 +6,13 @@ Creating all the apis related to user management and authentication.
    --------------------------------------------------
 
 """
-from fastapi import APIRouter, HTTPException
 
-from constants import GENERAL, AUTH_ERRORS, SUCCESS_MESSAGES
-from app.models import User
-from app.schemas import UserCreate, UserResponse
+from fastapi import APIRouter, Depends, HTTPException
 
-import constants as const
-from app.models import User
-from app.schemas import UserCreate, UserUpdate, UserResponse
-from fastapi import APIRouter, HTTPException, Header, status
-from typing import Annotated 
-from app.auth import jwt_handler as jwt
-from app.auth import TokenPayload
 from app.dependency.dependency import get_active_user
-from fastapi import Depends
-
+from app.models import User
+from app.schemas import UserCreate, UserResponse, UserUpdate
+from constants import AUTH_ERRORS, SUCCESS_MESSAGES
 
 routerAdmin = APIRouter(tags=["User Management ADMIN"], prefix="/admin")
 routerUser = APIRouter(tags=["User Management"], prefix="/users")
@@ -35,6 +26,7 @@ async def get_users():
     users = await User.all()
     return users
 
+
 @routerAdmin.get("/{user_id}")
 async def get_user(user_id: int):
     """
@@ -45,6 +37,7 @@ async def get_user(user_id: int):
         raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
     return user
 
+
 @routerAdmin.post("/")
 async def create_user(user: UserCreate):
     """
@@ -52,6 +45,7 @@ async def create_user(user: UserCreate):
     """
     user = await User.create(**user.model_dump())
     return UserResponse.model_validate(user)
+
 
 @routerAdmin.get("/{email}")
 async def get_user_by_email(email: str):
@@ -61,23 +55,27 @@ async def get_user_by_email(email: str):
     user = await User.get_or_none(email=email)
     if not user:
         raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
-    return UserResponse.from_orm(user)
+    return UserResponse.model_validate(user)
+
 
 @routerAdmin.delete("/{user_id}")
-async def delete_user(user_id: int, current_user = Depends(get_active_user)):
+async def delete_user(user_id: int, current_user=Depends(get_active_user)):
     """
     Delete a user by ID
     """
     user = await User.get_or_none(id=user_id)
     if not user or not user.is_active:
         raise HTTPException(status_code=404, detail=AUTH_ERRORS.user_not_found)
-    await user.update_from_dict({"is_active": False, "updated_by_id" : current_user.id}).save()
+    await user.update_from_dict(
+        {"is_active": False, "updated_by_id": current_user.id}
+    ).save()
     return {"message": SUCCESS_MESSAGES.user_deleted}
+
 
 # @routerAdmin.put("/users/{user_id}/role")
 # async def update_user_admin_status(
-#     user_id: int, 
-#     admin_change: bool, 
+#     user_id: int,
+#     admin_change: bool,
 #     current_user: User = Depends(get_active_user)
 # ):
 #     """
@@ -99,12 +97,13 @@ async def delete_user(user_id: int, current_user = Depends(get_active_user)):
 #         "message": const.STATUS_UPDATE
 #     }
 
+
 @routerUser.put("/")
 async def update_user(user: UserUpdate, current_user: User = Depends(get_active_user)):
     """
     Update a user by ID
     """
-    update_data = user.model_dump(exclude_unset=True) 
+    update_data = user.model_dump(exclude_unset=True)
     current_user.update_from_dict(update_data)
     await current_user.save()
     return UserResponse.model_validate(current_user)
@@ -117,6 +116,7 @@ async def get_profile(current_user: User = Depends(get_active_user)):
     """
     return UserResponse.from_orm(current_user)
 
+
 @routerUser.delete("/")
 async def deactivate_my_account(current_user: User = Depends(get_active_user)):
     """
@@ -125,4 +125,4 @@ async def deactivate_my_account(current_user: User = Depends(get_active_user)):
     current_user.is_active = False
     current_user.updated_by = current_user.id
     await current_user.save()
-    return {"message":SUCCESS_MESSAGES.user_deleted}
+    return {"message": SUCCESS_MESSAGES.user_deleted}
