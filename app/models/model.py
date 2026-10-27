@@ -1,10 +1,8 @@
 """Define database models and order statuses for the restaurant management system."""
 
-from enum import Enum
+from enums import Tables as tab, OrderStatus
 
 from tortoise import fields, models
-
-from tables import Tables as tab
 
 
 class BaseAuditModel(models.Model):
@@ -30,18 +28,6 @@ class AuditModel(BaseAuditModel):
 
     class Meta:
         abstract = True
-
-
-class OrderStatus(str, Enum):
-    """Represent the possible statuses of a restaurant order."""
-
-    PENDING = "Pending"
-    CONFIRMED = "Confirmed"
-    PREPARING = "Preparing"
-    ON_THE_WAY = "On-the-Way"
-    DELIVERED = "Delivered"
-    CANCELLED = "Cancelled"
-    RETURNED = "Returned"
 
 
 class User(BaseAuditModel):
