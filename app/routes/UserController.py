@@ -81,7 +81,6 @@ async def get_profile(current_user: User = Depends(get_active_user)):
     return current_user
 
 
-
 @routerUser.delete("/")
 async def deactivate_my_account(current_user: User = Depends(get_active_user)):
     """Deactivate the authenticated user's account."""
