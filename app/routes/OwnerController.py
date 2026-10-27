@@ -2,14 +2,17 @@
 This module provides CRUD operations for owners.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from tortoise.exceptions import IntegrityError
 
+from app.dependency.dependency import get_active_user
 from app.models import Owner
 from app.schemas import OwnerCreate, OwnerResponse, OwnerUpdate
 from constants import OWNER_ERRORS
 
-router = APIRouter(prefix="/owners", tags=["Owners"])
+router = APIRouter(
+    prefix="/owners", tags=["Owners"], dependencies=[Depends(get_active_user)]
+)
 
 
 @router.post(
