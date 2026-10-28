@@ -1,9 +1,6 @@
 """Define Pydantic schemas for user creation, updates, login, and responses."""
 
-from datetime import datetime
-from decimal import Decimal
-
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserCreate(BaseModel):
@@ -12,6 +9,7 @@ class UserCreate(BaseModel):
     username: str = Field(min_length=5, max_length=20)
     password: str = Field(min_length=5, max_length=15)
     email: EmailStr
+
 
 class UserLogin(BaseModel):
     """Validate the credentials submitted when a user logs in."""

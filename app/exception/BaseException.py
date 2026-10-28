@@ -1,5 +1,6 @@
 class CustomBaseException(Exception):
     """Base class for all custom application errors with default fallbacks."""
+
     status_code: int = 500
     detail: str = "An unexpected server error occurred."
 
@@ -8,5 +9,5 @@ class CustomBaseException(Exception):
             self.status_code = status_code
         if detail is not None:
             self.detail = detail
-            
+
         super().__init__(self.detail)

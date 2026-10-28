@@ -14,17 +14,13 @@ AuthErrors = namedtuple(
         "user_inactive",
         "invalid_token",
         "exception",
-        "not_active"
+        "not_active",
     ],
 )
 
 AuthSuccess = namedtuple(
     "AuthSuccess",
-    [
-        "registered",
-        "reactivated",
-        "logged_out"
-    ],
+    ["registered", "reactivated", "logged_out"],
 )
 
 GeneralMessages = namedtuple(
@@ -35,7 +31,7 @@ GeneralMessages = namedtuple(
 AUTH_SUCCESS = AuthSuccess(
     registered="Successfully Registered",
     reactivated="Reactivated Successfully",
-    logged_out="Logged out Successfully"
+    logged_out="Logged out Successfully",
 )
 
 GENERAL = GeneralMessages(
@@ -45,7 +41,7 @@ GENERAL = GeneralMessages(
     access_token="access_token",
 )
 
-AUTH_ERRORS=AuthErrors(
+AUTH_ERRORS = AuthErrors(
     registered_email="Email already registered",
     invalid_token="Token is eighter invalid or missing",
     invalid_credentials="Credentials are wrong",
@@ -54,5 +50,5 @@ AUTH_ERRORS=AuthErrors(
     user_inactive="User is inacive",
     exception="Exception :{}",
     not_active="User provided is Inactive please try to reactivate the User",
-    invalid_password="Password provided is invalid"
+    invalid_password="Password provided is invalid",
 )

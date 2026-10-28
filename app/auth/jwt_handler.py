@@ -36,9 +36,7 @@ class TokenPayload(BaseModel):
         return datetime.datetime.now(datetime.UTC).timestamp() > self.exp
 
 
-def create_access_token(
-    user_id: int, is_admin: bool
-) -> str:
+def create_access_token(user_id: int, is_admin: bool) -> str:
     """Generates a short-lived access token for general API authorization."""
     iat = datetime.datetime.now(datetime.UTC)
     expire = iat + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -53,9 +51,7 @@ def create_access_token(
     return jwt.encode(payload, headers=header, key=SECRET_KEY, algorithm=ALGORITHM)
 
 
-def create_refresh_token(
-    user_id: int, is_admin: bool
-) -> tuple[str, str]:
+def create_refresh_token(user_id: int, is_admin: bool) -> tuple[str, str]:
     """Generate a refresh token and its unique identifier."""
     token_uuid = str(uuid.uuid4())
     expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(

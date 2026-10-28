@@ -7,22 +7,24 @@ It handles user signup, login, refresh-token validation, and logout.
 from tortoise.exceptions import IntegrityError
 
 from app.auth import jwt_handler
+from app.exception.AuthException import (
+    AccountInactiveError,
+    InvalidPasswordError,
+    InvalidTokenError,
+    RegistrationError,
+    SessionNotFoundError,
+    UserNotFoundError,
+)
 from app.models import Token, User
 from app.schemas.token import TokenResponse
-from constants import  GENERAL, AUTH_SUCCESS, AUTH_ERRORS
-from app.schemas.user import UserLogin, UserCreate
-from app.util import verify_password, hash_password
+from app.schemas.user import UserCreate, UserLogin
+from app.util import hash_password, verify_password
+from constants import AUTH_ERRORS, AUTH_SUCCESS, GENERAL
 
-from app.exception.AuthException import (
-    UserNotFoundError,
-    InvalidPasswordError,
-    AccountInactiveError,
-    InvalidTokenError,
-    SessionNotFoundError,
-    RegistrationError
-)
+
 class AuthService:
     """Provide business logic for authentication operations."""
+
     @staticmethod
     async def signup(user_data: UserCreate) -> TokenResponse:
         """
@@ -30,18 +32,18 @@ class AuthService:
 
         Args:
                 user_data: Validated signup credentials.
-        
+
         Returns:
                 Access token and refresh-token UUID.
-        
+
         Raises:
                 RegistrationError: If the email already exists.
         """
         email_clean = user_data.email.lower()
-        
+
         existing_user = await User.filter(email=email_clean).first()
         if existing_user:
-            raise RegistrationError(error = AUTH_ERRORS.registered_email)
+            raise RegistrationError(error=AUTH_ERRORS.registered_email)
 
         user_dump = user_data.model_dump()
         user_dump["email"] = email_clean
@@ -51,8 +53,7 @@ class AuthService:
         except IntegrityError as exc:
             raise RegistrationError() from exc
         return await AuthService._generate_tokens(
-            user=created_user,
-            is_admin=created_user.is_admin
+            user=created_user, is_admin=created_user.is_admin
         )
 
     @staticmethod
@@ -74,9 +75,9 @@ class AuthService:
         email = user_data.email.lower()
         existing_user = await User.filter(email=email).first()
         if not existing_user:
-            raise UserNotFoundError()   
+            raise UserNotFoundError()
         if not verify_password(user_data.password, existing_user.password):
-            raise InvalidPasswordError()    
+            raise InvalidPasswordError()
         if not existing_user.is_active:
             raise AccountInactiveError()
         return await AuthService._generate_tokens(
@@ -92,7 +93,9 @@ class AuthService:
         existing_token = await Token.filter(uuid=auth_uuid).first()
         if not existing_token or existing_token.revoked_at is not None:
             raise InvalidTokenError()
-        payload = jwt_handler.decode_and_verify_token(existing_token.token, expected_type="refresh")
+        payload = jwt_handler.decode_and_verify_token(
+            existing_token.token, expected_type="refresh"
+        )
         if not payload:
             raise InvalidTokenError()
         user = await User.filter(id=existing_token.user_id).first()
@@ -111,7 +114,7 @@ class AuthService:
         """
         deleted_count = await Token.filter(uuid=auth_uuid).delete()
         if deleted_count == 0:
-            raise SessionNotFoundError()  
+            raise SessionNotFoundError()
         return {"detail": AUTH_SUCCESS.logged_out}
 
     @staticmethod
@@ -122,15 +125,14 @@ class AuthService:
         email = user_data.email.lower()
         existing_user = await User.filter(email=email).first()
         if not existing_user:
-            raise UserNotFoundError()  
+            raise UserNotFoundError()
         if not verify_password(user_data.password, existing_user.password):
             raise InvalidPasswordError()
         if not existing_user.is_active:
             existing_user.is_active = True
             await existing_user.save(update_fields=["is_active"])
         return await AuthService._generate_tokens(
-            user=existing_user,
-            is_admin=existing_user.is_admin
+            user=existing_user, is_admin=existing_user.is_admin
         )
 
     @staticmethod
