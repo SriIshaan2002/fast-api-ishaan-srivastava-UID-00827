@@ -7,55 +7,56 @@ It handles user signup, login, refresh-token validation, and logout.
 from tortoise.exceptions import IntegrityError
 
 from app.auth import jwt_handler
-from app.models import Owner, Token, User
+from app.models import Token, User
 from app.schemas.token import TokenResponse
-from constants import AUTH_ERRORS, GENERAL
+from constants import  GENERAL, AUTH_SUCCESS, AUTH_ERRORS
+from app.schemas.user import UserLogin, UserCreate
+from app.util import verify_password, hash_password
 
-
-class AuthServiceError(Exception):
-    """Represent an authentication-related service error."""
-
-    def __init__(self, status_code: int, detail: str):
-        """Initialize the error with an HTTP status code and detail."""
-        self.status_code = status_code
-        self.detail = detail
-        super().__init__(detail)
-
-
+from app.exception.AuthException import (
+    UserNotFoundError,
+    InvalidPasswordError,
+    AccountInactiveError,
+    InvalidTokenError,
+    SessionNotFoundError,
+    RegistrationError
+)
 class AuthService:
     """Provide business logic for authentication operations."""
-
     @staticmethod
-    async def signup(user_data) -> TokenResponse:
+    async def signup(user_data: UserCreate) -> TokenResponse:
         """
-        Register a new user or reactivate a soft-deleted account.
+        Register a new user account.
+
+        Args:
+                user_data: Validated signup credentials.
+        
+        Returns:
+                Access token and refresh-token UUID.
+        
+        Raises:
+                RegistrationError: If the email already exists.
         """
-        user_data.email = user_data.email.lower()
-        existing_user = await User.filter(email=user_data.email).first()
+        email_clean = user_data.email.lower()
+        
+        existing_user = await User.filter(email=email_clean).first()
         if existing_user:
-            if existing_user.is_active:
-                raise AuthServiceError(400, AUTH_ERRORS.registered_email)
-            update_payload = user_data.model_dump(exclude_unset=True)
-            update_payload["is_active"] = True
-            existing_user.update_from_dict(update_payload)
-            await existing_user.save()
-            return await AuthService._generate_tokens(
-                user=existing_user,
-                is_admin=existing_user.is_admin,
-                is_owner=False,
-            )
+            raise RegistrationError(error = AUTH_ERRORS.registered_email)
+
+        user_dump = user_data.model_dump()
+        user_dump["email"] = email_clean
+        user_dump["password"] = hash_password(password=user_data.password)
         try:
-            created_user = await User.create(**user_data.model_dump())
+            created_user = await User.create(**user_dump)
         except IntegrityError as exc:
-            raise AuthServiceError(400, AUTH_ERRORS.registered_email) from exc
+            raise RegistrationError() from exc
         return await AuthService._generate_tokens(
             user=created_user,
-            is_admin=created_user.is_admin,
-            is_owner=False,
+            is_admin=created_user.is_admin
         )
 
     @staticmethod
-    async def login(user_data) -> TokenResponse:
+    async def login(user_data: UserLogin) -> TokenResponse:
         """
         Authenticate a user and generate authentication tokens.
 
@@ -66,54 +67,41 @@ class AuthService:
             Access token and refresh-token UUID.
 
         Raises:
-            AuthServiceError: If the user does not exist or the
-                supplied password is invalid.
+            UserNotFoundError: If the user does not exist.
+            InvalidPasswordError: If the password matches fail.
+            AccountInactiveError: If the account is deactivated.
         """
         email = user_data.email.lower()
         existing_user = await User.filter(email=email).first()
         if not existing_user:
-            raise AuthServiceError(404, AUTH_ERRORS.user_not_found)
-        if existing_user.password != user_data.password:
-            raise AuthServiceError(401, AUTH_ERRORS.invalid_password)
+            raise UserNotFoundError()   
+        if not verify_password(user_data.password, existing_user.password):
+            raise InvalidPasswordError()    
         if not existing_user.is_active:
-            raise AuthServiceError(403, AUTH_ERRORS.user_not_found)
-        is_owner = await Owner.filter(user_id=existing_user.id).exists()
+            raise AccountInactiveError()
         return await AuthService._generate_tokens(
             user=existing_user,
             is_admin=existing_user.is_admin,
-            is_owner=is_owner,
         )
 
     @staticmethod
     async def refresh(auth_uuid: str) -> dict:
         """
         Validate a refresh token and generate a new access token.
-
-        Args:
-            auth_uuid: UUID identifying the stored refresh token.
-
-        Returns:
-            A dictionary containing the new access token.
-
-        Raises:
-            AuthServiceError: If the refresh token is invalid or
-                its associated user is unavailable.
         """
         existing_token = await Token.filter(uuid=auth_uuid).first()
         if not existing_token or existing_token.revoked_at is not None:
-            raise AuthServiceError(401, AUTH_ERRORS.invalid_token)
+            raise InvalidTokenError()
         payload = jwt_handler.decode_and_verify_token(existing_token.token)
         if not payload:
-            raise AuthServiceError(401, AUTH_ERRORS.invalid_token)
+            raise InvalidTokenError()
         user = await User.filter(id=existing_token.user_id).first()
         if not user or not user.is_active:
-            raise AuthServiceError(401, AUTH_ERRORS.user_inactive)
-        is_owner = await Owner.filter(user_id=user.id).exists()
+            raise InvalidTokenError(detail=AUTH_ERRORS.user_inactive)
         access_token = jwt_handler.create_access_token(
             user_id=user.id,
             username=user.username,
             is_admin=user.is_admin,
-            is_owner=is_owner,
         )
         return {GENERAL.access_token: access_token}
 
@@ -121,49 +109,45 @@ class AuthService:
     async def logout(auth_uuid: str) -> dict:
         """
         Invalidate a stored refresh-token session.
-        Args:
-            auth_uuid: UUID identifying the stored refresh token.
-
-        Returns:
-            A message confirming logout.
-
-        Raises:
-            AuthServiceError: If the session does not exist.
         """
         deleted_count = await Token.filter(uuid=auth_uuid).delete()
         if deleted_count == 0:
-            raise AuthServiceError(
-                404,
-                "Session already logged out or invalid UUID.",
-            )
-        return {"detail": AUTH_ERRORS.user_inactive}
+            raise SessionNotFoundError()  
+        return {"detail": AUTH_SUCCESS.logged_out}
 
     @staticmethod
-    async def _generate_tokens(
-        user: User, is_admin: bool, is_owner: bool
-    ) -> TokenResponse:
+    async def reactivate(user_data: UserLogin) -> TokenResponse:
+        """
+        Reactivate a soft-deleted account and return authentication tokens.
+        """
+        email = user_data.email.lower()
+        existing_user = await User.filter(email=email).first()
+        if not existing_user:
+            raise UserNotFoundError()  
+        if not verify_password(user_data.password, existing_user.password):
+            raise InvalidPasswordError()
+        if not existing_user.is_active:
+            existing_user.is_active = True
+            await existing_user.save(update_fields=["is_active"])
+        return await AuthService._generate_tokens(
+            user=existing_user,
+            is_admin=existing_user.is_admin
+        )
+
+    @staticmethod
+    async def _generate_tokens(user: User, is_admin: bool) -> TokenResponse:
         """
         Generate and persist authentication tokens for a user.
-
-        Args:
-            user: User for whom the tokens are generated.
-            is_admin: Whether the user has administrator privileges.
-            is_owner: Whether the user is a restaurant owner.
-
-        Returns:
-            Access token and refresh-token UUID.
         """
         access_token = jwt_handler.create_access_token(
             user_id=user.id,
             username=user.username,
             is_admin=is_admin,
-            is_owner=is_owner,
         )
         refresh_token, token_uuid = jwt_handler.create_refresh_token(
             user_id=user.id,
             username=user.username,
             is_admin=is_admin,
-            is_owner=is_owner,
         )
         await Token.create(
             user_id=user.id,

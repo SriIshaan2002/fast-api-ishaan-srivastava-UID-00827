@@ -45,6 +45,7 @@ pydantic = "*"
 tortoise-orm = "*"
 asyncpg = "*"
 aerich = "*"
+bcrypt = "==4.2.0"
 
 [dev-packages]
 pytest = "==8.3.4"

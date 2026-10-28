@@ -24,9 +24,7 @@ class TokenPayload(BaseModel):
     """Represent and validate the payload contained in a JWT."""
 
     user_id: int
-    username: str
     is_admin: bool = False
-    is_owner: bool = False
     iat: int = Field(
         default_factory=lambda: int(datetime.datetime.now(datetime.UTC).timestamp())
     )
@@ -39,7 +37,7 @@ class TokenPayload(BaseModel):
 
 
 def create_access_token(
-    user_id: int, username: str, is_admin: bool, is_owner: bool
+    user_id: int, is_admin: bool
 ) -> str:
     """Generates a short-lived access token for general API authorization."""
     iat = datetime.datetime.now(datetime.UTC)
@@ -47,9 +45,7 @@ def create_access_token(
     header = {"alg": ALGORITHM, "typ": "JWT"}
     payload = {
         "user_id": user_id,
-        "username": username,
         "is_admin": is_admin,
-        "is_owner": is_owner,
         "iat": int(iat.timestamp()),
         "exp": int(expire.timestamp()),
         "type": "access",
@@ -58,7 +54,7 @@ def create_access_token(
 
 
 def create_refresh_token(
-    user_id: int, username: str, is_admin: bool, is_owner: bool
+    user_id: int, is_admin: bool
 ) -> tuple[str, str]:
     """Generate a refresh token and its unique identifier."""
     token_uuid = str(uuid.uuid4())
@@ -67,9 +63,7 @@ def create_refresh_token(
     )
     payload = {
         "user_id": user_id,
-        "username": username,
         "is_admin": is_admin,
-        "is_owner": is_owner,
         "jti": token_uuid,
         "exp": int(expire.timestamp()),
         "type": "refresh",
