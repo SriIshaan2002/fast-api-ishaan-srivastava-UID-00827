@@ -19,7 +19,7 @@ class AddressService:
             user_id=user_id,
             **data.model_dump(),
         )
-    
+
     @staticmethod
     async def get_all_addresses(user_id: int) -> list[Address]:
         """Retrieve active addresses belonging to the authenticated user."""
