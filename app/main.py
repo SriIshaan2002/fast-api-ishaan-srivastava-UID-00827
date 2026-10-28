@@ -9,6 +9,8 @@ from app.controller.OwnerController import router as ownerRouter
 from app.controller.UserController import routerAdmin, routerUser
 from app.middleware.auth import unified_auth_middleware
 from constants import GENERAL
+from app.routes.RestrauntController import restaurant_router
+from app.exception_handler.global_exception_handler import global_handler
 
 app = FastAPI(title="My First FastAPI Template")
 
@@ -19,8 +21,9 @@ app.include_router(routerUser)
 app.include_router(routerAdmin)
 app.include_router(addressRouter)
 app.include_router(ownerRouter)
-# Plug in the user routes under the "/api" prefix
-# app.include_router(user_router, prefix="/api")
+app.include_router(restaurant_router)
+
+global_handler(app=app)
 
 register_tortoise(
     app,
