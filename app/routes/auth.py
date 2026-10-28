@@ -6,7 +6,6 @@ The routes handle user creation, login, and token generation.
 
 from fastapi import APIRouter, HTTPException, status
 
-import constants as const
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService, AuthServiceError

@@ -7,10 +7,6 @@ from enums import OrderStatus
 from enums import Tables as tab
 
 
-class BaseAuditModel(models.Model):
-    """Abstract interface enforcing tracking parameters on subordinate tables."""
-
-
 class BaseModel(models.Model):
     """Provide a primary key for database models."""
 
@@ -24,7 +20,7 @@ class TimestampModel(BaseModel):
     """Provide creation and modification timestamps."""
 
     created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -73,7 +69,6 @@ class User(ActiveModel):
 
 
 class Token(BaseModel):
-
     """Store refresh-token records associated with user accounts."""
 
     user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
@@ -103,10 +98,10 @@ class Address(AuditModel):
     house: str = fields.CharField(max_length=50)
     zip: str = fields.CharField(max_length=10)
     nearby_location: str | None = fields.CharField(max_length=100, null=True)
-    long: "Decimal" | None = fields.DecimalField(
+    long: Decimal | None = fields.DecimalField(
         max_digits=11, decimal_places=8, null=True
     )
-    lat: "Decimal" | None = fields.DecimalField(
+    lat: Decimal | None = fields.DecimalField(
         max_digits=10, decimal_places=8, null=True
     )
 
@@ -151,7 +146,7 @@ class Item(AuditModel):
     quantity: int = fields.IntField(default=0)
     is_veg: bool = fields.BooleanField()
     description: str | None = fields.CharField(max_length=500, null=True)
-    price: "Decimal" = fields.DecimalField(max_digits=10, decimal_places=3)
+    price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
 
     class Meta:
         table = tab.ITEM.value

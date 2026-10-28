@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 import settings
-from constants import GENERAL
 from app.routes.auth import authRouter
+from constants import GENERAL
 
 app = FastAPI(title="My First FastAPI Template")
 
