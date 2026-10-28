@@ -24,13 +24,7 @@ class TokenPayload(BaseModel):
     """Represent and validate the payload contained in a JWT."""
 
     user_id: int
-<<<<<<< HEAD
     is_admin: bool = False
-=======
-    username: str
-    is_admin: bool = False
-    is_owner: bool = False
->>>>>>> a421c394dedd5ae8eb1a15eb06de0fe63d95c670
     iat: int = Field(
         default_factory=lambda: int(datetime.datetime.now(datetime.UTC).timestamp())
     )
@@ -43,11 +37,7 @@ class TokenPayload(BaseModel):
 
 
 def create_access_token(
-<<<<<<< HEAD
     user_id: int, is_admin: bool
-=======
-    user_id: int, username: str, is_admin: bool, is_owner: bool
->>>>>>> a421c394dedd5ae8eb1a15eb06de0fe63d95c670
 ) -> str:
     """Generates a short-lived access token for general API authorization."""
     iat = datetime.datetime.now(datetime.UTC)
@@ -55,13 +45,7 @@ def create_access_token(
     header = {"alg": ALGORITHM, "typ": "JWT"}
     payload = {
         "user_id": user_id,
-<<<<<<< HEAD
         "is_admin": is_admin,
-=======
-        "username": username,
-        "is_admin": is_admin,
-        "is_owner": is_owner,
->>>>>>> a421c394dedd5ae8eb1a15eb06de0fe63d95c670
         "iat": int(iat.timestamp()),
         "exp": int(expire.timestamp()),
         "type": "access",
@@ -70,26 +54,17 @@ def create_access_token(
 
 
 def create_refresh_token(
-<<<<<<< HEAD
     user_id: int, is_admin: bool
-=======
-    user_id: int, username: str, is_admin: bool, is_owner: bool
->>>>>>> a421c394dedd5ae8eb1a15eb06de0fe63d95c670
 ) -> tuple[str, str]:
     """Generate a refresh token and its unique identifier."""
     token_uuid = str(uuid.uuid4())
     expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
         days=REFRESH_TOKEN_EXPIRE_DAYS
     )
+    print("Expiration :")
     payload = {
         "user_id": user_id,
-<<<<<<< HEAD
         "is_admin": is_admin,
-=======
-        "username": username,
-        "is_admin": is_admin,
-        "is_owner": is_owner,
->>>>>>> a421c394dedd5ae8eb1a15eb06de0fe63d95c670
         "jti": token_uuid,
         "exp": int(expire.timestamp()),
         "type": "refresh",
@@ -104,10 +79,6 @@ def create_refresh_token(
 def decode_and_verify_token(token: str, expected_type: str = "access") -> TokenPayload:
     """Decode and validate a JWT and check its expected token type."""
     try:
-<<<<<<< HEAD
-        print("Token:",token)
-=======
->>>>>>> a421c394dedd5ae8eb1a15eb06de0fe63d95c670
         raw_payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         payload_data = TokenPayload(**raw_payload)
         if payload_data.type != expected_type:
