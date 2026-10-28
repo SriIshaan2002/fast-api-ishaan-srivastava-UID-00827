@@ -10,8 +10,10 @@ class Tables(str, Enum):
     TOKEN = "token"
     USER = "user"
 
+
 class OrderStatus(str, Enum):
     """Represent the possible statuses of a restaurant order."""
+
     PENDING = "Pending"
     CONFIRMED = "Confirmed"
     PREPARING = "Preparing"
