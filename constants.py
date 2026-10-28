@@ -35,10 +35,9 @@ Success = namedtuple(
     "Success",
     ["Deleted"]
 )
+Success = namedtuple("Success", ["Deleted"])
 
-SUCCESS_MESSAGES = Success(
-    Deleted="User Deleted Successfully"
-)
+SUCCESS_MESSAGES = Success(Deleted="User Deleted Successfully")
 
 AuthSuccess = namedtuple(
     "AuthSuccess",
