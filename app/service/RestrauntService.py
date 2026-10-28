@@ -51,7 +51,6 @@ async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> 
             detail="You are not authorized to manage this restaurant.",
         )
 
-
 async def create_restaurant(
     payload: RestrauntCreate,
     current_user: User,
@@ -90,7 +89,6 @@ async def create_restaurant(
         ) from exc
     return restaurant_to_dict(restaurant)
 
-
 async def get_restaurants() -> list[dict]:
     """Return all active restaurants."""
 
@@ -98,7 +96,6 @@ async def get_restaurants() -> list[dict]:
         is_active=True,
     ).order_by("id")
     return [restaurant_to_dict(restaurant) for restaurant in restaurants]
-
 
 async def get_restaurant(restaurant_id: int) -> dict:
     """Fetch an active restaurant by ID."""
@@ -112,7 +109,6 @@ async def get_restaurant(restaurant_id: int) -> dict:
             detail="Restaurant not found.",
         )
     return restaurant_to_dict(restaurant)
-
 
 async def update_restaurant(
     restaurant_id: int,
@@ -160,7 +156,6 @@ async def update_restaurant(
             detail="A restaurant with this name already exists.",
         ) from exc
     return restaurant_to_dict(restaurant)
-
 
 async def delete_restaurant(
     restaurant_id: int,

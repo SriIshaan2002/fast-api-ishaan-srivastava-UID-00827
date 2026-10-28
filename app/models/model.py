@@ -19,35 +19,26 @@ class BaseModel(models.Model):
 
 class TimestampModel(BaseModel):
     """Provide creation and modification timestamps."""
-
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
-
     class Meta:
         abstract = True
-
 
 class ActiveModel(TimestampModel):
     """Provide timestamps and an active-status flag."""
-
     is_active: bool = fields.BooleanField(default=True)
-
     class Meta:
         abstract = True
 
-
 class AuditModel(ActiveModel):
     """Provide active status, timestamps, and modifier tracking."""
-
     updated_by: fields.ForeignKeyNullableRelation["User"] = fields.ForeignKeyField(
         "models.User",
         null=True,
         on_delete=fields.SET_NULL,
     )
-
     class Meta:
         abstract = True
-
 
 class User(ActiveModel):
     """Represent a user account with profile, balance, and account status."""
