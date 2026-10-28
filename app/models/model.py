@@ -53,7 +53,7 @@ class User(ActiveModel):
     """Represent a user account with profile, balance, and account status."""
 
     username: str = fields.CharField(max_length=20)
-    mobile: str = fields.CharField(max_length=13, unique=True)
+    mobile: str = fields.CharField(max_length=13)
     email: str = fields.CharField(max_length=254, unique=True)
     password: str = fields.CharField(max_length=255)
     balance: "Decimal" = fields.DecimalField(max_digits=10, decimal_places=3, default=0)
