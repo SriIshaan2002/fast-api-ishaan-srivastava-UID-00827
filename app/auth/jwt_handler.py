@@ -11,7 +11,7 @@ import uuid
 import jwt
 from pydantic import BaseModel, Field
 
-import constants as const
+from constants import AUTH_ERRORS
 from db_config import jwt_config
 
 SECRET_KEY = jwt_config.secret_key
@@ -26,6 +26,7 @@ class TokenPayload(BaseModel):
     user_id: int
     username: str
     is_admin: bool = False
+    is_owner: bool = False
     iat: int = Field(
         default_factory=lambda: int(datetime.datetime.now(datetime.UTC).timestamp())
     )
@@ -86,9 +87,9 @@ def decode_and_verify_token(token: str, expected_type: str = "access") -> TokenP
         raw_payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         payload_data = TokenPayload(**raw_payload)
         if payload_data.type != expected_type:
-            raise jwt.InvalidTokenError(const.INVALID_TOKEN)
+            raise jwt.InvalidTokenError(AUTH_ERRORS.invalid_token)
         return payload_data
     except jwt.ExpiredSignatureError:
-        raise jwt.ExpiredSignatureError(const.INVALID_TOKEN)
+        raise jwt.ExpiredSignatureError(AUTH_ERRORS.invalid_token)
     except (jwt.InvalidTokenError, Exception) as e:
-        raise jwt.InvalidTokenError(const.EXCEPTION.format(str(e)))
+        raise jwt.InvalidTokenError(AUTH_ERRORS.exception.format(str(e)))
