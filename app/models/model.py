@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 from decimal import Decimal
 
 from tortoise import fields, models
@@ -6,9 +6,6 @@ from tortoise import fields, models
 from enums import OrderStatus
 from enums import Tables as tab
 
-
-class BaseAuditModel(models.Model):
-    """Abstract interface enforcing tracking parameters on subordinate tables."""
 
 
 class BaseModel(models.Model):
@@ -24,7 +21,7 @@ class TimestampModel(BaseModel):
     """Provide creation and modification timestamps."""
 
     created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(null=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -80,7 +77,7 @@ class Token(BaseModel):
         related_name="tokens",
         on_delete=fields.CASCADE,
     )
-    uuid: "uuid.UUID" = fields.UUIDField(unique=True)
+    uuid: UUID = fields.UUIDField(unique=True)
     token: str = fields.CharField(max_length=500)
     created_at = fields.DatetimeField(auto_now_add=True)
     revoked_at = fields.DatetimeField(null=True)
@@ -102,10 +99,10 @@ class Address(AuditModel):
     house: str = fields.CharField(max_length=50)
     zip: str = fields.CharField(max_length=10)
     nearby_location: str | None = fields.CharField(max_length=100, null=True)
-    long: "Decimal" | None = fields.DecimalField(
+    long: Decimal | None = fields.DecimalField(
         max_digits=11, decimal_places=8, null=True
     )
-    lat: "Decimal" | None = fields.DecimalField(
+    lat: Decimal | None = fields.DecimalField(
         max_digits=10, decimal_places=8, null=True
     )
 
@@ -150,7 +147,7 @@ class Item(AuditModel):
     quantity: int = fields.IntField(default=0)
     is_veg: bool = fields.BooleanField()
     description: str | None = fields.CharField(max_length=500, null=True)
-    price: "Decimal" = fields.DecimalField(max_digits=10, decimal_places=3)
+    price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
 
     class Meta:
         table = tab.ITEM.value
@@ -168,12 +165,6 @@ class Order(AuditModel):
         "models.Restraunt",
         related_name="restraunt_orders",
         on_delete=fields.RESTRICT,
-    )
-    created_by: fields.ForeignKeyNullableRelation[User] = fields.ForeignKeyField(
-        "models.User",
-        related_name="created_orders",
-        null=True,
-        on_delete=fields.SET_NULL,
     )
     delivery_location: fields.ForeignKeyNullableRelation[Address] = (
         fields.ForeignKeyField(
@@ -206,7 +197,7 @@ class OrderItem(BaseModel):
     is_veg: bool = fields.BooleanField(default=True)
     quantity: int = fields.IntField()
     discount: int = fields.IntField(default=0)
-    price: "Decimal" = fields.DecimalField(max_digits=10, decimal_places=3)
+    price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
     is_active: bool = fields.BooleanField(default=True)
 
     class Meta:

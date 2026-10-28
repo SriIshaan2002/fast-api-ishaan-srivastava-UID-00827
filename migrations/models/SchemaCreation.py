@@ -18,7 +18,7 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
     "is_admin" BOOL NOT NULL,
     "updated_by_id" INT REFERENCES "user" ("id") ON DELETE SET NULL
 );
-COMMENT ON TABLE "user" IS 'Represent a user account with profile, balance, and account status.';
+COMMENT ON TABLE "user" IS 'ReprFowneresent a user account with profile, balance, and account status.';
 CREATE TABLE IF NOT EXISTS "address" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL,
