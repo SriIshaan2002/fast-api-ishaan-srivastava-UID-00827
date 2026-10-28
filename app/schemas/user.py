@@ -1,6 +1,8 @@
 """Define Pydantic schemas for user creation, updates, login, and responses."""
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from decimal import Decimal
+from datetime import datetime
 
 
 
