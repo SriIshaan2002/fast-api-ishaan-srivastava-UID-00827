@@ -31,7 +31,7 @@ async def login(user: UserLogin):
     try:
         return await AuthService.login(user)
     except CustomBaseException as e:
-        raise e
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 @authRouter.post("/refresh")
 async def refresh(auth_uuid: str):
@@ -41,7 +41,7 @@ async def refresh(auth_uuid: str):
     try:
         return await AuthService.refresh(auth_uuid)
     except CustomBaseException as e:
-        raise e
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 @authRouter.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(auth_uuid: str):
@@ -52,7 +52,7 @@ async def logout(auth_uuid: str):
     try:
         return await AuthService.logout(auth_uuid=auth_uuid)
     except CustomBaseException as e:
-        raise e
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 @authRouter.post("/reactivate", status_code=status.HTTP_200_OK, response_model=TokenResponse)
 async def reactivate(user: UserLogin):
@@ -62,4 +62,4 @@ async def reactivate(user: UserLogin):
     try:
         return await AuthService.reactivate(user)
     except CustomBaseException as e:
-        raise e
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
