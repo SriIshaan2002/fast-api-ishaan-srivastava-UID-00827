@@ -4,12 +4,20 @@ from fastapi import APIRouter, Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
-from app.schemas import RestrauntCreate, RestrauntResponse, RestrauntResponse
+from app.schemas import RestrauntCreate, RestrauntResponse
 from app.service.RestrauntService import (
     create_restaurant as create_restaurant_service,
+)
+from app.service.RestrauntService import (
     delete_restaurant as delete_restaurant_service,
+)
+from app.service.RestrauntService import (
     get_restaurant as get_restaurant_service,
+)
+from app.service.RestrauntService import (
     get_restaurants as get_restaurants_service,
+)
+from app.service.RestrauntService import (
     update_restaurant as update_restaurant_service,
 )
 

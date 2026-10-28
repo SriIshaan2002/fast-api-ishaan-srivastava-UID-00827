@@ -10,7 +10,7 @@ from app.controller.UserController import routerAdmin, routerUser
 from app.middleware.auth import unified_auth_middleware
 from constants import GENERAL
 from app.routes.RestrauntController import restaurant_router
-from app.exception_handler.global_exception_handler import global_handler
+from constants import GENERAL
 
 app = FastAPI(title="My First FastAPI Template")
 
