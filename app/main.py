@@ -1,7 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
-from constants import GENERAL
 
 import settings
 from app.middleware.auth import unified_auth_middleware
