@@ -78,6 +78,7 @@ def create_refresh_token(
 def decode_and_verify_token(token: str, expected_type: str = "access") -> TokenPayload:
     """Decode and validate a JWT and check its expected token type."""
     try:
+        print("Token:",token)
         raw_payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         payload_data = TokenPayload(**raw_payload)
         if payload_data.type != expected_type:

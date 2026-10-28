@@ -92,7 +92,7 @@ class AuthService:
         existing_token = await Token.filter(uuid=auth_uuid).first()
         if not existing_token or existing_token.revoked_at is not None:
             raise InvalidTokenError()
-        payload = jwt_handler.decode_and_verify_token(existing_token.token)
+        payload = jwt_handler.decode_and_verify_token(existing_token.token, expected_type="refresh")
         if not payload:
             raise InvalidTokenError()
         user = await User.filter(id=existing_token.user_id).first()
@@ -100,7 +100,6 @@ class AuthService:
             raise InvalidTokenError(detail=AUTH_ERRORS.user_inactive)
         access_token = jwt_handler.create_access_token(
             user_id=user.id,
-            username=user.username,
             is_admin=user.is_admin,
         )
         return {GENERAL.access_token: access_token}
@@ -141,12 +140,10 @@ class AuthService:
         """
         access_token = jwt_handler.create_access_token(
             user_id=user.id,
-            username=user.username,
             is_admin=is_admin,
         )
         refresh_token, token_uuid = jwt_handler.create_refresh_token(
             user_id=user.id,
-            username=user.username,
             is_admin=is_admin,
         )
         await Token.create(
