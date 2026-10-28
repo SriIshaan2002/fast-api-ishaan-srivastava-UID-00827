@@ -9,7 +9,7 @@ from app.dependency.dependency import get_active_user
 from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from app.service.UserService import UserService
-from fastapi import APIRouter, HTTPException
+
 
 async def require_admin(current_user: User = Depends(get_active_user)) -> User:
     """Allow access only to authenticated administrators."""
