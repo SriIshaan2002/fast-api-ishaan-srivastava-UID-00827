@@ -7,7 +7,6 @@ from enums import OrderStatus
 from enums import Tables as tab
 
 
-
 class BaseModel(models.Model):
     """Provide a primary key for database models."""
 
@@ -70,7 +69,6 @@ class User(ActiveModel):
 
 
 class Token(BaseModel):
-
     """Store refresh-token records associated with user accounts."""
 
     user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
