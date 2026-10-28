@@ -1,10 +1,12 @@
 from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 from tortoise.transactions import in_transaction
+
 from app.models import Address, Owner, Restraunt, User
-from app.schemas import RestrauntCreate, RestrauntResponse, RestrauntResponse
-from app.service.AddressService import AddressService
+from app.schemas import RestrauntCreate, RestrauntResponse
 from app.schemas.address import AddressCreate
+from app.service.AddressService import AddressService
+
 
 def restaurant_to_dict(restaurant: Restraunt) -> dict:
     """Convert a restaurant model into a response-compatible dictionary."""
@@ -19,20 +21,22 @@ def restaurant_to_dict(restaurant: Restraunt) -> dict:
         "updated_at": restaurant.updated_at,
     }
 
+
 async def get_active_address(address_id: int) -> Address:
     """Fetch an active address by ID."""
     try:
-        address = await Address.filter(id=address_id,is_active=True).first()
+        address = await Address.filter(id=address_id, is_active=True).first()
     except Exception as e:
         raise e
     if address is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Address not found or inactive.",)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Address not found or inactive.",
+        )
     return address
 
-async def check_restaurant_access(
-    restaurant: Restraunt,
-    current_user: User
-) -> None:
+
+async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
     """Verify that the user is an administrator or restaurant owner."""
     if current_user.is_admin:
         return
@@ -47,6 +51,7 @@ async def check_restaurant_access(
             detail="You are not authorized to manage this restaurant.",
         )
 
+
 async def create_restaurant(
     payload: RestrauntCreate,
     current_user: User,
@@ -56,20 +61,23 @@ async def create_restaurant(
     try:
         async with in_transaction():
             address = await AddressService.create_address(
-                data = AddressCreate(address_line=payload.street,
-                city = payload.city,
-                postal_code= payload.zip,
-                state=payload.state,
-                country=payload.country,
-                house= payload.house
-                )
-                ,user_id=current_user.id)
+                data=AddressCreate(
+                    address_line=payload.street,
+                    city=payload.city,
+                    postal_code=payload.zip,
+                    state=payload.state,
+                    country=payload.country,
+                    house=payload.house,
+                ),
+                user_id=current_user.id,
+            )
             restaurant = await Restraunt.create(
                 restaurant_name=payload.restaurant_name,
                 location_id=address,
                 created_by=current_user,
                 updated_by=current_user,
-                is_closed=payload.is_closed)
+                is_closed=payload.is_closed,
+            )
             await Owner.create(
                 user=current_user,
                 restraunt=restaurant,
@@ -82,6 +90,7 @@ async def create_restaurant(
         ) from exc
     return restaurant_to_dict(restaurant)
 
+
 async def get_restaurants() -> list[dict]:
     """Return all active restaurants."""
 
@@ -89,6 +98,7 @@ async def get_restaurants() -> list[dict]:
         is_active=True,
     ).order_by("id")
     return [restaurant_to_dict(restaurant) for restaurant in restaurants]
+
 
 async def get_restaurant(restaurant_id: int) -> dict:
     """Fetch an active restaurant by ID."""
@@ -102,6 +112,7 @@ async def get_restaurant(restaurant_id: int) -> dict:
             detail="Restaurant not found.",
         )
     return restaurant_to_dict(restaurant)
+
 
 async def update_restaurant(
     restaurant_id: int,
@@ -125,10 +136,7 @@ async def update_restaurant(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Provide at least one field to update.",
         )
-    if (
-        "restaurant_name" in update_data
-        and update_data["restaurant_name"] is None
-    ):
+    if "restaurant_name" in update_data and update_data["restaurant_name"] is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Restaurant name cannot be null.",
@@ -153,23 +161,18 @@ async def update_restaurant(
         ) from exc
     return restaurant_to_dict(restaurant)
 
+
 async def delete_restaurant(
     restaurant_id: int,
     current_user: User,
 ) -> None:
     """Soft-delete an active restaurant."""
-    restaurant = await Restraunt.filter(
-        id=restaurant_id,
-        is_active=True
-    ).first()
+    restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
     if restaurant is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Restaurant not found."
+            status_code=status.HTTP_404_NOT_FOUND, detail="Restaurant not found."
         )
     await check_restaurant_access(restaurant, current_user)
     restaurant.is_active = False
     restaurant.updated_by = current_user
-    await restaurant.save(
-        update_fields=["is_active", "updated_by", "updated_at"]
-    )
+    await restaurant.save(update_fields=["is_active", "updated_by", "updated_at"])
