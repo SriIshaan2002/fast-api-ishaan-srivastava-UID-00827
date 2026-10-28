@@ -41,6 +41,15 @@ AuthSuccess = namedtuple(
     ["registered", "reactivated", "logged_out"],
 )
 
+RestaurantErrors = namedtuple(
+    "RestaurantErrors", ["not_found",
+                        "already_exists",
+                        "closed",
+                        "Input_not_satisfied",
+                        "name_not_null"
+                        ]
+)
+
 GeneralMessages = namedtuple(
     "GeneralMessages",
     ["start_message", "access_forbidden", "internal_server_error", "access_token"],
