@@ -21,4 +21,3 @@ class DatabaseConfig(BaseSettings):
 
 
 settings = DatabaseConfig()
-

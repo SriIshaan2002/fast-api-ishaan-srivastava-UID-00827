@@ -10,4 +10,3 @@ class Tables(str, Enum):
     RESTRAUNT = "restraunt"
     TOKEN = "token"
     USER = "user"
-

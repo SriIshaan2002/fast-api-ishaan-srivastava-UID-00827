@@ -15,4 +15,3 @@ GENERAL = GeneralMessages(
     internal_server_error="An unexpected error occurred",
     access_token="access_token",
 )
-
