@@ -7,7 +7,7 @@ from tortoise.exceptions import IntegrityError
 
 from app.models import Owner, Restraunt, User
 from app.schemas import OwnerCreate, OwnerResponse
-from constants import AUTH_ERRORS, OWNER_ERRORS, SUCCESS_MESSAGES
+from constants import AUTH_ERRORS, OWNER_ERRORS
 
 
 class OwnerService:

@@ -54,6 +54,7 @@ async def get_owner(owner_id: int):
     """
     return await OwnerService.get_owner(owner_id)
 
+
 @router.delete("/{owner_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_owner(owner_id: int) -> None:
     """Permanently delete an ownership
