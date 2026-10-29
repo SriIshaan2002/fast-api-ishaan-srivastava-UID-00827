@@ -10,12 +10,12 @@ from app.exception.AuthException import (
 from app.exception.BaseException import CustomBaseException
 
 __all__ = (
-    AccountInactiveError,
-    InvalidPasswordError,
-    InvalidTokenError,
-    ReactivationFailedError,
-    RegisteredEmail,
-    SessionNotFoundError,
-    UserNotFoundError,
-    CustomBaseException,
+    "AccountInactiveError",
+    "InvalidPasswordError",
+    "InvalidTokenError",
+    "ReactivationFailedError",
+    "RegisteredEmail",
+    "SessionNotFoundError",
+    "UserNotFoundError",
+    "CustomBaseException",
 )
