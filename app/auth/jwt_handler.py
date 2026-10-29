@@ -37,7 +37,15 @@ class TokenPayload(BaseModel):
 
 
 def create_access_token(user_id: int, is_admin: bool) -> str:
-    """Generates a short-lived access token for general API authorization."""
+    """Generates a short-lived access token for general API authorization.
+        Validate a refresh token and generate a new access token.
+    Args:
+        user_id : unique id of user table
+        is_admin : true/false
+
+    Returns:
+        JWT access token
+    """
     iat = datetime.datetime.now(datetime.UTC)
     expire = iat + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     header = {"alg": ALGORITHM, "typ": "JWT"}
@@ -52,7 +60,11 @@ def create_access_token(user_id: int, is_admin: bool) -> str:
 
 
 def create_refresh_token() -> tuple[str, str]:
-    """Generate a refresh token and its unique identifier."""
+    """Generate a refresh token and its unique identifier.
+        Validate a refresh token and generate a new access token.
+    Returns:
+        refresh-token UUID and expire time
+    """
     token_uuid = str(uuid.uuid4())
     expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
         days=REFRESH_TOKEN_EXPIRE_DAYS
@@ -61,13 +73,21 @@ def create_refresh_token() -> tuple[str, str]:
 
 
 def decode_and_verify_token(token: str, expected_type: str = "access") -> TokenPayload:
-    """Decode and validate a JWT and check its expected token type."""
+    """Decode and validate a JWT and check its expected token type.
+        Validate a refresh token and generate a new access token.
+    Args:
+        token : JWT token
+        expected_type : access
+    Returns:
+        Payload of the token.
+    """
     try:
-        raw_payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        payload_data = TokenPayload(**raw_payload)
-        if payload_data.type != expected_type:
-            raise jwt.InvalidTokenError(AUTH_ERRORS.invalid_token)
-        return payload_data
+        if expected_type == "access":
+            raw_payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload_data = TokenPayload(**raw_payload)
+            if payload_data.type != expected_type:
+                raise jwt.InvalidTokenError(AUTH_ERRORS.invalid_token)
+            return payload_data
     except jwt.ExpiredSignatureError:
         raise jwt.ExpiredSignatureError(AUTH_ERRORS.invalid_token)
     except (jwt.InvalidTokenError, Exception) as e:
