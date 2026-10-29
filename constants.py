@@ -72,6 +72,7 @@ EXCEPTION_MESSAGES = Exception_messages(
     authentication_failed="Authentication failed: User account not found.",
     AccountInactive="Authentication failed: This account is currently deactivated.",
     InvalidToken="Session invalid: The provided refresh token is invalid or expired.",
-    SessionNotFound="Logout failed: Session already logged out or tracking UUID is invalid.",
+    SessionNotFound="Logout failed: "
+    "Session already logged out or tracking UUID is invalid.",
     user_not_found="User not found",
 )
