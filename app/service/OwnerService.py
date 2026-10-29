@@ -63,7 +63,7 @@ class OwnerService:
             list[Owner]: A list containing
             all Owner association records.
         """
-        return await Owner.all().select_related("user", "restaurant")
+        return await Owner.all().select_related("user", "restraunt")
 
     @staticmethod
     async def get_owner(owner_id: int) -> Owner:

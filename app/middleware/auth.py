@@ -50,7 +50,7 @@ async def unified_auth_middleware(request: Request, call_next):
     try:
         payload: TokenPayload = decode_and_verify_token(x_custom_token)
         current_user = await User.get_or_none(id=payload.user_id)
-
+        
         if current_user is None or not current_user.is_active:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -68,7 +68,7 @@ async def unified_auth_middleware(request: Request, call_next):
                 content={"detail": AUTH_ERRORS.invalid_credentials},
             )
     if path.startswith("/owners"):
-        if not (payload.is_owner or payload.is_admin):
+        if not (payload.is_admin):
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={"detail": AUTH_ERRORS.invalid_credentials},
