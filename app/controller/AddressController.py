@@ -27,7 +27,16 @@ async def create_address(
     data: AddressCreate,
     current_user: CurrentUser,
 ):
-    """Create an address for the authenticated user."""
+    """Create a new address record linked to the authenticated session user.
+
+    Args:
+        data (AddressCreate): Validated Pydantic schema containing creation details.
+        current_user (CurrentUser):
+        The active authenticated User instance from dependency injection.
+
+    Returns:
+        AddressResponse: The serialized data of the newly created address.
+    """
     return await AddressService.create_address(
         data=data,
         user_id=current_user.id,
@@ -36,7 +45,17 @@ async def create_address(
 
 @router.get("/", response_model=list[AddressResponse])
 async def get_all_addresses(current_user: CurrentUser):
-    """Retrieve addresses belonging to the authenticated user."""
+    """Retrieve a list of all active addresses
+    belonging to the authenticated session user.
+
+    Args:
+        current_user (CurrentUser): The active
+        authenticated User instance from dependency injection.
+
+    Returns:
+        list[AddressResponse]: A list containing
+        serialized representations of active addresses.
+    """
     return await AddressService.get_all_addresses(
         user_id=current_user.id,
     )
@@ -47,7 +66,18 @@ async def get_address(
     address_id: int,
     current_user: CurrentUser,
 ):
-    """Retrieve one address belonging to the authenticated user."""
+    """Retrieve a single active address belonging
+      to the authenticated session user by ID.
+
+    Args:
+        address_id (int): The database primary
+        key identifier of the targeted address.
+        current_user (CurrentUser): The active
+        authenticated User instance from dependency injection.
+
+    Returns:
+        AddressResponse: The serialized entry of the requested address.
+    """
     return await AddressService.get_address(
         address_id=address_id,
         user_id=current_user.id,
@@ -60,7 +90,21 @@ async def update_address(
     data: AddressUpdate,
     current_user: CurrentUser,
 ):
-    """Update an address belonging to the authenticated user."""
+    """Modify details of an existing active
+    address belonging to the authenticated session user.
+
+    Args:
+        address_id (int): The database primary
+          key identifier of the address to update.
+        data (AddressUpdate): Validated
+        Pydantic schema containing modifications.
+        current_user (CurrentUser): The active
+        authenticated User instance from dependency injection.
+
+    Returns:
+        AddressResponse: The serialized entry
+        of the freshly updated address record.
+    """
     return await AddressService.update_address(
         address_id=address_id, data=data, user_id=current_user.id
     )
@@ -74,7 +118,15 @@ async def delete_address(
     address_id: int,
     current_user: CurrentUser,
 ) -> None:
-    """Delete an address belonging to the authenticated user."""
+    """Permanently delete an active address
+    belonging to the authenticated session user.
+
+    Args:
+        address_id (int): The database primary
+        key identifier of the address to remove.
+        current_user (CurrentUser): The active
+        authenticated User instance from dependency injection.
+    """
     await AddressService.delete_address(
         address_id=address_id,
         user_id=current_user.id,
