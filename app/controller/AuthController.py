@@ -60,7 +60,7 @@ async def login(user: UserLogin) -> TokenResponse:
 
 
 @authRouter.post("/refresh")
-async def refresh(auth_uuid: str) -> dict:
+async def refresh(auth_uuid: str, user_id: int) -> dict:
     """
     Refresh the access token for an existing user session.
 
@@ -74,7 +74,7 @@ async def refresh(auth_uuid: str) -> dict:
         HTTPException: If the token is invalid or the refresh operation fails.
     """
     try:
-        return await AuthService.refresh(auth_uuid)
+        return await AuthService.refresh(auth_uuid, user_id=user_id)
     except CustomBaseException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
 

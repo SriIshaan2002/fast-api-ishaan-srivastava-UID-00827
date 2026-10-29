@@ -3,7 +3,7 @@ from app.exception.AuthException import (
     InvalidPasswordError,
     InvalidTokenError,
     ReactivationFailedError,
-    RegistrationError,
+    RegisteredEmail,
     SessionNotFoundError,
     UserNotFoundError,
 )
@@ -14,7 +14,7 @@ __all__ = (
     InvalidPasswordError,
     InvalidTokenError,
     ReactivationFailedError,
-    RegistrationError,
+    RegisteredEmail,
     SessionNotFoundError,
     UserNotFoundError,
     CustomBaseException,

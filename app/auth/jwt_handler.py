@@ -51,25 +51,13 @@ def create_access_token(user_id: int, is_admin: bool) -> str:
     return jwt.encode(payload, headers=header, key=SECRET_KEY, algorithm=ALGORITHM)
 
 
-def create_refresh_token(user_id: int, is_admin: bool) -> tuple[str, str]:
+def create_refresh_token() -> tuple[str, str]:
     """Generate a refresh token and its unique identifier."""
     token_uuid = str(uuid.uuid4())
     expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
         days=REFRESH_TOKEN_EXPIRE_DAYS
     )
-    print("Expiration :")
-    payload = {
-        "user_id": user_id,
-        "is_admin": is_admin,
-        "jti": token_uuid,
-        "exp": int(expire.timestamp()),
-        "type": "refresh",
-    }
-    header = {"alg": ALGORITHM, "typ": "JWT"}
-    encoded_jwt = jwt.encode(
-        payload, headers=header, key=SECRET_KEY, algorithm=ALGORITHM
-    )
-    return encoded_jwt, token_uuid
+    return token_uuid, expire
 
 
 def decode_and_verify_token(token: str, expected_type: str = "access") -> TokenPayload:

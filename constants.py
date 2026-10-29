@@ -18,6 +18,19 @@ AuthErrors = namedtuple(
     ],
 )
 
+Exception_messages = namedtuple(
+    "Exception_messages",
+    [
+        "registration_failed",
+        "authentication_failed",
+        "user_not_found",
+        "InvalidPassword",
+        "AccountInactive",
+        "InvalidToken",
+        "SessionNotFound",
+    ],
+)
+
 AuthSuccess = namedtuple(
     "AuthSuccess",
     ["registered", "reactivated", "logged_out"],
@@ -51,4 +64,14 @@ AUTH_ERRORS = AuthErrors(
     exception="Exception :{}",
     not_active="User provided is Inactive please try to reactivate the User",
     invalid_password="Password provided is invalid",
+)
+
+EXCEPTION_MESSAGES = Exception_messages(
+    registration_failed="Registration failed",
+    InvalidPassword="Authentication failed: Invalid credentials provided.",
+    authentication_failed="Authentication failed: User account not found.",
+    AccountInactive="Authentication failed: This account is currently deactivated.",
+    InvalidToken="Session invalid: The provided refresh token is invalid or expired.",
+    SessionNotFound="Logout failed: Session already logged out or tracking UUID is invalid.",
+    user_not_found="User not found",
 )
