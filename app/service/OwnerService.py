@@ -5,24 +5,50 @@ This module provides service operations for owners.
 from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 
-from app.models import Owner
-from app.schemas import OwnerCreate, OwnerUpdate
-from constants import OWNER_ERRORS
+from app.models import Owner, Restraunt, User
+from app.schemas import OwnerCreate
+from constants import AUTH_ERRORS, OWNER_ERRORS, SUCCESS_MESSAGES
 
 
 class OwnerService:
     """Provides CRUD operations for owners."""
 
     @staticmethod
-    async def create_owner(data: OwnerCreate) -> Owner:
-        """Create a new owner."""
+    async def create_owner(data: OwnerCreate) -> dict:
+        """Create a new mapping record
+        associating a user with a restaurant they own.
+
+        Args:
+            data (OwnerCreate): A validated Pydantic
+            schema containing user_id and restraunt_id.
+
+        Returns:
+            dict: A confirmation dictionary signifying successful linkage creation.
+
+        Raises:
+            HTTPException: 404 error if either the
+            target user or restaurant does not exist.
+            HTTPException: 409 conflict error if this
+            user-restaurant pair already exists.
+        """
         try:
-            return await Owner.create(
-                username=data.username,
-                email=str(data.email).lower(),
-                mobile=data.mobile,
-                password=data.password,
-            )
+            user = await User.get_or_none(id=data.user_id)
+            if user is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=AUTH_ERRORS.user_not_found,
+                )
+
+            restraunt = await Restraunt.get_or_none(id=data.restraunt_id)
+            if restraunt is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=AUTH_ERRORS.not_active,
+                )
+
+            await Owner.create(user=user, restraunt=restraunt)
+            return {"detail": SUCCESS_MESSAGES.Created}
+
         except IntegrityError as exc:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -31,12 +57,31 @@ class OwnerService:
 
     @staticmethod
     async def get_all_owners() -> list[Owner]:
-        """Retrieve all owners."""
+        """Retrieve all user-restaurant ownership
+        assignments from the database sorted by ID.
+
+        Returns:
+            list[Owner]: A list containing
+            all Owner association records.
+        """
         return await Owner.all().order_by("id")
 
     @staticmethod
     async def get_owner(owner_id: int) -> Owner:
-        """Retrieve an owner by ID."""
+        """Retrieve a specific ownership
+        association record by its database ID.
+
+        Args:
+            owner_id (int): The unique integer
+            database ID of the ownership entry.
+
+        Returns:
+            Owner: The matching retrieved Owner database instance.
+
+        Raises:
+            HTTPException: 404 error if no ownership
+            relationship matches the provided ID.
+        """
         owner = await Owner.get_or_none(id=owner_id)
         if owner is None:
             raise HTTPException(
@@ -46,29 +91,16 @@ class OwnerService:
         return owner
 
     @staticmethod
-    async def update_owner(
-        owner_id: int,
-        data: OwnerUpdate,
-    ) -> Owner:
-        """Update an owner's permitted fields."""
-        owner = await OwnerService.get_owner(owner_id)
-        changes = data.model_dump(exclude_unset=True)
-        if "email" in changes and changes["email"] is not None:
-            changes["email"] = str(changes["email"]).lower()
-        for field, value in changes.items():
-            setattr(owner, field, value)
-        if changes:
-            try:
-                await owner.save()
-            except IntegrityError as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=OWNER_ERRORS.already_exists,
-                ) from exc
-        return owner
-
-    @staticmethod
     async def delete_owner(owner_id: int) -> None:
-        """Delete an owner."""
+        """Permanently delete a restaurant ownership association record.
+
+        Args:
+            owner_id (int): The unique integer
+            database ID of the ownership entry to delete.
+
+        Raises:
+            HTTPException: 404 error if the
+            targeted ownership record cannot be found.
+        """
         owner = await OwnerService.get_owner(owner_id)
         await owner.delete()
