@@ -39,7 +39,7 @@ class AuthService:
         Raises:
                 RegistrationError: If the email already exists.
         """
-        email_clean = user_data.email.lower()
+        email_clean = user_data.email
 
         existing_user = await User.filter(email=email_clean).first()
         if existing_user:
