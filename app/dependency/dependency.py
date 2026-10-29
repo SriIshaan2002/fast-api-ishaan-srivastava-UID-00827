@@ -9,6 +9,7 @@ from app.auth.jwt_handler import decode_and_verify_token as decode
 from app.auth.jwt_handler import TokenPayload
 from constants import AUTH_ERRORS
 
+
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
     """Extract and validate the currently authenticated
     active user using the custom JWT header.

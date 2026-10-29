@@ -6,10 +6,10 @@ import settings
 from app.controller.AddressController import router as addressRouter
 from app.controller.AuthController import authRouter
 from app.controller.OwnerController import router as ownerRouter
+from app.controller.RestrauntController import restaurant_router
 from app.controller.UserController import routerAdmin, routerUser
 from app.middleware.auth import unified_auth_middleware
-from constants import GENERAL
-from app.routes.RestrauntController import restaurant_router
+from app.controller.RestrauntController import restaurant_router
 from constants import GENERAL
 
 app = FastAPI(title="My First FastAPI Template")

@@ -6,7 +6,7 @@ from app.models import Address, Owner, Restraunt, User
 from app.schemas import RestrauntCreate, RestrauntResponse
 from app.schemas.address import AddressCreate
 from app.service.AddressService import AddressService
-from constants import ADDRESS_ERRORS, GENERAL, RESTAURANT_ERRORS
+from constants import ADDRESS_ERRORS, GENERAL, RESTRAUNT_ERROR
 
 
 def restaurant_to_dict(restaurant: Restraunt) -> dict:
@@ -87,7 +87,7 @@ async def create_restaurant(
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=RESTAURANT_ERRORS.already_exists,
+            detail=RESTRAUNT_ERROR.already_exists,
         ) from exc
     return restaurant_to_dict(restaurant)
 
@@ -110,7 +110,7 @@ async def get_restaurant(restaurant_id: int) -> dict:
     if restaurant is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=RESTAURANT_ERRORS.not_found,
+            detail=RESTRAUNT_ERROR.not_found,
         )
     return restaurant_to_dict(restaurant)
 
@@ -128,19 +128,19 @@ async def update_restaurant(
     if restaurant is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=RESTAURANT_ERRORS.not_found,
+            detail=RESTRAUNT_ERROR.not_found,
         )
     await check_restaurant_access(restaurant, current_user)
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=RESTAURANT_ERRORS.Input_not_satisfied,
+            detail=RESTRAUNT_ERROR.Input_not_satisfied,
         )
     if "restaurant_name" in update_data and update_data["restaurant_name"] is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=RESTAURANT_ERRORS.name_not_null,
+            detail=RESTRAUNT_ERROR.name_not_null,
         )
     if "location_id" in update_data:
         address_id = update_data.pop("location_id")
@@ -158,7 +158,7 @@ async def update_restaurant(
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=RESTAURANT_ERRORS.already_exists,
+            detail=RESTRAUNT_ERROR.already_exists,
         ) from exc
     return restaurant_to_dict(restaurant)
 
@@ -171,7 +171,7 @@ async def delete_restaurant(
     restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
     if restaurant is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=RESTAURANT_ERRORS.not_found
+            status_code=status.HTTP_404_NOT_FOUND, detail=RESTRAUNT_ERROR.not_found
         )
     await check_restaurant_access(restaurant, current_user)
     restaurant.is_active = False
