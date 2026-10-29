@@ -1,6 +1,7 @@
 """
 File to get the current signed in user details
 """
+
 from typing import Annotated
 from app.models.model import User 
 from app.auth.jwt_handler import decode_and_verify_token as decode
