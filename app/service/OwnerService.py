@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 
 from app.models import Owner, Restraunt, User
-from app.schemas import OwnerCreate
+from app.schemas import OwnerCreate, OwnerResponse
 from constants import AUTH_ERRORS, OWNER_ERRORS, SUCCESS_MESSAGES
 
 
@@ -14,7 +14,7 @@ class OwnerService:
     """Provides CRUD operations for owners."""
 
     @staticmethod
-    async def create_owner(data: OwnerCreate) -> dict:
+    async def create_owner(data: OwnerCreate) -> OwnerResponse:
         """Create a new mapping record
         associating a user with a restaurant they own.
 
@@ -46,8 +46,7 @@ class OwnerService:
                     detail=AUTH_ERRORS.not_active,
                 )
 
-            await Owner.create(user=user, restraunt=restraunt)
-            return {"detail": SUCCESS_MESSAGES.Created}
+            return await Owner.create(user=user, restraunt=restraunt)
 
         except IntegrityError as exc:
             raise HTTPException(
@@ -64,7 +63,7 @@ class OwnerService:
             list[Owner]: A list containing
             all Owner association records.
         """
-        return await Owner.all().order_by("id")
+        return await Owner.all().select_related("user", "restaurant")
 
     @staticmethod
     async def get_owner(owner_id: int) -> Owner:

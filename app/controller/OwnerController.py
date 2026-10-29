@@ -5,7 +5,7 @@ This module provides CRUD routes for owners.
 from fastapi import APIRouter, Depends, status
 
 from app.dependency.dependency import get_active_user
-from app.schemas import OwnerCreate, OwnerResponse, OwnerUpdate
+from app.schemas import OwnerCreate, OwnerResponse
 from app.service.OwnerService import OwnerService
 
 router = APIRouter(
@@ -53,25 +53,6 @@ async def get_owner(owner_id: int):
         of the requested ownership record.
     """
     return await OwnerService.get_owner(owner_id)
-
-
-@router.patch("/{owner_id}", response_model=OwnerResponse)
-async def update_owner(owner_id: int, data: OwnerUpdate):
-    """Modify permitted attributes of an
-    existing ownership association record.
-
-    Args:
-        owner_id (int): The database primary
-        key identifier of the ownership entry to modify.
-        data (OwnerUpdate): Validated
-        Pydantic schema containing field updates.
-
-    Returns:
-        OwnerResponse: The serialized entry
-        of the freshly updated ownership record.
-    """
-    return await OwnerService.update_owner(owner_id=owner_id, data=data)
-
 
 @router.delete("/{owner_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_owner(owner_id: int) -> None:
