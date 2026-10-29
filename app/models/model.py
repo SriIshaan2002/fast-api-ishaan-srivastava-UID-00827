@@ -160,11 +160,17 @@ class Order(AuditModel):
         related_name="user_orders",
         on_delete=fields.RESTRICT,
     )
+
     restaurant: fields.ForeignKeyRelation[Restraunt] = fields.ForeignKeyField(
         "models.Restraunt",
         related_name="restraunt_orders",
         on_delete=fields.RESTRICT,
     )
+
+    restraunt_name: str = fields.CharField(max_length=20)
+    restraunt_city: str = fields.CharField(max_length=20)
+    restraunt_street: str = fields.CharField(max_length=20)
+
     delivery_location: fields.ForeignKeyNullableRelation[Address] = (
         fields.ForeignKeyField(
             "models.Address",
@@ -173,7 +179,15 @@ class Order(AuditModel):
             on_delete=fields.SET_NULL,
         )
     )
-    total_price: "Decimal" = fields.DecimalField(max_digits=10, decimal_places=3)
+
+    order_on: fields.DatetimeField = fields.DatetimeField(auto_now_add=True)
+    delivered_in: fields.DatetimeField = fields.DatetimeField(null=True)
+
+    total_price: Decimal = fields.DecimalField(
+        max_digits=10,
+        decimal_places=3,
+    )
+
     status: OrderStatus = fields.CharEnumField(
         OrderStatus,
         max_length=20,
