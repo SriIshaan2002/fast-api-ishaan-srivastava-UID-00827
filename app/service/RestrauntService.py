@@ -3,11 +3,11 @@ from tortoise.exceptions import IntegrityError
 from tortoise.transactions import in_transaction
 
 from app.models import Address, Owner, Restraunt, User
-from app.schemas import RestrauntCreate, RestrauntResponse
+from app.schemas.restraunt import RestrauntCreate, RestrauntResponse, RestrauntUpdate
 from app.schemas.address import AddressCreate
 from app.service.AddressService import AddressService
-from constants import ADDRESS_ERRORS, GENERAL, RESTRAUNT_EXCEPTIONS
-from app.exception import RestrauntNotFound, AddressNotFoundError
+from constants import ADDRESS_ERRORS, RESTRAUNT_EXCEPTIONS
+from app.exception import RestrauntNotFound, RestaurantAlreadyExists, InvalidLocationInput, InvalidRestaurantInput
 
 
 def restaurant_to_dict(restaurant: Restraunt) -> dict:
@@ -39,16 +39,6 @@ async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> 
     """Verify that the user is an administrator or restaurant owner."""
     if current_user.is_admin:
         return
-    is_owner = await Owner.filter(
-        user=current_user,
-        restraunt=restaurant,
-        is_active=True,
-    ).exists()
-    if not is_owner:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=GENERAL.access_forbidden,
-        )
 
 
 async def create_restaurant(
@@ -71,22 +61,14 @@ async def create_restaurant(
                 user_id=current_user.id,
             )
             restaurant = await Restraunt.create(
-                restaurant_name=payload.restaurant_name,
-                location_id=address,
-                created_by=current_user,
-                updated_by=current_user,
-                is_closed=payload.is_closed,
+            restaurant_name=payload.restaurant_name,
+            location_id_id=address.id if hasattr(address, "id") else address, 
+            created_by_id=current_user.id,
+            is_closed=payload.is_closed,
             )
-            await Owner.create(
-                user=current_user,
-                restraunt=restaurant,
-                updated_by=current_user,
-            )
+
     except IntegrityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=RESTRAUNT_EXCEPTIONS.already_exists,
-        ) from exc
+        raise RestaurantAlreadyExists()
     return restaurant_to_dict(restaurant)
 
 
@@ -105,6 +87,7 @@ async def get_restaurant(restaurant_id: int) -> dict:
         id=restaurant_id,
         is_active=True,
     ).first()
+
     if restaurant is None:
         raise RestrauntNotFound
     return restaurant_to_dict(restaurant)
@@ -112,7 +95,7 @@ async def get_restaurant(restaurant_id: int) -> dict:
 
 async def update_restaurant(
     restaurant_id: int,
-    payload: RestrauntResponse,
+    payload: RestrauntUpdate,
     current_user: User,
 ) -> dict:
     """Update an active restaurant after checking ownership."""
@@ -125,22 +108,11 @@ async def update_restaurant(
     await check_restaurant_access(restaurant, current_user)
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=RESTRAUNT_EXCEPTIONS.Input_not_satisfied,
-        )
-    if "restaurant_name" in update_data and update_data["restaurant_name"] is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=RESTRAUNT_EXCEPTIONS.name_not_null,
-        )
+        raise InvalidRestaurantInput
     if "location_id" in update_data:
         address_id = update_data.pop("location_id")
         if address_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=ADDRESS_ERRORS.cannot_be_null,
-            )
+            raise InvalidLocationInput
         restaurant.location_id = await get_active_address(address_id)
     for field, value in update_data.items():
         setattr(restaurant, field, value)
@@ -148,10 +120,7 @@ async def update_restaurant(
     try:
         await restaurant.save()
     except IntegrityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=RESTRAUNT_EXCEPTIONS.already_exists,
-        ) from exc
+        raise RestaurantAlreadyExists
     return restaurant_to_dict(restaurant)
 
 

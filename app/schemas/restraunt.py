@@ -21,15 +21,3 @@ class RestrauntUpdate(BaseModel):
     location_id: int | None = Field(default=None, gt=0)
     is_closed: bool | None = None
 
-
-class RestrauntResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    restaurant_name: str
-    location_id: int
-    created_by_id: int
-    is_closed: bool
-    is_active: bool
-    created_at: datetime
-    updated_at: datetime | None

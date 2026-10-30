@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
-from app.schemas import RestrauntCreate, RestrauntResponse, RestrauntUpdate
+from app.schemas.restraunt import RestrauntCreate, RestrauntResponse, RestrauntUpdate
 from app.service.RestrauntService import (
     create_restaurant as create_restaurant_service,
     delete_restaurant as delete_restaurant_service,

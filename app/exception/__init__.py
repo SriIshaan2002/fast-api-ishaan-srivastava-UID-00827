@@ -10,6 +10,9 @@ from app.exception.AuthException import (
     RestrauntNotFound,
     SessionNotFoundError,
     UserNotFoundError,
+    RestaurantAlreadyExists,
+    InvalidRestaurantInput,
+    InvalidLocationInput,
 )
 from app.exception.BaseException import CustomBaseException
 
@@ -26,4 +29,7 @@ __all__ = (
     "OwnerAlreadyExistsError",
     "RestrauntNotFound",
     "OwnerNotFound",
+    "RestaurantAlreadyExists",
+    "InvalidRestaurantInput",
+    "InvalidLocationInput",   
 )

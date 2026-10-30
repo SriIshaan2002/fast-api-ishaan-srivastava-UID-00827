@@ -35,11 +35,13 @@ Exception_messages = namedtuple(
 Restraunt_exceptions = namedtuple(
     "Restraunt_exceptions",
     ["Restraunt_not_found",
-     "Restraunt_Already_exists"],
+     "Restraunt_Already_exists",
+     "Input_Unsatisfied"],
 )
 
 RESTRAUNT_EXCEPTIONS = Restraunt_exceptions(Restraunt_not_found="Restraunt Not found",
-                                            Restraunt_Already_exists="Restraunt Already exists")
+                                            Restraunt_Already_exists="Restraunt Already exists",
+                                            Input_Unsatisfied="Input Not Satisfied")
 
 Success = namedtuple("Success", ["Deleted"])
 Success = namedtuple("Success", ["Deleted"])
