@@ -15,7 +15,9 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    """Validate optional fields for updating an existing user's profile."""
+    """
+    Validate optional fields for updating an existing user's profile.
+    """
 
     username: str | None = Field(default=None, min_length=3, max_length=20)
     mobile: str | None = Field(default=None, min_length=10, max_length=13)
@@ -29,7 +31,7 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     username: str
-    mobile: str
+    mobile: str | None
     email: EmailStr
     balance: Decimal
     is_active: bool

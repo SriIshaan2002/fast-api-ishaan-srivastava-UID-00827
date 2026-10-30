@@ -39,7 +39,6 @@ class OwnerService:
             user = await User.get_or_none(id=data.user_id)
             if user is None:
                 raise UserNotFoundError()
-
             restraunt = await Restraunt.get_or_none(id=data.restraunt_id)
             if restraunt is None:
                 raise RestrauntNotFound()
@@ -49,18 +48,7 @@ class OwnerService:
             raise OwnerAlreadyExistsError()
 
     @staticmethod
-    async def get_all_owners() -> list[Owner]:
-        """Retrieve all user-restaurant ownership
-        assignments from the database sorted by ID.
-
-        Returns:
-            list[Owner]: A list containing
-            all Owner association records.
-        """
-        return await Owner.all().select_related("user", "restraunt")
-
-    @staticmethod
-    async def get_owner(owner_id: int) -> Owner:
+    async def get_owner(owner_id: int) -> OwnerResponse:
         """Retrieve a specific ownership
         association record by its database ID.
 
@@ -78,4 +66,4 @@ class OwnerService:
         owner = await Owner.get_or_none(id=owner_id)
         if owner is None:
             raise OwnerNotFound()
-        return owner
+        return OwnerResponse.model_validate(owner)

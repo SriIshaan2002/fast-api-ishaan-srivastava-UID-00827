@@ -4,13 +4,13 @@ This module provides CRUD routes for owners.
 
 from fastapi import status
 
-from app.routes.AdminRoutes import routerAdmin
 from app.routes.OwnerRoutes import routerOwner
 from app.schemas import OwnerCreate, OwnerResponse
 from app.service.OwnerService import OwnerService
 
 
-@routerAdmin.post(
+
+@routerOwner.post(
     "/", response_model=OwnerResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_owner(data: OwnerCreate):
@@ -24,19 +24,8 @@ async def create_owner(data: OwnerCreate):
         OwnerResponse: The serialized entry
         of the newly created ownership record.
     """
+    
     return await OwnerService.create_owner(data)
-
-
-@routerAdmin.get("/", response_model=list[OwnerResponse])
-async def get_all_owners():
-    """Retrieve all user-restaurant ownership assignment records.
-
-    Returns:
-        list[OwnerResponse]: A list containing
-        serialized representations of all ownership entries.
-    """
-    return await OwnerService.get_all_owners()
-
 
 @routerOwner.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):

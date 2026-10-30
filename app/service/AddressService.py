@@ -2,16 +2,18 @@
 This module provides service operations for user addresses.
 """
 
-from app.exception import AddressNotFoundError
+from tortoise.exceptions import IntegrityError
+
+from app.exception import AddressNotFoundError, RegisteredEmail
 from app.models import Address
-from app.schemas import AddressCreate
+from app.schemas import AddressCreate, AddressResponse, AddressUpdate
 
 
 class AddressService:
     """Provides CRUD operations for user addresses."""
 
     @staticmethod
-    async def create_address(data: AddressCreate, user_id: int) -> Address:
+    async def create_address(data: AddressCreate, user_id: int) -> AddressResponse:
         """Create a new address linked to a specific user.
 
         Args:
@@ -21,10 +23,12 @@ class AddressService:
         Returns:
             Address: Newly created address instance.
         """
-        return await Address.create(
+        address = await Address.create(
             user_id=user_id,
             **data.model_dump(),
         )
+
+        return AddressResponse.model_validate(address)
 
     @staticmethod
     async def get_all_addresses(user_id: int) -> list[Address]:
@@ -66,3 +70,61 @@ class AddressService:
             raise AddressNotFoundError()
 
         return address
+
+    @staticmethod
+    async def update_address(
+        address_id: int, user_id: int, address: AddressUpdate
+    ) -> AddressResponse:
+        """Update an address by soft-deleting the
+        active record and generating a new instance.
+
+        Arguments:
+            address_id: The ID of the existing address to replace.
+            user_id: The unique identifier of the owner.
+            address: The schema data containing updated address fields.
+
+        Returns:
+            The validated response schema containing the new address details.
+
+        Raises:
+            AddressNotFoundError: If the target address
+            does not exist or belongs to another user.
+            Registered Email: for conflict
+        """
+        current_address = await Address.get_or_none(
+            id=address_id,
+            user_id=user_id,
+            is_active=True,
+        )
+
+        if current_address is None:
+            raise AddressNotFoundError()
+
+        current_address.is_active = False
+        await current_address.save(update_fields=["is_active"])
+
+        try:
+            new_address_data = {
+                "city": current_address.city,
+                "street": current_address.street,
+                "house": current_address.house,
+                "zip": current_address.zip,
+                "nearby_location": current_address.nearby_location,
+                "long": current_address.long,
+                "lat": current_address.lat,
+            }
+            incoming_updates = address.model_dump(exclude_unset=True)
+            new_address_data.update(incoming_updates)
+
+            new_address_data["user_id"] = user_id
+            new_address_data["is_active"] = True
+
+            new_address = await Address.create(**new_address_data)
+
+        except IntegrityError:
+            current_address.is_active = True
+            await current_address.save(update_fields=["is_active"])
+
+            raise RegisteredEmail()
+
+        return AddressResponse.model_validate(new_address)

@@ -1,20 +1,18 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class OwnerCreate(BaseModel):
     """Schema for creating an owner."""
 
-    name: str = Field(min_length=2, max_length=100)
-    email: EmailStr
-    mobile: str = Field(min_length=10, max_length=13)
-    password: str = Field(min_length=8, max_length=128)
+    user_id: int
+    restraunt_id: int
 
 
 class OwnerResponse(BaseModel):
-    """Schema for returning owner details."""
+    """Represent an owner-restaurant association."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: int
-    name: str
-    email: EmailStr
-    mobile: str
-    model_config = ConfigDict(from_attributes=True)
+    user_id: int
+    restraunt_id: int

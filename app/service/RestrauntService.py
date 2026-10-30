@@ -1,26 +1,29 @@
-from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 from tortoise.transactions import in_transaction
 
-from app.models import Address, Owner, Restraunt, User
-from app.schemas.restraunt import RestrauntCreate, RestrauntResponse
+from app.exception import (
+    InvalidLocationInput,
+    InvalidRestaurantInput,
+    RestaurantAlreadyExists,
+    RestrauntNotFound,
+)
+from app.models import Address, Restraunt, User
 from app.schemas.address import AddressCreate
+from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
-from constants import ADDRESS_ERRORS, GENERAL, RESTRAUNT_EXCEPTIONS
-from app.exception.AuthException import AddressNotFoundError, RestrauntNotFound
 
 
-def restraunt_to_dict(restraunt: Restraunt) -> dict:
-    """Convert a restraunt model into a response-compatible dictionary."""
+def restaurant_to_dict(restaurant: Restraunt) -> dict:
+    """Convert a restaurant model into a response-compatible dictionary."""
     return {
-        "id": restraunt.id,
-        "restraunt_name": restraunt.restraunt_name,
-        "location_id": restraunt.location_id_id,
-        "created_by_id": restraunt.created_by_id,
-        "is_closed": restraunt.is_closed,
-        "is_active": restraunt.is_active,
-        "created_at": restraunt.created_at,
-        "updated_at": restraunt.updated_at,
+        "id": restaurant.id,
+        "restaurant_name": restaurant.restaurant_name,
+        "location_id": restaurant.location_id_id,
+        "created_by_id": restaurant.created_by_id,
+        "is_closed": restaurant.is_closed,
+        "is_active": restaurant.is_active,
+        "created_at": restaurant.created_at,
+        "updated_at": restaurant.updated_at,
     }
 
 
@@ -31,31 +34,21 @@ async def get_active_address(address_id: int) -> Address:
     except Exception as e:
         raise e
     if address is None:
-        raise AddressNotFoundError()
+        raise RestrauntNotFound
     return address
 
 
-async def check_restraunt_access(restraunt: Restraunt, current_user: User) -> None:
-    """Verify that the user is an administrator or restraunt owner."""
+async def check_restaurant_access(current_user: User) -> None:
+    """Verify that the user is an administrator or restaurant owner."""
     if current_user.is_admin:
         return
-    is_owner = await Owner.filter(
-        user=current_user,
-        restraunt=restraunt,
-        is_active=True,
-    ).exists()
-    if not is_owner:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=GENERAL.access_forbidden,
-        )
 
 
-async def create_restraunt(
+async def create_restaurant(
     payload: RestrauntCreate,
     current_user: User,
 ) -> dict:
-    """Create a restraunt and associate its creator as an owner."""
+    """Create a restaurant and associate its creator as an owner."""
 
     try:
         async with in_transaction():
@@ -70,100 +63,79 @@ async def create_restraunt(
                 ),
                 user_id=current_user.id,
             )
-            restraunt = await Restraunt.create(
-                restraunt_name=payload.restraunt_name,
-                location_id=address,
-                created_by=current_user,
-                updated_by=current_user,
+            restaurant = await Restraunt.create(
+                restaurant_name=payload.restaurant_name,
+                location_id_id=address.id if hasattr(address, "id") else address,
+                created_by_id=current_user.id,
                 is_closed=payload.is_closed,
             )
-            await Owner.create(
-                user=current_user,
-                restraunt=restraunt,
-                updated_by=current_user,
-            )
-    except IntegrityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=RESTRAUNT_EXCEPTIONS.already_exists,
-        ) from exc
-    return restraunt_to_dict(restraunt)
+
+    except IntegrityError:
+        raise RestaurantAlreadyExists()
+    return restaurant_to_dict(restaurant)
 
 
-async def get_restraunts() -> list[dict]:
-    """Return all active restraunts."""
+async def get_restaurants() -> list[dict]:
+    """Return all active restaurants."""
 
-    restraunts = await Restraunt.filter(
+    restaurants = await Restraunt.filter(
         is_active=True,
     ).order_by("id")
-    return [restraunt_to_dict(restraunt) for restraunt in restraunts]
+    return [restaurant_to_dict(restaurant) for restaurant in restaurants]
 
 
-async def get_restraunt(restraunt_id: int) -> dict:
-    """Fetch an active restraunt by ID."""
-    restraunt = await Restraunt.filter(
-        id=restraunt_id,
+async def get_restaurant(restaurant_id: int) -> dict:
+    """Fetch an active restaurant by ID."""
+    restaurant = await Restraunt.filter(
+        id=restaurant_id,
         is_active=True,
     ).first()
-    if restraunt is None:
+
+    if restaurant is None:
         raise RestrauntNotFound()
-    return restraunt_to_dict(restraunt)
+    return restaurant_to_dict(restaurant)
 
 
-async def update_restraunt(
-    restraunt_id: int,
-    payload: RestrauntResponse,
+async def update_restaurant(
+    restaurant_id: int,
+    payload: RestrauntUpdate,
     current_user: User,
 ) -> dict:
-    """Update an active restraunt after checking ownership."""
-    restraunt = await Restraunt.filter(
-        id=restraunt_id,
+    """Update an active restaurant after checking ownership."""
+    restaurant = await Restraunt.filter(
+        id=restaurant_id,
         is_active=True,
     ).first()
-    if restraunt is None:
+    if restaurant is None:
         raise RestrauntNotFound
-    await check_restraunt_access(restraunt, current_user)
+    await check_restaurant_access(restaurant, current_user)
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=RESTRAUNT_EXCEPTIONS.Input_not_satisfied,
-        )
-    if "restraunt_name" in update_data and update_data["restraunt_name"] is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=RESTRAUNT_EXCEPTIONS.name_not_null,
-        )
+        raise InvalidRestaurantInput()
     if "location_id" in update_data:
         address_id = update_data.pop("location_id")
         if address_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=ADDRESS_ERRORS.cannot_be_null,
-            )
-        restraunt.location_id = await get_active_address(address_id)
+            raise InvalidLocationInput()
+        restaurant.location_id = await get_active_address(address_id)
     for field, value in update_data.items():
-        setattr(restraunt, field, value)
-    restraunt.updated_by = current_user
+        setattr(restaurant, field, value)
+    restaurant.updated_by = current_user
     try:
-        await restraunt.save()
-    except IntegrityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=RESTRAUNT_EXCEPTIONS.already_exists,
-        ) from exc
-    return restraunt_to_dict(restraunt)
+        await restaurant.save()
+    except IntegrityError:
+        raise RestaurantAlreadyExists()
+    return restaurant_to_dict(restaurant)
 
 
-async def delete_restraunt(
-    restraunt_id: int,
+async def delete_restaurant(
+    restaurant_id: int,
     current_user: User,
 ) -> None:
-    """Soft-delete an active restraunt."""
-    restraunt = await Restraunt.filter(id=restraunt_id, is_active=True).first()
-    if restraunt is None:
+    """Soft-delete an active restaurant."""
+    restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
+    if restaurant is None:
         raise RestrauntNotFound()
-    await check_restraunt_access(restraunt, current_user)
-    restraunt.is_active = False
-    restraunt.updated_by = current_user
-    await restraunt.save(update_fields=["is_active", "updated_by", "updated_at"])
+    await check_restaurant_access(restaurant, current_user)
+    restaurant.is_active = False
+    restaurant.updated_by_id = current_user.id
+    await restaurant.save(update_fields=["is_active", "updated_by", "updated_at"])
