@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
-from app.schemas.restraunt import RestrauntCreate, RestrauntResponse, RestrauntUpdate
+from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate, RestrauntResponse
 from app.service.RestrauntService import (
     create_restaurant as create_restaurant_service,
     delete_restaurant as delete_restaurant_service,
@@ -83,7 +83,6 @@ async def update_restaurant(
     return await update_restaurant_service(
         restaurant_id=restaurant_id, payload=payload, current_user=current_user
     )
-
 
 @restaurant_router.delete(
     "/{restaurant_id}",
