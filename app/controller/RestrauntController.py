@@ -4,19 +4,27 @@ This module provides CRUD API endpoints for managing restaurant operations.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
-from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate, RestrauntResponse
+from app.routes.RestrauntRoutes import restaurant_router
+from app.schemas.restraunt import RestrauntCreate, RestrauntResponse, RestrauntUpdate
 from app.service.RestrauntService import (
     create_restaurant as create_restaurant_service,
+)
+from app.service.RestrauntService import (
     delete_restaurant as delete_restaurant_service,
+)
+from app.service.RestrauntService import (
     get_restaurant as get_restaurant_service,
+)
+from app.service.RestrauntService import (
     get_restaurants as get_restaurants_service,
+)
+from app.service.RestrauntService import (
     update_restaurant as update_restaurant_service,
 )
-from app.routes.RestrauntRoutes import restaurant_router
 
 CurrentUser = Annotated[User, Depends(get_active_user)]
 
@@ -31,8 +39,10 @@ async def create_restaurant(
     """Create a new restaurant and link the authenticated session user as an owner.
 
     Args:
-        payload (RestrauntCreate): Validated Pydantic schema containing initial restaurant fields.
-        current_user (CurrentUser): The active authenticated User instance from dependency injection.
+        payload (RestrauntCreate): Validated Pydantic schema
+        containing initial restaurant fields.
+        current_user (CurrentUser): The active authenticated
+        User instance from dependency injection.
 
     Returns:
         RestrauntResponse: The serialized model instance data of the created restaurant.
@@ -45,7 +55,8 @@ async def get_restaurants():
     """Retrieve all active restaurants in the database.
 
     Returns:
-        list[RestrauntResponse]: A list containing serialized instances of active restaurants.
+        list[RestrauntResponse]: A list containing
+        serialized instances of active restaurants.
     """
     return await get_restaurants_service()
 
@@ -73,9 +84,12 @@ async def update_restaurant(
     """Modify the parameters of an existing active restaurant record.
 
     Args:
-        restaurant_id (int): The unique integer database ID of the restaurant to update.
-        payload (RestrauntUpdate): Validated Pydantic schema containing modification properties.
-        current_user (CurrentUser): The active authenticated User instance from dependency injection.
+        restaurant_id (int): The unique integer database
+        ID of the restaurant to update.
+        payload (RestrauntUpdate): Validated Pydantic schema
+        containing modification properties.
+        current_user (CurrentUser): The active authenticated
+        User instance from dependency injection.
 
     Returns:
         RestrauntResponse: The serialized entry of the updated restaurant data.
@@ -83,6 +97,7 @@ async def update_restaurant(
     return await update_restaurant_service(
         restaurant_id=restaurant_id, payload=payload, current_user=current_user
     )
+
 
 @restaurant_router.delete(
     "/{restaurant_id}",
@@ -95,8 +110,10 @@ async def delete_restaurant(
     """Flag an active restaurant record as inactive (soft-delete).
 
     Args:
-        restaurant_id (int): The unique integer database ID of the restaurant to remove.
-        current_user (CurrentUser): The active authenticated User instance from dependency injection.
+        restaurant_id (int): The unique integer database
+        ID of the restaurant to remove.
+        current_user (CurrentUser): The active authenticated
+        User instance from dependency injection.
     """
     await delete_restaurant_service(
         restaurant_id=restaurant_id, current_user=current_user

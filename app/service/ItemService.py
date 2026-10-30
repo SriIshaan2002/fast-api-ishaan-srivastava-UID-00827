@@ -5,11 +5,15 @@ This module provides CRUD database service actions for restaurant menu items.
 from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 
-from app.models import Item, Restraunt, User, Owner
-from app.schemas.items import ItemCreate, ItemUpdate, ItemResponse
-from app.exception.AuthException import RestrauntNotFound, OwnerNotFound
+from app.exception.AuthException import OwnerNotFound, RestrauntNotFound
+from app.models import Item, Owner, Restraunt, User
+from app.schemas.items import ItemCreate, ItemResponse, ItemUpdate
 
-async def check_restaurant_access(restaurant: Restraunt,current_user: User,) -> None:
+
+async def check_restaurant_access(
+    restaurant: Restraunt,
+    current_user: User,
+) -> None:
     """Verify that the current user owns the requested restaurant."""
     owner = await Owner.get_or_none(
         user_id=current_user.id,
@@ -18,21 +22,26 @@ async def check_restaurant_access(restaurant: Restraunt,current_user: User,) -> 
     if owner is None:
         raise OwnerNotFound()
 
+
 class ItemService:
     """Provides atomic service operations for manipulating menu items."""
 
     @staticmethod
     async def create_item(data: ItemCreate, current_user: User) -> ItemResponse:
-        """Create a new menu item bound to a restaurant after verifying owner authorization.
+        """Create a new menu item bound to a restaurant 
+        after verifying owner authorization.
 
         Args:
             data (ItemCreate): Validated Pydantic schema parameters.
-            current_user (User): The authenticated database user initiating the write step.
+            current_user (User): The authenticated \
+                database user initiating the write step.
 
         Returns:
             Item: The freshly created active database Item entry.
         """
-        restaurant = await Restraunt.filter(id=data.restaurant_id, is_active=True).first()
+        restaurant = await Restraunt.filter(
+            id=data.restaurant_id, is_active=True
+        ).first()
         if restaurant is None:
             raise RestrauntNotFound()
 
@@ -57,15 +66,19 @@ class ItemService:
 
     @staticmethod
     async def get_restaurant_menu(restaurant_id: int) -> list[ItemResponse]:
-        """Fetch all active available menu items registered to a given restaurant ID.
+        """Fetch all active available menu items
+        registered to a given restaurant ID.
 
         Args:
             restaurant_id (int): Primary key ID of the restaurant.
 
         Returns:
-            list[Item]: Active matching items ordered sequentially by database ID.
+            list[Item]: Active matching items
+            ordered sequentially by database ID.
         """
-        return await Item.filter(restaurant_id=restaurant_id, is_active=True).order_by("id")
+        return await Item.filter(restaurant_id=restaurant_id, is_active=True).order_by(
+            "id"
+        )
 
     @staticmethod
     async def get_item(item_id: int) -> ItemResponse:
@@ -86,8 +99,11 @@ class ItemService:
         return item
 
     @staticmethod
-    async def update_item(item_id: int, data: ItemUpdate, current_user: User) -> ItemResponse:
-        """Modify fields of an existing menu item record after checking restaurant access permissions.
+    async def update_item(
+        item_id: int, data: ItemUpdate, current_user: User
+    ) -> ItemResponse:
+        """Modify fields of an existing menu item
+        record after checking restaurant access permissions.
 
         Args:
             item_id (int): Primary key entry index of the item.
@@ -97,7 +113,11 @@ class ItemService:
         Returns:
             Item: The updated and saved database entry configuration.
         """
-        item = await Item.filter(id=item_id, is_active=True).prefetch_related("restaurant").first()
+        item = (
+            await Item.filter(id=item_id, is_active=True)
+            .prefetch_related("restaurant")
+            .first()
+        )
         if item is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -124,18 +144,23 @@ class ItemService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Modifying item parameters triggered a database collision.",
             ) from exc
-            
+
         return item
 
     @staticmethod
     async def delete_item(item_id: int, current_user: User) -> None:
-        """Flag a specific menu item as inactive (soft-delete) after checking ownership access.
+        """Flag a specific menu item as inactive
+        (soft-delete) after checking ownership access.
 
         Args:
             item_id (int): Primary key entry index of the target record.
             current_user (User): The active operational session operator.
         """
-        item = await Item.filter(id=item_id, is_active=True).prefetch_related("restaurant").first()
+        item = (
+            await Item.filter(id=item_id, is_active=True)
+            .prefetch_related("restaurant")
+            .first()
+        )
         if item is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -147,6 +172,4 @@ class ItemService:
         item.is_active = False
         item.updated_by_id = current_user.id
 
-        await item.save(
-        update_fields=["is_active", "updated_by_id", "updated_at"]
-    )
+        await item.save(update_fields=["is_active", "updated_by_id", "updated_at"])

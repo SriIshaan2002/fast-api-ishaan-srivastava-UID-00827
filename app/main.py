@@ -5,11 +5,11 @@ from tortoise.contrib.fastapi import register_tortoise
 import settings
 from app.controller.AddressController import routerAdress
 from app.controller.AuthController import authRouter
+from app.controller.ItemController import routerItems
 from app.controller.OwnerController import routerOwner
+from app.controller.RestrauntController import restaurant_router
 from app.controller.UserController import routerAdmin as userAdmin
 from app.controller.UserController import routerUser as routerUser
-from app.controller.RestrauntController import restaurant_router
-from app.controller.ItemController import routerItems
 from app.exception_handler import global_handler
 from app.middleware.auth import unified_auth_middleware
 from constants import GENERAL

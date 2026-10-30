@@ -1,11 +1,16 @@
 from tortoise.exceptions import IntegrityError
 from tortoise.transactions import in_transaction
 
-from app.models import Address, Owner, Restraunt, User
-from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
+from app.exception import (
+    InvalidLocationInput,
+    InvalidRestaurantInput,
+    RestaurantAlreadyExists,
+    RestrauntNotFound,
+)
+from app.models import Address, Restraunt, User
 from app.schemas.address import AddressCreate
+from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
-from app.exception import RestrauntNotFound, RestaurantAlreadyExists, InvalidLocationInput, InvalidRestaurantInput
 
 
 def restaurant_to_dict(restaurant: Restraunt) -> dict:
@@ -59,13 +64,13 @@ async def create_restaurant(
                 user_id=current_user.id,
             )
             restaurant = await Restraunt.create(
-            restaurant_name=payload.restaurant_name,
-            location_id_id=address.id if hasattr(address, "id") else address, 
-            created_by_id=current_user.id,
-            is_closed=payload.is_closed,
+                restaurant_name=payload.restaurant_name,
+                location_id_id=address.id if hasattr(address, "id") else address,
+                created_by_id=current_user.id,
+                is_closed=payload.is_closed,
             )
 
-    except IntegrityError :
+    except IntegrityError:
         raise RestaurantAlreadyExists()
     return restaurant_to_dict(restaurant)
 
@@ -117,7 +122,7 @@ async def update_restaurant(
     restaurant.updated_by = current_user
     try:
         await restaurant.save()
-    except IntegrityError as exc:
+    except IntegrityError:
         raise RestaurantAlreadyExists()
     return restaurant_to_dict(restaurant)
 

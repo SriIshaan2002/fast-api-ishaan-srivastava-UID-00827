@@ -26,6 +26,7 @@ async def create_owner(data: OwnerCreate):
     print("inside controller")
     return await OwnerService.create_owner(data)
 
+
 @routerOwner.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):
     """Retrieve a specific ownership
