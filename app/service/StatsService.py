@@ -1,9 +1,11 @@
-"""This module provides aggregation and paginated reporting services for restaurant statistics."""
+"""This module provides aggregation and paginated
+reporting services for restaurant statistics."""
+
+from tortoise.functions import Count, Sum
 
 from app.exception.AuthException import RestrauntNotFound
 from app.models.model import Order, OrderItem, OrderStatus, Restraunt, User
 from app.schemas.stats import MenuItemStat, OrderListItem, OrderPage, TopCustomer
-from tortoise.functions import Count, Sum
 
 
 class RestaurantStatsService:
@@ -21,7 +23,8 @@ class RestaurantStatsService:
             The matching verified active Restraunt model instance.
 
         Raises:
-            RestrauntNotFound: If the restaurant is missing, inactive, or owned by someone else.
+            RestrauntNotFound: If the restaurant is missing,
+              inactive, or owned by someone else.
         """
         restaurant = await Restraunt.get_or_none(
             id=restaurant_id, created_by_id=owner.id, is_active=True
@@ -32,7 +35,8 @@ class RestaurantStatsService:
 
     @staticmethod
     async def menu_item_stats(restaurant_id: int, owner: User) -> list[MenuItemStat]:
-        """Calculate the frequency of orders and the total volumetric quantity sold per menu item.
+        """Calculate the frequency of orders and
+        the total volumetric quantity sold per menu item.
 
         Arguments:
             restaurant_id: The primary key index of the target restaurant record.
@@ -42,7 +46,8 @@ class RestaurantStatsService:
             A list of validated summary metrics mapped across active menu items.
 
         Raises:
-            RestrauntNotFound: If authorization checks drop or the record target is missing.
+            RestrauntNotFound: If authorization checks
+            drop or the record target is missing.
         """
         await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
 
@@ -64,14 +69,17 @@ class RestaurantStatsService:
 
         Arguments:
             restaurant_id: The primary key index of the target restaurant record.
-            owner: The authenticated operator initiating the analytical collection step.
+            owner: The authenticated operator
+            initiating the analytical collection step.
             limit: The maximum size constraint threshold of customer records to fetch.
 
         Returns:
-            A list of tracked customer profile records ordered from highest to lowest spent.
+            A list of tracked customer profile
+            records ordered from highest to lowest spent.
 
         Raises:
-            RestrauntNotFound: If authorization checks drop or the record target is missing.
+            RestrauntNotFound: If authorization
+            checks drop or the record target is missing.
         """
         await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
 
@@ -108,14 +116,17 @@ class RestaurantStatsService:
             restaurant_id: The primary key index of the target restaurant record.
             owner: The authenticated operator initiating the analytical collection step.
             page: The targeted active index sequence frame location parameter.
-            page_size: The targeted maximum slice pagination container density threshold.
+            page_size: The targeted maximum
+            slice pagination container density threshold.
             status: An optional filtering parameter to isolate specific tracking states.
 
         Returns:
-            A structured reporting object containing total size metrics and matching results.
+            A structured reporting object containing
+            total size metrics and matching results.
 
         Raises:
-            RestrauntNotFound: If authorization checks drop or the record target is missing.
+            RestrauntNotFound: If authorization checks
+            drop or the record target is missing.
         """
         await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
 

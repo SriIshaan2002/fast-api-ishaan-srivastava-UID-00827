@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Query
-from app.service.StatsService import RestaurantStatsService
+
 from app.dependency.dependency import get_active_user
-from enums import OrderStatus
 from app.models.model import User
-from app.schemas.stats import TopCustomer, MenuItemStat, OrderPage
+from app.schemas.stats import MenuItemStat, OrderPage, TopCustomer
+from app.service.StatsService import RestaurantStatsService
+from enums import OrderStatus
 
 router = APIRouter(prefix="/owners/restaurants", tags=["Owner"])
 
@@ -21,7 +22,9 @@ async def top_customers(
     limit: int = Query(10, ge=1, le=100),
     current_user: User = Depends(get_active_user),
 ):
-    return await RestaurantStatsService.top_customers(restaurant_id, current_user, limit)
+    return await RestaurantStatsService.top_customers(
+        restaurant_id, current_user, limit
+    )
 
 
 @router.get("/{restaurant_id}/orders", response_model=OrderPage)
@@ -35,4 +38,3 @@ async def list_restaurant_orders(
     return await RestaurantStatsService.list_orders(
         restaurant_id, current_user, page, page_size, status
     )
-    

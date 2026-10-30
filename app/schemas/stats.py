@@ -1,12 +1,15 @@
-from pydantic import BaseModel, ConfigDict
-from decimal import Decimal
-from enums import OrderStatus
 from datetime import datetime
+from decimal import Decimal
+
+from pydantic import BaseModel, ConfigDict
+
+from enums import OrderStatus
+
 
 class MenuItemStat(BaseModel):
     item_name: str
-    times_ordered: int      # number of order lines containing the item
-    total_quantity: int     # total units sold
+    times_ordered: int  # number of order lines containing the item
+    total_quantity: int  # total units sold
 
 
 class TopCustomer(BaseModel):
