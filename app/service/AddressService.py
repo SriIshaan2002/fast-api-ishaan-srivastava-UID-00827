@@ -72,9 +72,10 @@ class AddressService:
         return address
 
     @staticmethod
-    async def update_address(address_id: int, user_id: int,
-                              address: AddressUpdate) -> AddressResponse:
-        """Update an address by soft-deleting the 
+    async def update_address(
+        address_id: int, user_id: int, address: AddressUpdate
+    ) -> AddressResponse:
+        """Update an address by soft-deleting the
         active record and generating a new instance.
 
         Arguments:
@@ -86,7 +87,7 @@ class AddressService:
             The validated response schema containing the new address details.
 
         Raises:
-            AddressNotFoundError: If the target address 
+            AddressNotFoundError: If the target address
             does not exist or belongs to another user.
             Registered Email: for conflict
         """
@@ -114,16 +115,16 @@ class AddressService:
             }
             incoming_updates = address.model_dump(exclude_unset=True)
             new_address_data.update(incoming_updates)
-            
+
             new_address_data["user_id"] = user_id
             new_address_data["is_active"] = True
-            
+
             new_address = await Address.create(**new_address_data)
-            
+
         except IntegrityError:
             current_address.is_active = True
             await current_address.save(update_fields=["is_active"])
-            
+
             raise RegisteredEmail()
 
         return AddressResponse.model_validate(new_address)

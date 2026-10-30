@@ -23,6 +23,7 @@ class AddressUpdate(BaseModel):
     postal_code: str | None = Field(default=None, min_length=4, max_length=12)
     country: str | None = Field(default=None, min_length=2, max_length=100)
 
+
 class AddressResponse(BaseModel):
     """Address response schema."""
 
