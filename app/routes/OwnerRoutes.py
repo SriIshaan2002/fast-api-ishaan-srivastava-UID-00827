@@ -2,11 +2,10 @@ from fastapi import APIRouter, Depends
 
 from app.dependency.dependency import get_active_user
 from app.exception.AuthException import AccountInactiveError
-from app.models.model import Owner, User
-from app.service.OwnerService import OwnerService
+from app.models.model import User
 
 
-async def require_owner(current_user: User = Depends(get_active_user)) -> Owner:
+async def require_Admin(current_user: User = Depends(get_active_user)) -> User:
     """Allow access only to authenticated administrators.
 
     Args:
@@ -22,12 +21,11 @@ async def require_owner(current_user: User = Depends(get_active_user)) -> Owner:
     """
     if not current_user.is_admin:
         raise AccountInactiveError
-    owner: Owner = OwnerService.get_owner(owner_id=User.id)
-    return owner
+    return current_user
 
 
 routerOwner = APIRouter(
     prefix="/admin",
-    tags=["Owner APIs"],
-    dependencies=[Depends(require_owner)],
+    tags=["Owner APIs for Admin"],
+    dependencies=[Depends(require_Admin)],
 )
