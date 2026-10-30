@@ -1,17 +1,27 @@
-from tortoise.functions import Count, Sum
-from app.models.model import Restraunt, User, OrderItem, OrderStatus, Order
+"""This module provides aggregation and paginated reporting services for restaurant statistics."""
+
 from app.exception.AuthException import RestrauntNotFound
-from app.schemas.stats import MenuItemStat, TopCustomer, OrderPage, OrderListItem
+from app.models.model import Order, OrderItem, OrderStatus, Restraunt, User
+from app.schemas.stats import MenuItemStat, OrderListItem, OrderPage, TopCustomer
+from tortoise.functions import Count, Sum
 
 
 class RestaurantStatsService:
+    """Provides reporting functionality for tracking restaurant operation summaries."""
+
     @staticmethod
     async def _get_owned_restaurant(restaurant_id: int, owner: User) -> Restraunt:
-        """Return the restaurant only if `owner` created it.
+        """Return the restaurant only if the matching owner created it.
+
+        Arguments:
+            restaurant_id: The primary key index of the target restaurant record.
+            owner: The authenticated user profile verifying ownership constraints.
+
+        Returns:
+            The matching verified active Restraunt model instance.
 
         Raises:
-            RestrauntNotFound: If missing or owned by someone else
-                (same error for both, so IDs can't be probed).
+            RestrauntNotFound: If the restaurant is missing, inactive, or owned by someone else.
         """
         restaurant = await Restraunt.get_or_none(
             id=restaurant_id, created_by_id=owner.id, is_active=True
@@ -22,7 +32,18 @@ class RestaurantStatsService:
 
     @staticmethod
     async def menu_item_stats(restaurant_id: int, owner: User) -> list[MenuItemStat]:
-        """Per menu item: how many times ordered and total units sold."""
+        """Calculate the frequency of orders and the total volumetric quantity sold per menu item.
+
+        Arguments:
+            restaurant_id: The primary key index of the target restaurant record.
+            owner: The authenticated operator initiating the analytical collection step.
+
+        Returns:
+            A list of validated summary metrics mapped across active menu items.
+
+        Raises:
+            RestrauntNotFound: If authorization checks drop or the record target is missing.
+        """
         await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
 
         rows = (
@@ -39,17 +60,29 @@ class RestaurantStatsService:
     async def top_customers(
         restaurant_id: int, owner: User, limit: int = 10
     ) -> list[TopCustomer]:
-        """Customers ranked by number of orders at this restaurant."""
+        """Rank purchasing consumers according to total spent cumulative orders.
+
+        Arguments:
+            restaurant_id: The primary key index of the target restaurant record.
+            owner: The authenticated operator initiating the analytical collection step.
+            limit: The maximum size constraint threshold of customer records to fetch.
+
+        Returns:
+            A list of tracked customer profile records ordered from highest to lowest spent.
+
+        Raises:
+            RestrauntNotFound: If authorization checks drop or the record target is missing.
+        """
         await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
 
         rows = await (
-                        Order.filter(restaurant_id=restaurant_id)
-                        .group_by("user_id", "user__username")
-                        .annotate(order_count=Count("id"), total_spent=Sum("total_price"))
-                        .order_by("-total_spent")
-                        .limit(limit)
-                        .values("user_id", "user__username", "order_count", "total_spent")
-                    )
+            Order.filter(restaurant_id=restaurant_id)
+            .group_by("user_id", "user__username")
+            .annotate(order_count=Count("id"), total_spent=Sum("total_price"))
+            .order_by("-total_spent")
+            .limit(limit)
+            .values("user_id", "user__username", "order_count", "total_spent")
+        )
 
         return [
             TopCustomer(
@@ -69,7 +102,21 @@ class RestaurantStatsService:
         page_size: int = 20,
         status: OrderStatus | None = None,
     ) -> OrderPage:
-        """Paginated list of all orders for the restaurant, newest first."""
+        """Provide a paginated tracking summary containing recent order entries.
+
+        Arguments:
+            restaurant_id: The primary key index of the target restaurant record.
+            owner: The authenticated operator initiating the analytical collection step.
+            page: The targeted active index sequence frame location parameter.
+            page_size: The targeted maximum slice pagination container density threshold.
+            status: An optional filtering parameter to isolate specific tracking states.
+
+        Returns:
+            A structured reporting object containing total size metrics and matching results.
+
+        Raises:
+            RestrauntNotFound: If authorization checks drop or the record target is missing.
+        """
         await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
 
         query = Order.filter(restaurant_id=restaurant_id)
