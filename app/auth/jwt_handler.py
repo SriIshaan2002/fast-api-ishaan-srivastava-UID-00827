@@ -25,7 +25,6 @@ class TokenPayload(BaseModel):
 
     user_id: int
     is_admin: bool = False
-    is_owner: bool = False
     iat: int = Field(
         default_factory=lambda: int(datetime.datetime.now(datetime.UTC).timestamp())
     )

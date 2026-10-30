@@ -1,9 +1,10 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class OwnerCreate(BaseModel):
     """Schema for creating an owner."""
-    user_id:int
+
+    user_id: int
     restraunt_id: int
 
 
