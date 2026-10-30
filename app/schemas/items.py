@@ -1,45 +1,44 @@
 """
-This file contains Schemas related to Items.
+This module defines Pydantic validation schemas for managing restaurant menu items.
 """
 
 from decimal import Decimal
-
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class ItemCreate(BaseModel):
-    """
-    This class hold the schema for adding a new item in restraunt.
-    """
+class ItemBase(BaseModel):
+    """Base fields shared across menu item operations."""
 
-    item_name: str = Field(min_length=2, max_length=20)
-    quantity: int = Field(ge=0)
+    item_name: str = Field(..., min_length=1, max_length=50)
+    quantity: int = Field(default=0, ge=0)
     is_veg: bool
-    description: str | None = Field(default=None, max_length=255)
-    price: Decimal = Field(gt=0, max_digits=10, decimal_places=3)
+    description: Optional[str] = Field(None, max_length=500)
+    price: Decimal = Field(..., gt=0, max_digits=10, decimal_places=3)
+
+
+class ItemCreate(ItemBase):
+    """Validate incoming payload parameters for creating a new menu item."""
+    
+    restaurant_id: int
 
 
 class ItemUpdate(BaseModel):
-    """
-    This class holds the schema for updating the item in Restraunt
-    """
+    """Validate incoming optional attributes for shifting menu item data fields."""
 
-    quantity: int | None = Field(default=None, ge=0)
-    is_veg: bool | None = None
-    description: str | None = Field(default=None, max_length=255)
-    price: Decimal | None = Field(default=None, gt=0, max_digits=10, decimal_places=3)
+    item_name: Optional[str] = Field(None, min_length=1, max_length=50)
+    quantity: Optional[int] = Field(None, ge=0)
+    is_veg: Optional[bool] = None
+    description: Optional[str] = Field(None, max_length=500)
+    price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=3)
 
 
-class ItemResponse(BaseModel):
-    """
-    This class holds the schema for response of item apis.
-    """
+class ItemResponse(ItemBase):
+    """Format outbound server responses representing structural menu item columns."""
+
+    id: int
+    restaurant_id: int
+    created_by_id: int
+    is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
-    id: int
-    item_name: str
-    quantity: int
-    is_veg: bool
-    description: str | None
-    price: Decimal
-    is_active: bool

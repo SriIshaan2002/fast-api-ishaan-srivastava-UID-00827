@@ -2,11 +2,9 @@
 This module provides service operations for user addresses.
 """
 
-from fastapi import HTTPException, status
-
+from app.exception import AddressNotFoundError
 from app.models import Address
-from app.schemas import AddressCreate, AddressUpdate
-from constants import ADDRESS_ERRORS
+from app.schemas import AddressCreate
 
 
 class AddressService:
@@ -14,7 +12,15 @@ class AddressService:
 
     @staticmethod
     async def create_address(data: AddressCreate, user_id: int) -> Address:
-        """Create an address for the authenticated user."""
+        """Create a new address linked to a specific user.
+
+        Args:
+            data (AddressCreate): Validated address creation details.
+            user_id (int): ID of the owning user.
+
+        Returns:
+            Address: Newly created address instance.
+        """
         return await Address.create(
             user_id=user_id,
             **data.model_dump(),
@@ -22,7 +28,14 @@ class AddressService:
 
     @staticmethod
     async def get_all_addresses(user_id: int) -> list[Address]:
-        """Retrieve active addresses belonging to the authenticated user."""
+        """Retrieve all active addresses belonging to a user.
+
+        Args:
+            user_id (int): ID of the owning user.
+
+        Returns:
+            list[Address]: List of active addresses.
+        """
         return await Address.filter(
             user_id=user_id,
             is_active=True,
@@ -30,7 +43,19 @@ class AddressService:
 
     @staticmethod
     async def get_address(address_id: int, user_id: int) -> Address:
-        """Retrieve an address belonging to the authenticated user."""
+        """Retrieve an active address belonging to a user.
+
+        Args:
+            address_id (int): ID of the address.
+            user_id (int): ID of the owning user.
+
+        Returns:
+            Address: Retrieved address instance.
+
+        Raises:
+            AddressNotFoundError: If the address does not exist,
+                is inactive, or does not belong to the user.
+        """
         address = await Address.get_or_none(
             id=address_id,
             user_id=user_id,
@@ -38,41 +63,6 @@ class AddressService:
         )
 
         if address is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=ADDRESS_ERRORS.not_found,
-            )
+            raise AddressNotFoundError()
 
         return address
-
-    @staticmethod
-    async def update_address(
-        address_id: int,
-        data: AddressUpdate,
-        user_id: int,
-    ) -> Address:
-        """Update an address belonging to the authenticated user."""
-        address = await AddressService.get_address(
-            address_id=address_id,
-            user_id=user_id,
-        )
-
-        changes = data.model_dump(exclude_unset=True)
-
-        for field, value in changes.items():
-            setattr(address, field, value)
-
-        if changes:
-            await address.save()
-
-        return address
-
-    @staticmethod
-    async def delete_address(address_id: int, user_id: int) -> None:
-        """Delete an address belonging to the authenticated user."""
-        address = await AddressService.get_address(
-            address_id=address_id,
-            user_id=user_id,
-        )
-
-        await address.delete()

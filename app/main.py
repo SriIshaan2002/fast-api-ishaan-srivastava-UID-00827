@@ -3,10 +3,12 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 import settings
-from app.controller.AddressController import router as addressRouter
+from app.controller.AddressController import routerAdress as addressRouter
 from app.controller.AuthController import authRouter
-from app.controller.OwnerController import router as ownerRouter
+from app.controller.OwnerController import routerOwner as ownerRouter
 from app.controller.UserController import routerAdmin, routerUser
+from app.controller.OrderController import orderRouter
+from app.controller.RestrauntController import restaurant_router
 from app.middleware.auth import unified_auth_middleware
 from constants import GENERAL
 
@@ -19,6 +21,8 @@ app.include_router(routerUser)
 app.include_router(routerAdmin)
 app.include_router(addressRouter)
 app.include_router(ownerRouter)
+app.include_router(orderRouter)
+app.include_router(restaurant_router)
 # Plug in the user routes under the "/api" prefix
 # app.include_router(user_router, prefix="/api")
 

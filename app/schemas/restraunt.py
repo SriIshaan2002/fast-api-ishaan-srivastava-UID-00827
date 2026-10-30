@@ -3,7 +3,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class RestaurantCreate(BaseModel):
+class RestrauntCreate(BaseModel):
     """Validate the data required to create a new restaurant."""
 
     restaurant_name: str = Field(min_length=2, max_length=20)
@@ -14,7 +14,7 @@ class RestaurantCreate(BaseModel):
     nearby_location: str | None = Field(default=None, max_length=50)
 
 
-class RestaurantUpdate(BaseModel):
+class RestrauntUpdate(BaseModel):
     """Validate optional fields for updating an existing restaurant."""
 
     restaurant_name: str | None = Field(default=None, max_length=20)
@@ -26,7 +26,7 @@ class RestaurantUpdate(BaseModel):
     is_closed: bool | None = None
 
 
-class RestaurantResponse(BaseModel):
+class RestrauntResponse(BaseModel):
     """Represent restaurant details returned by the API."""
 
     model_config = ConfigDict(from_attributes=True)

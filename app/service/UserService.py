@@ -15,12 +15,26 @@ class UserService:
 
     @staticmethod
     async def get_all_users() -> list[User]:
-        """Retrieve all users."""
+        """Retrieve all users from the database ordered by their ID.
+
+        Returns:
+            list[User]: A list containing all User database instances.
+        """
         return await User.all().order_by("id")
 
     @staticmethod
     async def get_user(user_id: int) -> User:
-        """Retrieve a user by ID."""
+        """Retrieve a specific user by their unique primary key ID.
+
+        Args:
+            user_id (int): The unique integer database ID of the user.
+
+        Returns:
+            User: The retrieved User database instance.
+
+        Raises:
+            HTTPException: 404 error if no user matches the provided ID.
+        """
         user = await User.get_or_none(id=user_id)
 
         if user is None:
@@ -32,7 +46,17 @@ class UserService:
 
     @staticmethod
     async def get_user_by_email(email: str) -> User:
-        """Retrieve a user by email address."""
+        """Retrieve a specific user using their email address.
+
+        Args:
+            email (str): The email address string to search for.
+
+        Returns:
+            User: The retrieved User database instance.
+
+        Raises:
+            HTTPException: 404 error if no user matches the provided email.
+        """
         user = await User.get_or_none(email=email.strip().lower())
         if user is None:
             raise HTTPException(
@@ -42,7 +66,19 @@ class UserService:
 
     @staticmethod
     async def create_user(data: UserCreate) -> User:
-        """Create a new user."""
+        """Create and persist a new user record in the database.
+
+        Args:
+            data (UserCreate): A validated Pydantic
+            schema containing user creation inputs.
+
+        Returns:
+            User: The newly created User database instance.
+
+        Raises:
+            HTTPException: 409 conflict error if the email
+            address violates unique constraints.
+        """
         user_data = data.model_dump()
         user_data["email"] = str(user_data["email"]).strip().lower()
         try:
@@ -55,7 +91,20 @@ class UserService:
 
     @staticmethod
     async def update_user(user: User, data: UserUpdate) -> User:
-        """Update permitted fields of a user's profile."""
+        """Update permitted profile attributes on an existing user instance.
+
+        Args:
+            user (User): The active Tortoise ORM User instance to be updated.
+            data (UserUpdate): A validated Pydantic
+            schema holding fields to modify.
+
+        Returns:
+            User: The updated and saved User database instance.
+
+        Raises:
+            HTTPException: 409 conflict error if an
+            updated email collides with an existing account.
+        """
         update_data = data.model_dump(exclude_unset=True)
         if "email" in update_data and update_data["email"] is not None:
             update_data["email"] = str(update_data["email"]).strip().lower()
@@ -77,7 +126,22 @@ class UserService:
         user: User,
         updated_by_id: int,
     ) -> dict[str, str]:
-        """Soft-delete a user by marking the account inactive."""
+        """Soft-delete a user profile by
+        switching their status to inactive.
+
+        Args:
+            user (User): The active Tortoise ORM User instance to deactivate.
+            updated_by_id (int): The database ID of the
+            user performing the deactivation action.
+
+        Returns:
+            dict[str, str]: A dictionary message confirmation
+            signifying successful deletion.
+
+        Raises:
+            HTTPException: 404 error if the user
+            account is already flagged as inactive.
+        """
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -88,4 +152,4 @@ class UserService:
         user.updated_by_id = updated_by_id
         await user.save()
 
-        return {"message": SUCCESS_MESSAGES.user_deleted}
+        return {"message": SUCCESS_MESSAGES.Deleted}
