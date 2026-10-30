@@ -6,7 +6,7 @@ from app.models import Address, Owner, Restraunt, User
 from app.schemas import RestrauntCreate, RestrauntResponse
 from app.schemas.address import AddressCreate
 from app.service.AddressService import AddressService
-from constants import ADDRESS_ERRORS, GENERAL, RESTRAUNT_ERROR
+from constants import ADDRESS_ERRORS, GENERAL, RESTRAUNT_EXCEPTIONS
 
 
 def restaurant_to_dict(restaurant: Restraunt) -> dict:
@@ -87,7 +87,7 @@ async def create_restaurant(
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=RESTRAUNT_ERROR.already_exists,
+            detail=RESTRAUNT_EXCEPTIONS.already_exists,
         ) from exc
     return restaurant_to_dict(restaurant)
 
