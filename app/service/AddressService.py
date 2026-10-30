@@ -2,9 +2,9 @@
 This module provides service operations for user addresses.
 """
 
+from app.exception import AddressNotFoundError
 from app.models import Address
 from app.schemas import AddressCreate
-from app.exception import AddressNotFoundError
 
 
 class AddressService:

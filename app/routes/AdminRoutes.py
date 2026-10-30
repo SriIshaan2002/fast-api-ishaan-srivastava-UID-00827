@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
+
 from app.dependency.dependency import get_active_user
-from app.models.model import User
 from app.exception.AuthException import AccountInactiveError
+from app.models.model import User
+
 
 async def require_admin(current_user: User = Depends(get_active_user)) -> User:
     """Allow access only to authenticated administrators.

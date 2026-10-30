@@ -8,9 +8,9 @@ from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
+from app.routes.AddressRoutes import routerAdress
 from app.schemas import AddressCreate, AddressResponse
 from app.service.AddressService import AddressService
-from app.routes import routerAdress
 
 CurrentUser = Annotated[User, Depends(get_active_user)]
 

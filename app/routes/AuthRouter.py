@@ -1,3 +1,3 @@
-from app.routes import authRouter
+from fastapi import APIRouter
 
-
+authRouter = APIRouter(prefix="/auth", tags=["Authentication"])

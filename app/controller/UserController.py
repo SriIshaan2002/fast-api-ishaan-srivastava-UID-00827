@@ -7,11 +7,10 @@ from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
+from app.routes.AdminRoutes import routerAdmin
+from app.routes.UserRouter import routerUser
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from app.service.UserService import UserService
-from app.routes import routerAdmin
-from app.routes.UserRouter import routerUser
-
 
 
 @routerAdmin.get("/", response_model=list[UserResponse])
@@ -25,6 +24,7 @@ async def get_users():
     return await UserService.get_all_users()
 
 
+@routerAdmin.get("/", response_model=UserResponse)
 async def get_user_by_email(email: str):
     """Retrieve a single user using their email address.
 

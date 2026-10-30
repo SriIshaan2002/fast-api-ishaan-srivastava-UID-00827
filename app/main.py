@@ -3,30 +3,27 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 import settings
-from  app.routes.AuthRouter import authRouter
-import app.routes.AdminRoutes
-import app.routes.OwnerRoutes
-import app.routes.UserRouter
-import app.routes.AddressRoutes
+from app.controller.AddressController import routerAdress
+from app.controller.AuthController import authRouter
+from app.controller.OwnerController import routerAdmin as ownerAdmin
+from app.controller.OwnerController import routerOwner
+from app.controller.UserController import routerAdmin as userAdmin
+from app.controller.UserController import routerUser as routerUser
+from app.exception_handler import global_handler
 from app.middleware.auth import unified_auth_middleware
 from constants import GENERAL
-from app.exception_handler import global_handler
 
 app = FastAPI(title="My First FastAPI Template")
 
 app.middleware("http")(unified_auth_middleware)
 
 app.include_router(authRouter)
-# app.include_router(routerUser)
-# app.include_router(routerAdmin)
-# app.include_router(routerAdress)
-# app.include_router(routerOwner)
+app.include_router(routerUser)
+app.include_router(userAdmin)
+app.include_router(routerAdress)
+app.include_router(ownerAdmin)
+app.include_router(routerOwner)
 
-print("Auth router routes:", authRouter.routes)
-
-app.include_router(authRouter)
-
-print("Application routes:", app.routes)
 global_handler(app)
 app.middleware("http")(unified_auth_middleware)
 

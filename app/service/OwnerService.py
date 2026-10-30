@@ -2,13 +2,16 @@
 This module provides service operations for owners.
 """
 
-from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 
+from app.exception import (
+    OwnerAlreadyExistsError,
+    OwnerNotFound,
+    RestrauntNotFound,
+    UserNotFoundError,
+)
 from app.models import Owner, Restraunt, User
 from app.schemas import OwnerCreate, OwnerResponse
-from constants import AUTH_ERRORS, OWNER_ERRORS
-from app.exception import OwnerAlreadyExistsError, UserNotFoundError, RestrauntNotFound, OwnerNotFound
 
 
 class OwnerService:
@@ -42,7 +45,7 @@ class OwnerService:
                 raise RestrauntNotFound()
             return await Owner.create(user=user, restraunt=restraunt)
 
-        except IntegrityError as exc:
+        except IntegrityError:
             raise OwnerAlreadyExistsError()
 
     @staticmethod
