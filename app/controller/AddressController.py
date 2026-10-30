@@ -9,7 +9,7 @@ from fastapi import Depends, status
 from app.dependency.dependency import get_active_user
 from app.models import User
 from app.routes.AddressRoutes import routerAdress
-from app.schemas import AddressCreate, AddressResponse
+from app.schemas import AddressCreate, AddressResponse, AddressUpdate
 from app.service.AddressService import AddressService
 
 CurrentUser = Annotated[User, Depends(get_active_user)]
@@ -79,3 +79,17 @@ async def get_address(
         address_id=address_id,
         user_id=current_user.id,
     )
+
+
+@routerAdress.put("/{address_id}", response_model=AddressResponse)
+async def update_address(
+    address_id: int,
+    address: AddressUpdate,
+    current_user: User = Depends(get_active_user),
+):
+    """Update an address by soft-deleting the old one and creating a new record."""
+    new_address = await AddressService.update_address(
+        address_id=address_id, user_id=current_user.id, address=address
+    )
+
+    return new_address

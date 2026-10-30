@@ -52,7 +52,6 @@ def create_access_token(user_id: int, is_admin: bool) -> str:
     header = {"alg": ALGORITHM, "typ": "JWT"}
     payload = {
         "user_id": user_id,
-        "is_admin": is_admin,
         "iat": int(iat.timestamp()),
         "exp": int(expire.timestamp()),
         "type": "access",
