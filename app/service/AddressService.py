@@ -2,12 +2,12 @@
 This module provides service operations for user addresses.
 """
 
+from tortoise.exceptions import IntegrityError
+
 from app.exception import AddressNotFoundError, RegisteredEmail
 from app.models import Address
-from app.schemas import AddressCreate, AddressUpdate, AddressResponse
-from tortoise.exceptions import IntegrityError
-from fastapi import HTTPException, status
-from constants import ADDRESS_ERRORS
+from app.schemas import AddressCreate, AddressResponse, AddressUpdate
+
 
 class AddressService:
     """Provides CRUD operations for user addresses."""
@@ -72,8 +72,10 @@ class AddressService:
         return address
 
     @staticmethod
-    async def update_address(address_id: int, user_id: int, address: AddressUpdate) -> AddressResponse:
-        """Update an address by soft-deleting the active record and generating a new instance.
+    async def update_address(address_id: int, user_id: int,
+                              address: AddressUpdate) -> AddressResponse:
+        """Update an address by soft-deleting the 
+        active record and generating a new instance.
 
         Arguments:
             address_id: The ID of the existing address to replace.
@@ -84,7 +86,8 @@ class AddressService:
             The validated response schema containing the new address details.
 
         Raises:
-            AddressNotFoundError: If the target address does not exist or belongs to another user.
+            AddressNotFoundError: If the target address 
+            does not exist or belongs to another user.
             Registered Email: for conflict
         """
         current_address = await Address.get_or_none(
@@ -117,7 +120,7 @@ class AddressService:
             
             new_address = await Address.create(**new_address_data)
             
-        except IntegrityError as exc:
+        except IntegrityError:
             current_address.is_active = True
             await current_address.save(update_fields=["is_active"])
             

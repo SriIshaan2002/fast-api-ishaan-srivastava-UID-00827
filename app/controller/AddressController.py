@@ -11,7 +11,6 @@ from app.models import User
 from app.routes.AddressRoutes import routerAdress
 from app.schemas import AddressCreate, AddressResponse, AddressUpdate
 from app.service.AddressService import AddressService
-from app.dependency.dependency import get_active_user
 
 CurrentUser = Annotated[User, Depends(get_active_user)]
 
