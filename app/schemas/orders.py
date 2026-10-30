@@ -46,6 +46,7 @@ class OrderResponse(BaseModel):
     created_at: datetime
     delivered_in: datetime | None = None
 
+
 class OrderItemOut(BaseModel):
     """Schema representing an individual line
     item associated with an order."""
