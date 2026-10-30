@@ -8,6 +8,7 @@ from tortoise.exceptions import IntegrityError
 from app.models import Owner, Restraunt, User
 from app.schemas import OwnerCreate, OwnerResponse
 from constants import AUTH_ERRORS, OWNER_ERRORS
+from app.exception import OwnerAlreadyExistsError, UserNotFoundError, RestrauntNotFound, OwnerNotFound
 
 
 class OwnerService:
@@ -34,25 +35,15 @@ class OwnerService:
         try:
             user = await User.get_or_none(id=data.user_id)
             if user is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=AUTH_ERRORS.user_not_found,
-                )
+                raise UserNotFoundError()
 
             restraunt = await Restraunt.get_or_none(id=data.restraunt_id)
             if restraunt is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=AUTH_ERRORS.not_active,
-                )
-
+                raise RestrauntNotFound()
             return await Owner.create(user=user, restraunt=restraunt)
 
         except IntegrityError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=OWNER_ERRORS.already_exists,
-            ) from exc
+            raise OwnerAlreadyExistsError()
 
     @staticmethod
     async def get_all_owners() -> list[Owner]:
@@ -83,23 +74,5 @@ class OwnerService:
         """
         owner = await Owner.get_or_none(id=owner_id)
         if owner is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=OWNER_ERRORS.not_found,
-            )
+            raise OwnerNotFound()
         return owner
-
-    @staticmethod
-    async def delete_owner(owner_id: int) -> None:
-        """Permanently delete a restaurant ownership association record.
-
-        Args:
-            owner_id (int): The unique integer
-            database ID of the ownership entry to delete.
-
-        Raises:
-            HTTPException: 404 error if the
-            targeted ownership record cannot be found.
-        """
-        owner = await OwnerService.get_owner(owner_id)
-        await owner.delete()

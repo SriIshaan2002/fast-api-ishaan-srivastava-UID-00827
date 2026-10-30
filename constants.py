@@ -28,7 +28,19 @@ Exception_messages = namedtuple(
         "AccountInactive",
         "InvalidToken",
         "SessionNotFound",
+        "InternalServerError"
     ],
+)
+
+Restraunt_exceptions = namedtuple(
+    "Restraunt_exceptions",
+    [
+        "Restraunt_not_found"
+    ],
+)
+
+RESTRAUNT_EXCEPTIONS = Restraunt_exceptions(
+    Restraunt_not_found="Restraunt Not found"
 )
 
 Success = namedtuple("Success", ["Deleted"])
@@ -80,6 +92,7 @@ EXCEPTION_MESSAGES = Exception_messages(
     SessionNotFound="Logout failed: "
     "Session already logged out or tracking UUID is invalid.",
     user_not_found="User not found",
+    InternalServerError="Internal Server Error"
 )
 
 OwnerErrors = namedtuple(
@@ -144,72 +157,4 @@ OwnerSuccessMessages = namedtuple(
 AddressSuccessMessages = namedtuple(
     "AddressSuccessMessages",
     ["address_created", "address_updated", "address_deleted"],
-)
-
-
-OWNER_ERRORS = OwnerErrors(
-    not_found="Owner not found",
-    already_exists="Owner already exists",
-    invalid_password="Password is invalid",
-)
-
-ADDRESS_ERRORS = AddressErrors(
-    not_found="Address not found",
-    access_forbidden="You do not have permission to access this address",
-)
-
-OWNER_SUCCESS_MESSAGES = OwnerSuccessMessages(
-    owner_created="Owner created successfully",
-    owner_updated="Owner updated successfully",
-    owner_deleted="Owner deleted successfully",
-)
-
-ADDRESS_SUCCESS_MESSAGES = AddressSuccessMessages(
-    address_created="Address created successfully",
-    address_updated="Address updated successfully",
-    address_deleted="Address deleted successfully",
-)
-
-OwnerErrors = namedtuple(
-    "OwnerErrors",
-    ["not_found", "already_exists", "invalid_password"],
-)
-
-AddressErrors = namedtuple(
-    "AddressErrors",
-    ["not_found", "access_forbidden"],
-)
-
-OwnerSuccessMessages = namedtuple(
-    "OwnerSuccessMessages",
-    ["owner_created", "owner_updated", "owner_deleted"],
-)
-
-AddressSuccessMessages = namedtuple(
-    "AddressSuccessMessages",
-    ["address_created", "address_updated", "address_deleted"],
-)
-
-
-OWNER_ERRORS = OwnerErrors(
-    not_found="Owner not found",
-    already_exists="Owner already exists",
-    invalid_password="Password is invalid",
-)
-
-ADDRESS_ERRORS = AddressErrors(
-    not_found="Address not found",
-    access_forbidden="You do not have permission to access this address",
-)
-
-OWNER_SUCCESS_MESSAGES = OwnerSuccessMessages(
-    owner_created="Owner created successfully",
-    owner_updated="Owner updated successfully",
-    owner_deleted="Owner deleted successfully",
-)
-
-ADDRESS_SUCCESS_MESSAGES = AddressSuccessMessages(
-    address_created="Address created successfully",
-    address_updated="Address updated successfully",
-    address_deleted="Address deleted successfully",
 )

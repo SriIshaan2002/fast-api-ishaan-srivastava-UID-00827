@@ -6,6 +6,10 @@ from app.exception.AuthException import (
     RegisteredEmail,
     SessionNotFoundError,
     UserNotFoundError,
+    AddressNotFoundError,
+    OwnerAlreadyExistsError,
+    RestrauntNotFound,
+    OwnerNotFound
 )
 from app.exception.BaseException import CustomBaseException
 
@@ -18,4 +22,8 @@ __all__ = (
     "SessionNotFoundError",
     "UserNotFoundError",
     "CustomBaseException",
+    "AddressNotFoundError"
+    "OwnerAlreadyExistsError"
+    "RestrauntNotFound"
+    "OwnerNotFound"
 )

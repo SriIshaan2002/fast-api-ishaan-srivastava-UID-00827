@@ -3,7 +3,7 @@
 from fastapi import status
 
 from app.exception.BaseException import CustomBaseException
-from constants import EXCEPTION_MESSAGES
+from constants import EXCEPTION_MESSAGES, ADDRESS_ERRORS,OWNER_ERRORS, RESTRAUNT_EXCEPTIONS
 
 
 class RegisteredEmail(CustomBaseException):
@@ -59,3 +59,28 @@ class ReactivationFailedError(CustomBaseException):
     def __init__(self, reason: str):
         formatted_detail = f"Reactivation failed: {reason}"
         super().__init__(status_code=self.status_code, detail=formatted_detail)
+
+class AddressNotFoundError(CustomBaseException):
+    """Raised when an address does not exist or is inaccessible."""
+
+    def __init__(self):
+        super().__init__(
+            detail=ADDRESS_ERRORS.not_found,
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+class OwnerAlreadyExistsError(CustomBaseException):
+    """Raised when an owner already exists."""
+    detail=OWNER_ERRORS.already_exists
+    status_code=status.HTTP_409_CONFLICT
+
+class RestrauntNotFound(CustomBaseException):
+    """Raised when an owner already exists."""
+    detail=RESTRAUNT_EXCEPTIONS.Restraunt_not_found
+    status_code=status.HTTP_404_NOT_FOUND
+
+class OwnerNotFound(CustomBaseException):
+    """Raised when an owner already exists."""
+    detail=OWNER_ERRORS.not_found
+    status_code=status.HTTP_404_NOT_FOUND
+

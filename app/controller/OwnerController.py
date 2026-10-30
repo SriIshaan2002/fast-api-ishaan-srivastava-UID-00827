@@ -7,13 +7,11 @@ from fastapi import APIRouter, Depends, status
 from app.dependency.dependency import get_active_user
 from app.schemas import OwnerCreate, OwnerResponse
 from app.service.OwnerService import OwnerService
-
-router = APIRouter(
-    prefix="/owners", tags=["Owners"], dependencies=[Depends(get_active_user)]
-)
+from app.routes import routerAdmin
+from app.routes import routerOwner
 
 
-@router.post("/", response_model=OwnerResponse, status_code=status.HTTP_201_CREATED)
+@routerAdmin.post("/", response_model=OwnerResponse, status_code=status.HTTP_201_CREATED)
 async def create_owner(data: OwnerCreate):
     """Create a new mapping record associating a user with a restaurant they own.
 
@@ -28,7 +26,7 @@ async def create_owner(data: OwnerCreate):
     return await OwnerService.create_owner(data)
 
 
-@router.get("/", response_model=list[OwnerResponse])
+@routerAdmin.get("/", response_model=list[OwnerResponse])
 async def get_all_owners():
     """Retrieve all user-restaurant ownership assignment records.
 
@@ -39,7 +37,7 @@ async def get_all_owners():
     return await OwnerService.get_all_owners()
 
 
-@router.get("/{owner_id}", response_model=OwnerResponse)
+@routerOwner.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):
     """Retrieve a specific ownership
     association entry by its unique database ID.
@@ -55,13 +53,3 @@ async def get_owner(owner_id: int):
     return await OwnerService.get_owner(owner_id)
 
 
-@router.delete("/{owner_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_owner(owner_id: int) -> None:
-    """Permanently delete an ownership
-    association record by its ID.
-
-    Args:
-        owner_id (int): The database primary key
-        identifier of the ownership mapping to remove.
-    """
-    await OwnerService.delete_owner(owner_id)

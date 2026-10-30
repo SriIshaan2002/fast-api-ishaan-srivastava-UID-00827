@@ -5,6 +5,8 @@ handling to capture unhandled runtime errors.
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
+from app.exception.BaseException import CustomBaseException
+from constants import EXCEPTION_MESSAGES
 
 
 def global_handler(app: FastAPI) -> None:
@@ -16,6 +18,16 @@ def global_handler(app: FastAPI) -> None:
         FastAPI application instance to bind the handler to.
     """
 
+    @app.exception_handler(CustomBaseException)
+    async def custom_handler(
+        request: Request,
+        exc: CustomBaseException,
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+        )
+    
     @app.exception_handler(Exception)
     async def handler(request: Request, exc: Exception) -> JSONResponse:
         """Intercept unhandled application exceptions
@@ -32,5 +44,5 @@ def global_handler(app: FastAPI) -> None:
         """
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"detail": str(exc)},
+            content={"detail": EXCEPTION_MESSAGES.InternalServerError}
         )

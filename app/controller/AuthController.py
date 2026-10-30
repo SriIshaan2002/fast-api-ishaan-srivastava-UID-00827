@@ -13,9 +13,7 @@ from app.exception import CustomBaseException
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService
-
-authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
-
+from app.routes import authRouter
 
 @authRouter.post(
     "/signup", status_code=status.HTTP_201_CREATED, response_model=TokenResponse

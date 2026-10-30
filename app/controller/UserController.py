@@ -9,40 +9,9 @@ from app.dependency.dependency import get_active_user
 from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from app.service.UserService import UserService
+from app.routes.AdminRoutes import routerAdmin
+from app.routes.UserRouter import routerUser
 
-
-async def require_admin(current_user: User = Depends(get_active_user)) -> User:
-    """Allow access only to authenticated administrators.
-
-    Args:
-        current_user (User): The active authenticated
-        User instance from dependency injection.
-
-    Returns:
-        User: The authenticated administrator instance.
-
-    Raises:
-        HTTPException: 403 error if the
-        authenticated user lacks admin privileges.
-    """
-    if not current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Administrator privileges required",
-        )
-    return current_user
-
-
-routerAdmin = APIRouter(
-    prefix="/admin",
-    tags=["User Management ADMIN"],
-    dependencies=[Depends(require_admin)],
-)
-routerUser = APIRouter(
-    prefix="/users",
-    tags=["User Management"],
-    dependencies=[Depends(get_active_user)],
-)
 
 
 @routerAdmin.get("/", response_model=list[UserResponse])
