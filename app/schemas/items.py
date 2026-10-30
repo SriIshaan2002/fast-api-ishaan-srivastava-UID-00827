@@ -1,43 +1,38 @@
-"""
-This file contains Schemas related to Items.
-"""
+"""This file contains Schemas related to Items."""
 
 from decimal import Decimal
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class ItemCreate(BaseModel):
-    """
-    This class hold the schema for adding a new item in restraunt.
-    """
+    """Schema for adding a new item to a restaurant."""
 
-    item_name: str = Field(min_length=2, max_length=20)
-    quantity: int = Field(ge=0)
+    item_name: str = Field( min_length=2, max_length=50) 
+    restaurant_id: int = Field(description="The ID of the restaurant offering this item.") 
+    quantity: int = Field(default=0, ge=0)
     is_veg: bool
-    description: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=500)  
     price: Decimal = Field(gt=0, max_digits=10, decimal_places=3)
 
 
 class ItemUpdate(BaseModel):
-    """
-    This class holds the schema for updating the item in Restraunt
-    """
+    """Schema for updating an item in a restaurant."""
 
+    item_name: str | None = Field(default=None, min_length=2, max_length=50) 
     quantity: int | None = Field(default=None, ge=0)
     is_veg: bool | None = None
-    description: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=500) 
     price: Decimal | None = Field(default=None, gt=0, max_digits=10, decimal_places=3)
 
 
 class ItemResponse(BaseModel):
-    """
-    This class holds the schema for response of item apis.
-    """
+    """Schema for responses from item APIs."""
 
     model_config = ConfigDict(from_attributes=True)
+    
     id: int
     item_name: str
+    restaurant_id: int
     quantity: int
     is_veg: bool
     description: str | None

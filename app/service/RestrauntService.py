@@ -1,12 +1,10 @@
-from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 from tortoise.transactions import in_transaction
 
 from app.models import Address, Owner, Restraunt, User
-from app.schemas.restraunt import RestrauntCreate, RestrauntResponse, RestrauntUpdate
+from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.schemas.address import AddressCreate
 from app.service.AddressService import AddressService
-from constants import ADDRESS_ERRORS, RESTRAUNT_EXCEPTIONS
 from app.exception import RestrauntNotFound, RestaurantAlreadyExists, InvalidLocationInput, InvalidRestaurantInput
 
 
@@ -35,7 +33,7 @@ async def get_active_address(address_id: int) -> Address:
     return address
 
 
-async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
+async def check_restaurant_access(current_user: User) -> None:
     """Verify that the user is an administrator or restaurant owner."""
     if current_user.is_admin:
         return
@@ -67,7 +65,7 @@ async def create_restaurant(
             is_closed=payload.is_closed,
             )
 
-    except IntegrityError as exc:
+    except IntegrityError :
         raise RestaurantAlreadyExists()
     return restaurant_to_dict(restaurant)
 
@@ -89,7 +87,7 @@ async def get_restaurant(restaurant_id: int) -> dict:
     ).first()
 
     if restaurant is None:
-        raise RestrauntNotFound
+        raise RestrauntNotFound()
     return restaurant_to_dict(restaurant)
 
 
@@ -108,11 +106,11 @@ async def update_restaurant(
     await check_restaurant_access(restaurant, current_user)
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
-        raise InvalidRestaurantInput
+        raise InvalidRestaurantInput()
     if "location_id" in update_data:
         address_id = update_data.pop("location_id")
         if address_id is None:
-            raise InvalidLocationInput
+            raise InvalidLocationInput()
         restaurant.location_id = await get_active_address(address_id)
     for field, value in update_data.items():
         setattr(restaurant, field, value)
@@ -120,7 +118,7 @@ async def update_restaurant(
     try:
         await restaurant.save()
     except IntegrityError as exc:
-        raise RestaurantAlreadyExists
+        raise RestaurantAlreadyExists()
     return restaurant_to_dict(restaurant)
 
 
@@ -131,7 +129,7 @@ async def delete_restaurant(
     """Soft-delete an active restaurant."""
     restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
     if restaurant is None:
-        raise RestrauntNotFound
+        raise RestrauntNotFound()
     await check_restaurant_access(restaurant, current_user)
     restaurant.is_active = False
     restaurant.updated_by_id = current_user.id
