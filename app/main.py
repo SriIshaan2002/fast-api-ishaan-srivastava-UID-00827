@@ -10,6 +10,7 @@ from app.controller.AddressController import routerAdress
 
 from app.controller.OwnerController import routerAdmin as ownerAdmin
 from app.controller.OwnerController import routerOwner
+from app.controller.RestrauntController import restaurant_router
 from app.middleware.auth import unified_auth_middleware
 from constants import GENERAL
 from app.exception_handler import global_handler
@@ -24,6 +25,7 @@ app.include_router(userAdmin)
 app.include_router(routerAdress)
 app.include_router(ownerAdmin)
 app.include_router(routerOwner)
+app.include_router(restaurant_router)
 
 global_handler(app)
 

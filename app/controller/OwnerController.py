@@ -27,8 +27,7 @@ async def create_owner(data: OwnerCreate):
     return await OwnerService.create_owner(data)
 
 
-
-@router.get("/", response_model=list[OwnerResponse])
+@routerAdmin.get("/", response_model=list[OwnerResponse])
 async def get_all_owners():
     """Retrieve all user-restaurant ownership assignment records.
 
@@ -39,8 +38,7 @@ async def get_all_owners():
     return await OwnerService.get_all_owners()
 
 
-
-@router.get("/{owner_id}", response_model=OwnerResponse)
+@routerOwner.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):
     """Retrieve a specific ownership
     association entry by its unique database ID.
