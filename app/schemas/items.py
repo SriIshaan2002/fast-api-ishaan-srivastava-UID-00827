@@ -30,11 +30,11 @@ class ItemResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
     
-    id: int
-    item_name: str
-    restaurant_id: int
-    quantity: int
-    is_veg: bool
+    id: int| None
+    item_name: str| None
+    restaurant_id: int| None
+    quantity: int| None
+    is_veg: bool | None
     description: str | None
-    price: Decimal
-    is_active: bool
+    price: Decimal | None
+    is_active: bool | None

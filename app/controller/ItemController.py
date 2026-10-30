@@ -8,7 +8,7 @@ from app.dependency.dependency import get_active_user
 from app.routes.ItemRoutes import routerItems
 
 @routerItems.post(
-    "", 
+    "/", 
     response_model=ItemResponse, 
     status_code=status.HTTP_201_CREATED,
     summary="Create a new menu item"
@@ -41,7 +41,7 @@ async def get_item(item_id: int) -> ItemResponse:
     return await ItemService.get_item(item_id=item_id)
 
 
-@routerItems.patch(
+@routerItems.post(
     "/{item_id}", 
     response_model=ItemResponse,
     summary="Update a menu item"

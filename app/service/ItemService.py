@@ -9,11 +9,13 @@ from app.models import Item, Restraunt, User, Owner
 from app.schemas.items import ItemCreate, ItemUpdate, ItemResponse
 from app.exception.AuthException import RestrauntNotFound, OwnerNotFound
 
-async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
-    """Verify that the user is an administrator or restaurant owner."""
-    try:
-        await Owner.get_or_none(user=current_user, restaurant=restaurant)
-    except:
+async def check_restaurant_access(restaurant: Restraunt,current_user: User,) -> None:
+    """Verify that the current user owns the requested restaurant."""
+    owner = await Owner.get_or_none(
+        user_id=current_user.id,
+        restraunt_id=restaurant.id,
+    )
+    if owner is None:
         raise OwnerNotFound()
 
 class ItemService:
@@ -114,7 +116,7 @@ class ItemService:
         for field, value in changes.items():
             setattr(item, field, value)
 
-        item.updated_by = current_user
+        item.updated_by_id = current_user.id
         try:
             await item.save()
         except IntegrityError as exc:
@@ -143,5 +145,8 @@ class ItemService:
         await check_restaurant_access(item.restaurant, current_user)
 
         item.is_active = False
-        item.updated_by = current_user
-        await item.save(update_fields=["is_active", "updated_by", "updated_at"])
+        item.updated_by_id = current_user.id
+
+        await item.save(
+        update_fields=["is_active", "updated_by_id", "updated_at"]
+    )
