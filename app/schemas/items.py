@@ -3,7 +3,7 @@ This module defines Pydantic validation schemas for managing restaurant menu ite
 """
 
 from decimal import Decimal
-from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 

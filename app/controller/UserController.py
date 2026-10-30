@@ -124,7 +124,6 @@ async def get_profile(current_user: User = Depends(get_active_user)):
     return current_user
 
 
-
 @routerUser.delete("/")
 async def deactivate_my_account(current_user: User = Depends(get_active_user)):
     """Self-trigger account deactivation (soft-delete)

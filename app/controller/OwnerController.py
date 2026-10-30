@@ -9,7 +9,6 @@ from app.schemas import OwnerCreate, OwnerResponse
 from app.service.OwnerService import OwnerService
 
 
-
 @routerOwner.post(
     "/", response_model=OwnerResponse, status_code=status.HTTP_201_CREATED
 )
@@ -24,8 +23,9 @@ async def create_owner(data: OwnerCreate):
         OwnerResponse: The serialized entry
         of the newly created ownership record.
     """
-    
+
     return await OwnerService.create_owner(data)
+
 
 @routerOwner.get("/{owner_id}", response_model=OwnerResponse)
 async def get_owner(owner_id: int):

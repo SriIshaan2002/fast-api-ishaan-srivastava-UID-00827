@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+
 from app.dependency.dependency import get_active_user
 
 restaurant_router = APIRouter(
