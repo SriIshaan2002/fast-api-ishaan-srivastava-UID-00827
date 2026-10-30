@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional
 
 
 class AddressCreate(BaseModel):
@@ -21,17 +22,15 @@ class AddressUpdate(BaseModel):
     postal_code: str | None = Field(default=None, min_length=4, max_length=12)
     country: str | None = Field(default=None, min_length=2, max_length=100)
 
-
 class AddressResponse(BaseModel):
-    """Schema for returning address details."""
+    """Address response schema."""
 
     id: int
     user_id: int
     city: str
-    address_line: str = Field(
-        validation_alias="street", serialization_alias="address_line"
-    )
-    postal_code: str = Field(validation_alias="zip", serialization_alias="postal_code")
-    state: str = Field(default="N/A")
-    country: str = Field(default="N/A")
-    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    house: str
+    nearby_location: Optional[str] = None
+    is_active: bool
+    address_line: str = Field(validation_alias="street")
+    postal_code: str = Field(validation_alias="zip")
+    model_config = ConfigDict(from_attributes=True)
