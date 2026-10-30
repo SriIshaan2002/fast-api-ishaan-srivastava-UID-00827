@@ -49,11 +49,6 @@ AuthSuccess = namedtuple(
     ["registered", "reactivated", "logged_out"],
 )
 
-RestaurantErrors = namedtuple(
-    "RestaurantErrors",
-    ["not_found", "already_exists", "closed", "Input_not_satisfied", "name_not_null"],
-)
-
 GeneralMessages = namedtuple(
     "GeneralMessages",
     ["start_message", "access_forbidden", "internal_server_error", "access_token"],
@@ -84,48 +79,16 @@ AUTH_ERRORS = AuthErrors(
     invalid_password="Password provided is invalid",
 )
 
-OwnerErrors = namedtuple(
-    "OwnerErrors",
-    ["not_found", "already_exists", "invalid_password"],
-)
-
-AddressErrors = namedtuple(
-    "AddressErrors",
-    ["not_found", "access_forbidden"],
-)
-
-OwnerSuccessMessages = namedtuple(
-    "OwnerSuccessMessages",
-    ["owner_created", "owner_updated", "owner_deleted"],
-)
-
-AddressSuccessMessages = namedtuple(
-    "AddressSuccessMessages",
-    ["address_created", "address_updated", "address_deleted"],
-)
-
-
-OWNER_ERRORS = OwnerErrors(
-    not_found="Owner not found",
-    already_exists="Owner already exists",
-    invalid_password="Password is invalid",
-)
-
-ADDRESS_ERRORS = AddressErrors(
-    not_found="Address not found",
-    access_forbidden="You do not have permission to access this address",
-)
-
-OWNER_SUCCESS_MESSAGES = OwnerSuccessMessages(
-    owner_created="Owner created successfully",
-    owner_updated="Owner updated successfully",
-    owner_deleted="Owner deleted successfully",
-)
-
-ADDRESS_SUCCESS_MESSAGES = AddressSuccessMessages(
-    address_created="Address created successfully",
-    address_updated="Address updated successfully",
-    address_deleted="Address deleted successfully",
+EXCEPTION_MESSAGES = Exception_messages(
+    registration_failed="Registration failed",
+    InvalidPassword="Authentication failed: Invalid credentials provided.",
+    authentication_failed="Authentication failed: User account not found.",
+    AccountInactive="Authentication failed: This account is currently deactivated.",
+    InvalidToken="Session invalid: The provided refresh token is invalid or expired.",
+    SessionNotFound="Logout failed: "
+    "Session already logged out or tracking UUID is invalid.",
+    user_not_found="User not found",
+    InternalServerError="Internal Server Error",
 )
 
 OwnerErrors = namedtuple(
@@ -170,4 +133,24 @@ ADDRESS_SUCCESS_MESSAGES = AddressSuccessMessages(
     address_created="Address created successfully",
     address_updated="Address updated successfully",
     address_deleted="Address deleted successfully",
+)
+
+OwnerErrors = namedtuple(
+    "OwnerErrors",
+    ["not_found", "already_exists", "invalid_password"],
+)
+
+AddressErrors = namedtuple(
+    "AddressErrors",
+    ["not_found", "access_forbidden"],
+)
+
+OwnerSuccessMessages = namedtuple(
+    "OwnerSuccessMessages",
+    ["owner_created", "owner_updated", "owner_deleted"],
+)
+
+AddressSuccessMessages = namedtuple(
+    "AddressSuccessMessages",
+    ["address_created", "address_updated", "address_deleted"],
 )
