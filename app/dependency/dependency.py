@@ -4,15 +4,21 @@ authenticate and extract the active user from requests.
 """
 
 from typing import Annotated
-from app.models.model import User 
-from app.auth.jwt_handler import decode_and_verify_token as decode
+
+import jwt
+from fastapi import Header, HTTPException, status
+
 from app.auth.jwt_handler import TokenPayload
+from app.auth.jwt_handler import decode_and_verify_token as decode
+from app.models.model import User
 from constants import AUTH_ERRORS
+from app.exception import UserNotFoundError
 
 
 async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
     """Extract and validate the currently authenticated
     active user using the custom JWT header.
+    f
 
     Args:
         x_custom_token (str): The incoming raw JSON
@@ -43,7 +49,6 @@ async def get_active_user(x_custom_token: Annotated[str, Header()]) -> User:
         raise credentials_exception
 
     if not current_user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive"
-        )
+        raise UserNotFoundError
+
     return current_user

@@ -1,9 +1,13 @@
 from app.exception.AuthException import (
     AccountInactiveError,
+    AddressNotFoundError,
     InvalidPasswordError,
     InvalidTokenError,
+    OwnerAlreadyExistsError,
+    OwnerNotFound,
     ReactivationFailedError,
     RegisteredEmail,
+    RestrauntNotFound,
     SessionNotFoundError,
     UserNotFoundError,
 )
@@ -18,4 +22,8 @@ __all__ = (
     "SessionNotFoundError",
     "UserNotFoundError",
     "CustomBaseException",
+    "AddressNotFoundError",
+    "OwnerAlreadyExistsError",
+    "RestrauntNotFound",
+    "OwnerNotFound",
 )

@@ -12,7 +12,6 @@ __all__ = (
     UserUpdate,
     OwnerCreate,
     OwnerResponse,
-    OwnerUpdate,
     AddressCreate,
     AddressResponse,
     AddressUpdate,

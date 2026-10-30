@@ -67,7 +67,7 @@ async def unified_auth_middleware(request: Request, call_next):
                 content={"detail": AUTH_ERRORS.invalid_credentials},
             )
     if path.startswith("/owners"):
-        if not (payload.is_owner or payload.is_admin):
+        if not (current_user.is_admin):
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={"detail": AUTH_ERRORS.invalid_credentials},

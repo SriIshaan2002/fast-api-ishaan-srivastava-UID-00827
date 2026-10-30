@@ -28,8 +28,16 @@ Exception_messages = namedtuple(
         "AccountInactive",
         "InvalidToken",
         "SessionNotFound",
+        "InternalServerError",
     ],
 )
+
+Restraunt_exceptions = namedtuple(
+    "Restraunt_exceptions",
+    ["Restraunt_not_found"],
+)
+
+RESTRAUNT_EXCEPTIONS = Restraunt_exceptions(Restraunt_not_found="Restraunt Not found")
 
 Success = namedtuple("Success", ["Deleted"])
 Success = namedtuple("Success", ["Deleted"])
@@ -85,6 +93,7 @@ EXCEPTION_MESSAGES = Exception_messages(
     SessionNotFound="Logout failed: "
     "Session already logged out or tracking UUID is invalid.",
     user_not_found="User not found",
+    InternalServerError="Internal Server Error",
 )
 
 OwnerErrors = namedtuple(

@@ -7,14 +7,13 @@ to AuthService. Custom application exceptions are converted into
 FastAPI HTTP exceptions with the corresponding status codes.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import HTTPException, status
 
 from app.exception import CustomBaseException
+from app.routes.AuthRouter import authRouter
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService
-
-authRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @authRouter.post(
