@@ -7,13 +7,13 @@ to AuthService. Custom application exceptions are converted into
 FastAPI HTTP exceptions with the corresponding status codes.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import HTTPException, status
 
 from app.exception import CustomBaseException
 from app.schemas.token import TokenResponse
 from app.schemas.user import UserCreate, UserLogin
 from app.service.authService import AuthService
-from app.routes import authRouter
+from app.routes.AuthRouter import authRouter
 
 @authRouter.post(
     "/signup", status_code=status.HTTP_201_CREATED, response_model=TokenResponse
@@ -117,3 +117,4 @@ async def reactivate(user: UserLogin) -> TokenResponse:
         return await AuthService.reactivate(user)
     except CustomBaseException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+

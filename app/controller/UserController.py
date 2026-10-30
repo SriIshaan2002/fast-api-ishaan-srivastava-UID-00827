@@ -3,13 +3,13 @@ This module defines APIs for user management and authentication-related
 user operations.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from app.service.UserService import UserService
-from app.routes.AdminRoutes import routerAdmin
+from app.routes import routerAdmin
 from app.routes.UserRouter import routerUser
 
 
