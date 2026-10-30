@@ -80,7 +80,8 @@ async def create_restaurant(
         A dictionary containing serialized data properties of the new restaurant.
 
     Raises:
-        RestaurantAlreadyExists: If a restaurant with the same unique name already exists.
+        RestaurantAlreadyExists: If a restaurant with
+        the same unique name already exists.
     """
     try:
         async with in_transaction():
@@ -160,7 +161,8 @@ async def update_restaurant(
         RestrauntNotFound: If the restaurant record is missing or inactive.
         InvalidRestaurantInput: If the payload contains no valid modification fields.
         InvalidLocationInput: If the location field update value evaluates to None.
-        RestaurantAlreadyExists: If the naming changes conflict with an existing unique record.
+        RestaurantAlreadyExists: If the naming changes
+        conflict with an existing unique record.
     """
     restaurant = await Restraunt.filter(
         id=restaurant_id,
@@ -168,22 +170,22 @@ async def update_restaurant(
     ).first()
     if restaurant is None:
         raise RestrauntNotFound()
-        
+
     await check_restaurant_access(restaurant, current_user)
-    
+
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
         raise InvalidRestaurantInput()
-        
+
     if "location_id" in update_data:
         address_id = update_data.pop("location_id")
         if address_id is None:
             raise InvalidLocationInput()
         restaurant.location_id = await get_active_address(address_id)
-        
+
     for field, value in update_data.items():
         setattr(restaurant, field, value)
-        
+
     restaurant.updated_by = current_user
     try:
         await restaurant.save()
@@ -203,14 +205,15 @@ async def delete_restaurant(
         current_user: The active session user modifying the record.
 
     Raises:
-        RestrauntNotFound: If the target restaurant does not exist or is already inactive.
+        RestrauntNotFound: If the target restaurant
+        does not exist or is already inactive.
     """
     restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
     if restaurant is None:
         raise RestrauntNotFound()
-        
+
     await check_restaurant_access(restaurant, current_user)
-    
+
     restaurant.is_active = False
     restaurant.updated_by_id = current_user.id
     await restaurant.save(update_fields=["is_active", "updated_by_id", "updated_at"])
