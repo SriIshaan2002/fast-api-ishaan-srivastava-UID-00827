@@ -1,14 +1,3 @@
-from app.models.model import (
-    Address,
-    Item,
-    Order,
-    OrderItem,
-    Owner,
-    Restraunt,
-    Token,
-    User,
-)
-
 __all__ = [
     "Address",
     "Item",
@@ -19,3 +8,15 @@ __all__ = [
     "Token",
     "User",
 ]
+
+
+from app.models.model import (
+    Address,
+    Item,
+    Order,
+    OrderItem,
+    Owner,
+    Restraunt,
+    Token,
+    User,
+)
