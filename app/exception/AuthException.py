@@ -116,3 +116,60 @@ class InvalidLocationInput(CustomBaseException):
 
     detail = ADDRESS_ERRORS.not_found
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+class OrderNotFoundError(CustomBaseException):
+    """Raised when an order doesn't exist or doesn't belong to the user."""
+
+    def __init__(self, order_id):
+        self.order_id = order_id
+        super().__init__(f"Order {order_id} not found")
+
+
+class OrderEmptyError(CustomBaseException):
+    """Raised when an order is placed with no items."""
+
+    def __init__(self):
+        super().__init__("An order must contain at least one item.")
+
+
+class InvalidQuantityError(CustomBaseException):
+    """Raised when a requested quantity is zero or negative."""
+
+    def __init__(self, item_id):
+        self.item_id = item_id
+        super().__init__(f"Quantity for item {item_id} must be greater than 0.")
+
+
+class ItemNotFoundError(CustomBaseException):
+    """Raised when an item is missing, inactive, or not in the restaurant."""
+
+    def __init__(self, item_id):
+        self.item_id = item_id
+        super().__init__(
+            f"Menu item ID {item_id} is unavailable or "
+            "doesn't belong to this restaurant."
+        )
+
+
+class InsufficientStockError(CustomBaseException):
+    """Raised when a requested quantity exceeds available stock."""
+
+    def __init__(self, item_name: str, available: int, requested: int):
+        self.item_name = item_name
+        self.available = available
+        self.requested = requested
+        super().__init__(
+            f"Insufficient stock for item '{item_name}'. "
+            f"Available: {available}, Requested: {requested}."
+        )
+
+
+class OrderConflictError(CustomBaseException):
+    """Raised on a database integrity error or lock/deadlock failure."""
+
+    def __init__(self):
+        super().__init__(
+            "Order processing failed due to a database conflict "
+            "or lock failure. Please retry."
+        )

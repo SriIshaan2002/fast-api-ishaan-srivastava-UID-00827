@@ -23,7 +23,7 @@ async def create_owner(data: OwnerCreate):
         OwnerResponse: The serialized entry
         of the newly created ownership record.
     """
-    print("inside controller")
+
     return await OwnerService.create_owner(data)
 
 

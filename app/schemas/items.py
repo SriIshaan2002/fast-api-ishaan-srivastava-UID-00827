@@ -1,4 +1,6 @@
-"""This file contains Schemas related to Items."""
+"""
+This module defines Pydantic validation schemas for managing restaurant menu items.
+"""
 
 from decimal import Decimal
 

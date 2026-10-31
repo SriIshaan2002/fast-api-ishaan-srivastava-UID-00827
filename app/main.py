@@ -6,6 +6,7 @@ import settings
 from app.controller.AddressController import routerAdress
 from app.controller.AuthController import authRouter
 from app.controller.ItemController import routerItems
+from app.controller.OrderController import orderRouter
 from app.controller.OwnerController import routerOwner
 from app.controller.RestrauntController import restaurant_router
 from app.controller.UserController import routerAdmin as userAdmin
@@ -25,6 +26,7 @@ app.include_router(routerAdress)
 app.include_router(routerOwner)
 app.include_router(restaurant_router)
 app.include_router(routerItems)
+app.include_router(orderRouter)
 
 global_handler(app)
 app.middleware("http")(unified_auth_middleware)
