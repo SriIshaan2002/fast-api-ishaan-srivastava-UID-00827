@@ -33,3 +33,11 @@ ignore = []
 [tool.ruff.format]
 # Use double quotes for strings (standard style)
 quote-style = "double"
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+# scope level of fixture in pytest
+asyncio_default_fixture_loop_scope = "function"
+
+
