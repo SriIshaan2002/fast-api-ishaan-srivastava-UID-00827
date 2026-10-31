@@ -1,3 +1,6 @@
+__all__ = ["Address", "Item", "Order", "OrderItem", "Owner", "Restraunt", "Token", "User"]
+
+
 from app.models.model import (
     Address,
     Item,
@@ -6,7 +9,5 @@ from app.models.model import (
     Owner,
     Restraunt,
     Token,
-    User,
+    User
 )
-
-__all__ = [Address, Item, Order, OrderItem, Owner, Restraunt, Token, User]

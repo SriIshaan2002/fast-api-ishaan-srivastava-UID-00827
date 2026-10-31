@@ -39,14 +39,13 @@ class AuthService:
         Raises:
                 RegistrationError: If the email already exists.
         """
-        email_clean = user_data.email
+        email = user_data.email
 
-        existing_user = await User.filter(email=email_clean).first()
+        existing_user = await User.filter(email=email).first()
         if existing_user:
             raise RegisteredEmail(error=AUTH_ERRORS.registered_email)
 
         user_dump = user_data.model_dump()
-        user_dump["email"] = email_clean
         user_dump["password"] = hash_password(password=user_data.password)
         try:
             created_user = await User.create(**user_dump)

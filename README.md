@@ -1,28 +1,25 @@
-# My Project
 # Restaurant Management API
 
-This project is a restaurant management backend built using FastAPI and PostgreSQL. It is currently under development.
+This project is a restaurant management backend built using FastAPI and PostgreSQL. It features a fully implemented token-based authentication system, robust data validation, and an automated database migration engine.
 
 ## Tech Stack
 
-- Python
-- FastAPI
-- PostgreSQL
-- Tortoise ORM
-- Aerich
-- Pydantic
-- JWT
+- **Framework:** FastAPI
+- **Database:** PostgreSQL
+- **ORM:** Tortoise ORM
+- **Migrations:** Aerich
+- **Validation:** Pydantic v2
+- **Security:** JWT (JSON Web Tokens) & Passlib (Bcrypt)
+- **Testing:** Pytest & HTTPX AsyncClient
 
-## Current Progress
+## Key Features
 
-- Created database models for users, restaurants, addresses, menu items, orders, and order items.
-- Defined relationships between database tables using Tortoise ORM.
-- Created Pydantic schemas for user, restaurant, and order data validation.
-- Added database configuration using environment variables.
-- Configured PostgreSQL connection with Tortoise ORM.
-- Set up Aerich for database migrations.
-- Added JWT utilities for creating and validating access and refresh tokens.
-- Started implementing user authentication and CRUD operations.
+- **Database Schemas:** Models and relationships defined for Users, Restaurants, Addresses, Menu Items, Orders, and Order Items.
+- **Authentication Layer:** Secure stateless architecture utilizing asymmetric access and refresh tokens.
+- **Account Lifecycle:** Complete workflows for User Signup, Secure Login, Session Refresh, and Secure Logout.
+- **Account Recovery:** Self-service account reactivation support for soft-deleted profiles.
+- **Automated Migrations:** Database schema tracking and state rollbacks managed entirely through Aerich.
+- **Test Automation:** Fully isolated, asynchronous integration test suite running against transient in-memory SQLite instances.
 
 ## Setup
 
@@ -42,7 +39,7 @@ source .venv/bin/activate
 
 ### 3. Configure environment variables
 
-Create a `.env` file in the project root and configure your database and JWT settings.
+Create a `.env` file in the project root directory and add your application settings:
 
 ```env
 DB_HOST=localhost
@@ -51,24 +48,67 @@ DB_NAME=restaurant_db
 DB_USER=postgres
 DB_PASSWORD=your_password
 
-JWT_SECRET_KEY=your_secret_key
+JWT_SECRET_KEY=your_super_secret_signing_key_here
 JWT_ALGORITHM=HS256
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
-### 4. Run the application
+### 4. Initialize Database Migrations
+
+Before launching the server, initialize your database tables and tracking ledgers using Aerich:
+
+```bash
+# Initialize Aerich configuration
+aerich init -t app.config.TORTOISE_ORM
+
+# Create the initial schema migration script
+aerich init-db
+
+# (Optional) Apply outstanding schema modifications later on
+# aerich migrate
+# aerich upgrade
+```
+
+### 5. Run the Application
+
+Start the live hot-reloading development server:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-### 5. API Documentation
+---
 
-Once the server is running, open:
+## Authentication API Reference
 
-- `http://127.0.0.1:8000/docs`
+All authentication endpoints are grouped under the `/auth` router prefix:
 
-## Status
+| Method | Endpoint | Payload Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/auth/signup` | `username` (min 5 chars), `email`, `password` | Registers a fresh user profile and yields initial session tokens. |
+| `POST` | `/auth/login` | `email`, `password` | Authenticates credentials and issues short-lived access tokens. |
+| `POST` | `/auth/refresh` | Query params: `auth_uuid`, `user_id` | Validates a refresh token session to generate a new access token. |
+| `POST` | `/auth/logout` | Query params: `auth_uuid` | Invalidates and removes the specific refresh-token session from the DB. |
+| `POST` | `/auth/reactivate`| `email`, `password` | Reactivates a soft-deleted account profile and signs the user back in. |
 
-The project is under development. Database models, schemas, configuration, and JWT utility functions have been set up. API implementation and testing are ongoing.
+---
+
+## Running the Test Suite
+
+The project includes isolated async integration test workflows. Tests run automatically using an isolated, fast **in-memory SQLite configuration**, completely safe from mutating your production data store.
+
+To execute the test module:
+
+```bash
+pytest app/test/test_auth.py -v
+```
+
+*Note: Global test behaviors—such as automatic async detection (`asyncio_mode = "auto"`) and loop scoping—are pre-configured in the project's root `pyproject.toml` configuration block.*
+
+## API Documentation
+
+Once your local server is up and running, you can explore the complete interactive OpenAPI schema representation at:
+
+- Interactive Swagger Docs: `http://127.0.0.1:8000/docs`
+- Alternative ReDoc Layout: `http://127.0.0`
