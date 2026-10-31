@@ -21,3 +21,21 @@ class DatabaseConfig(BaseSettings):
 
 
 settings = DatabaseConfig()
+
+
+class AuthConfig(BaseSettings):
+    """Manage JWT authentication and token expiration settings."""
+
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+    refresh_token_expire_days: int
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="JWT_",
+        extra="ignore",
+    )
+
+
+jwt_config = AuthConfig()

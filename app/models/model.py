@@ -1,11 +1,10 @@
-from uuid import UUID
 from decimal import Decimal
+from uuid import UUID
 
 from tortoise import fields, models
 
 from enums import OrderStatus
 from enums import Tables as tab
-
 
 
 class BaseModel(models.Model):
@@ -78,8 +77,8 @@ class Token(BaseModel):
         on_delete=fields.CASCADE,
     )
     uuid: UUID = fields.UUIDField(unique=True)
-    token: str = fields.CharField(max_length=500)
     created_at = fields.DatetimeField(auto_now_add=True)
+    exp_at = fields.DateTimeField()
     revoked_at = fields.DatetimeField(null=True)
 
     class Meta:
