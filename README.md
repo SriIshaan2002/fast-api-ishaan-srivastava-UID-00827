@@ -14,10 +14,11 @@ This project is a restaurant management backend built using FastAPI and PostgreS
 
 ## Key Features
 
-- **Database Schemas:** Models and relationships defined for Users, Restaurants, Addresses, Menu Items, Orders, and Order Items.
+- **Database Schemas:** Models and relationships defined for Users, Restaurants, Owners, Addresses, Menu Items, Orders, and Order Items.
 - **Authentication Layer:** Secure stateless architecture utilizing asymmetric access and refresh tokens.
 - **Account Lifecycle:** Complete workflows for User Signup, Secure Login, Session Refresh, and Secure Logout.
-- **Account Recovery:** Self-service account reactivation support for soft-deleted profiles.
+- **Core Entities CRUD Management:** Comprehensive operational endpoints handling lifecycle workflows for Users, Addresses, and Restaurant Owners.
+- **Immutable Address History Pattern:** Address updates do not overwrite historical records. Updates automatically soft-delete (deactivate) the current record and create a fresh active instance to preserve past order audit trails.
 - **Automated Migrations:** Database schema tracking and state rollbacks managed entirely through Aerich.
 - **Test Automation:** Fully isolated, asynchronous integration test suite running against transient in-memory SQLite instances.
 
@@ -80,17 +81,43 @@ uvicorn main:app --reload
 
 ---
 
-## Authentication API Reference
+## API Reference
 
-All authentication endpoints are grouped under the `/auth` router prefix:
+### 1. Authentication Layer (`/auth`)
 
-| Method | Endpoint | Payload Constraints | Description |
+| Method | Endpoint | Payload / Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/auth/signup` | `username` (min 5 chars), `email`, `password` | Registers a fresh user profile and yields initial session tokens. |
 | `POST` | `/auth/login` | `email`, `password` | Authenticates credentials and issues short-lived access tokens. |
 | `POST` | `/auth/refresh` | Query params: `auth_uuid`, `user_id` | Validates a refresh token session to generate a new access token. |
-| `POST` | `/auth/logout` | Query params: `auth_uuid` | Invalidates and removes the specific refresh-token session from the DB. |
+| `POST` | `/auth/logout` | Query params: `auth_uuid` | Inactivates and removes the specific refresh-token session from the DB. |
 | `POST` | `/auth/reactivate`| `email`, `password` | Reactivates a soft-deleted account profile and signs the user back in. |
+
+### 2. User Profiles Management (`/users`)
+
+| Method | Endpoint | Payload Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/users` | Admin Scope Required | Retrieves a master list of all database users ordered by their unique primary key ID. |
+| `GET` | `/users/{id}` | Path param: `user_id` | Extracts a targeted user profile by its database index primary key. |
+| `PUT` | `/users/{id}` | `username`, `email` (Optional fields) | Modifies permitted attributes on an active user profile, enforcing lowecase constraints. |
+| `DELETE` | `/users/{id}` | Path param: `user_id`, `updated_by_id` | Soft-deletes a user profile by switching their status flag to inactive (`is_active=False`). |
+
+### 3. Addresses Directory (`/addresses`)
+*Manages geographical locations using an audit-safe historical mutation flow.*
+
+| Method | Endpoint | Payload Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/addresses` | Implicitly scoped via active `user_id` | Retrieves all active (`is_active=True`) address records belonging to the authenticated user. |
+| `POST` | `/addresses` | `street`, `city`, `house`, `zip`, `nearby_location`, `long`, `lat` | Attaches a fresh, validated address instance to the calling user profile. |
+| `GET` | `/addresses/{id}` | Path param: `address_id` | Extracts detailed metrics for a targeted address if it is active and owned by the caller. |
+| `PUT` | `/addresses/{id}` | `street`, `city`, `house`, `zip`, `nearby_location`, `long`, `lat` (All optional) | **History Patch:** Deactivates the existing record and spawns a new active instance with merged modifications. |
+
+### 4. Owner Registry (`/owners`)
+
+| Method | Endpoint | Payload Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/owners` | `user_id`, `restraunt_id` | Creates an ownership verification mapping linking a valid user to a valid restaurant. |
+| `GET` | `/owners/{id}` | Path param: `owner_id` | Fetches a specific ownership association ledger record by its configuration ID. |
 
 ---
 
@@ -110,5 +137,5 @@ pytest app/test/test_auth.py -v
 
 Once your local server is up and running, you can explore the complete interactive OpenAPI schema representation at:
 
-- Interactive Swagger Docs: `http://127.0.0.1:8000/docs`
-- Alternative ReDoc Layout: `http://127.0.0`
+- **Interactive Swagger UI Layout:** `http://127.0.0`
+- **Alternative ReDoc Visual Layout:** `http://127.0.0`
