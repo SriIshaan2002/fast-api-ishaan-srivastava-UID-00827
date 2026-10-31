@@ -95,3 +95,24 @@ class OwnerNotFound(CustomBaseException):
 
     detail = OWNER_ERRORS.not_found
     status_code = status.HTTP_404_NOT_FOUND
+
+
+class RestaurantAlreadyExists(CustomBaseException):
+    """Raised when an operations violation hits a unique restaurant constraint."""
+
+    detail = RESTRAUNT_EXCEPTIONS.Restraunt_Already_exists
+    status_code = status.HTTP_409_CONFLICT
+
+
+class InvalidRestaurantInput(CustomBaseException):
+    """Raised when input schemas are unsatisfied or completely empty."""
+
+    detail = RESTRAUNT_EXCEPTIONS.Input_Unsatisfied
+    status_code = status.HTTP_400_BAD_REQUEST
+
+
+class InvalidLocationInput(CustomBaseException):
+    """Raised when trying to provide an invalid or null location value."""
+
+    detail = ADDRESS_ERRORS.not_found
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY

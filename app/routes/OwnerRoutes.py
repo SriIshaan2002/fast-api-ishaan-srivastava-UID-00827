@@ -25,7 +25,7 @@ async def require_Admin(current_user: User = Depends(get_active_user)) -> User:
 
 
 routerOwner = APIRouter(
-    prefix="/admin",
+    prefix="/admin/owner",
     tags=["Owner APIs for Admin"],
     dependencies=[Depends(require_Admin)],
 )

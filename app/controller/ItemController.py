@@ -1,0 +1,152 @@
+"""This module provides FastAPI routing endpoints
+for managing restaurant menu items."""
+
+from fastapi import Depends, status
+
+from app.dependency.dependency import get_active_user
+from app.models import User
+from app.routes.ItemRoutes import routerItems
+from app.schemas.items import ItemCreate, ItemResponse, ItemUpdate
+from app.service.ItemService import ItemService
+
+
+@routerItems.post(
+    "/",
+    response_model=ItemResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new menu item",
+)
+async def create_item(
+    payload: ItemCreate, current_user: User = Depends(get_active_user)
+) -> ItemResponse:
+    """Create a new menu item bound to a restaurant
+    after verifying owner authorization.
+
+    Args:
+        payload (ItemCreate): The validated schema
+        containing details for the new menu item.
+        current_user (User): The authenticated active
+        user session injected by the dependency.
+
+    Returns:
+        ItemResponse: The structured Pydantic response
+        containing the created menu item's attributes.
+
+    Raises:
+        HTTPException: 401 Unauthorized if
+        the user token is invalid or inactive.
+        HTTPException: 403 Forbidden if the user
+        lacks ownership permissions for this item's restaurant.
+        HTTPException: 409 conflict in creating the restraunt
+        HTTPException: 404 Not Found if the
+        targeted restaurant does not exist.
+    """
+    return await ItemService.create_item(data=payload, current_user=current_user)
+
+
+@routerItems.get(
+    "/restaurant/{restaurant_id}",
+    response_model=list[ItemResponse],
+    summary="Get restaurant menu",
+)
+async def get_restaurant_menu(restaurant_id: int) -> list[ItemResponse]:
+    """Fetch all active available menu items
+    registered to a given restaurant ID.
+
+    Args:
+        restaurant_id (int): The unique integer
+        database ID of the target restaurant.
+
+    Returns:
+        list[ItemResponse]: A list of structured
+        Pydantic objects representing active menu items.
+
+    Raises:
+        HTTPException: 404 Not Found if the restaurant
+        does not exist or has no active menu.
+    """
+    return await ItemService.get_restaurant_menu(restaurant_id=restaurant_id)
+
+
+@routerItems.get(
+    "/{item_id}", response_model=ItemResponse, summary="Get single menu item"
+)
+async def get_item(item_id: int) -> ItemResponse:
+    """Retrieve a specific active item
+    configuration by its primary key index.
+
+    Args:
+        item_id (int): The unique integer
+        database primary key of the menu item.
+
+    Returns:
+        ItemResponse: The structured response
+        containing the requested menu item configurations.
+
+    Raises:
+        HTTPException: 404 Not Found if no active
+        menu item matches the provided ID.
+    """
+    return await ItemService.get_item(item_id=item_id)
+
+
+@routerItems.post(
+    "/{item_id}", response_model=ItemResponse, summary="Update a menu item"
+)
+async def update_item(
+    item_id: int, payload: ItemUpdate, current_user: User = Depends(get_active_user)
+) -> ItemResponse:
+    """Modify fields of an existing menu item
+    record after checking access permissions.
+
+    Args:
+        item_id (int): The unique integer database
+        primary key of the menu item to modify.
+        payload (ItemUpdate): The validated schema
+        holding the partial or complete update fields.
+        current_user (User): The authenticated active
+        user session injected by the dependency.
+
+    Returns:
+        ItemResponse: The structured Pydantic response
+        containing the modified item's details.
+
+    Raises:
+        HTTPException: 401 Unauthorized if the user session token is invalid.
+        HTTPException: 403 Forbidden if the user lacks
+        ownership permissions for this item's restaurant.
+        HTTPException: 409 conflict in creating the restraunt
+        HTTPException: 404 Not Found if the menu item does not exist.
+    """
+    return await ItemService.update_item(
+        item_id=item_id, data=payload, current_user=current_user
+    )
+
+
+@routerItems.delete(
+    "/{item_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Soft-delete a menu item",
+)
+async def delete_item(
+    item_id: int, current_user: User = Depends(get_active_user)
+) -> None:
+    """Flag a specific menu item as inactive (soft-delete)
+    after checking ownership access.
+
+    Args:
+        item_id (int): The unique integer database
+        primary key of the menu item to remove.
+        current_user (User): The authenticated active
+        user session injected by the dependency.
+
+    Returns:
+        None: A successful request yields no payload alongside a 204 No Content status.
+
+    Raises:
+        HTTPException: 401 Unauthorized if the session context is unverified.
+        HTTPException: 403 Forbidden if the current user
+        is not authorized to delete this resource.
+        HTTPException: 404 Not Found if the menu item configuration does not exist.
+    """
+    await ItemService.delete_item(item_id=item_id, current_user=current_user)
