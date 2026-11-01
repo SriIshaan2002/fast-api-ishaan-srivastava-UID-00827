@@ -98,7 +98,7 @@ class OwnerNotFound(CustomBaseException):
 
 
 class RestaurantAlreadyExists(CustomBaseException):
-    """Raised when an operations 
+    """Raised when an operations
     violation hits a unique restaurant constraint."""
 
     detail = RESTRAUNT_EXCEPTIONS.Restraunt_Already_exists
@@ -106,7 +106,7 @@ class RestaurantAlreadyExists(CustomBaseException):
 
 
 class InvalidRestaurantInput(CustomBaseException):
-    """Raised when input schemas 
+    """Raised when input schemas
     are unsatisfied or completely empty."""
 
     detail = RESTRAUNT_EXCEPTIONS.Input_Unsatisfied
@@ -114,35 +114,23 @@ class InvalidRestaurantInput(CustomBaseException):
 
 
 class InvalidLocationInput(CustomBaseException):
-    """Raised when trying to provide 
+    """Raised when trying to provide
     an invalid or null location value."""
 
     detail = ADDRESS_ERRORS.not_found
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-
-
-class RestrauntNotFound(CustomBaseException):
-    """Raised when a restaurant lookup 
-    fails or the entity is set to inactive."""
-
-    detail = "The requested restaurant " \
-    "could not be found or is inactive."
-    status_code = status.HTTP_404_NOT_FOUND
-
-
 class ItemNotFound(CustomBaseException):
-    """Raised when a target menu item lookup 
+    """Raised when a target menu item lookup
     fails or has been soft-deleted."""
 
-    detail = "The requested menu item " \
-    "could not be found or is inactive."
+    detail = "The requested menu item could not be found or is inactive."
     status_code = status.HTTP_404_NOT_FOUND
 
 
 class ItemUpdateEmpty(CustomBaseException):
-    """Raised when an update request 
+    """Raised when an update request
     payload contains no modifications."""
 
     detail = "No structural update parameters were supplied."
@@ -150,18 +138,11 @@ class ItemUpdateEmpty(CustomBaseException):
 
 
 class DatabaseConflictException(CustomBaseException):
-    """Raised when a unique constraint or 
+    """Raised when a unique constraint or
     structural validation rule fails in the engine."""
 
-    detail = "Failed to finalize database " \
-    "operations due to a structural backend layout conflict."
+    detail = (
+        "Failed to finalize database "
+        "operations due to a structural backend layout conflict."
+    )
     status_code = status.HTTP_409_CONFLICT
-
-class OwnerNotFound(CustomBaseException):
-    """Raised when the current user does not 
-    own or have management access to this restaurant."""
-
-    detail = "The current user does not " \
-    "own or have management access to this restaurant."
-    status_code = status.HTTP_403_FORBIDDEN
-

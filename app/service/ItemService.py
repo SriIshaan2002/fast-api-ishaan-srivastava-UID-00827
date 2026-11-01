@@ -16,7 +16,7 @@ async def check_restaurant_access(
     current_user: User,
 ) -> None:
     """Verify that the current user
-      owns the requested restaurant."""
+    owns the requested restaurant."""
     owner = await Owner.get_or_none(
         user_id=current_user.id,
         restraunt_id=restaurant.id,
@@ -26,26 +26,26 @@ async def check_restaurant_access(
 
 
 class ItemService:
-    """Provides atomic service operations 
+    """Provides atomic service operations
     for manipulating menu items."""
 
     @staticmethod
-    async def create_item(data: ItemCreate, 
-                          current_user: User) -> ItemResponse:
-        """Create a new menu item bound to a 
+    async def create_item(data: ItemCreate, current_user: User) -> ItemResponse:
+        """Create a new menu item bound to a
         restaurant after verifying owner authorization.
 
         Args:
-            data (ItemCreate): Validated Pydantic 
+            data (ItemCreate): Validated Pydantic
             schema parameters.
-            current_user (User): The authenticated 
+            current_user (User): The authenticated
             database user initiating the write step.
 
         Returns:
             Item: The freshly created active database Item entry.
         """
-        restaurant = await Restraunt.filter(id=data.restaurant_id, 
-                                            is_active=True).first()
+        restaurant = await Restraunt.filter(
+            id=data.restaurant_id, is_active=True
+        ).first()
         if restaurant is None:
             raise RestrauntNotFound()
 
@@ -63,23 +63,25 @@ class ItemService:
                 price=data.price,
             )
         except IntegrityError as exc:
-            raise DatabaseConflictException("Failed to create item due to " \
-            "a database layout conflict.") from exc
+            raise DatabaseConflictException(
+                "Failed to create item due to a database layout conflict."
+            ) from exc
 
     @staticmethod
     async def get_restaurant_menu(restaurant_id: int) -> list[ItemResponse]:
-        """Fetch all active available menu items 
+        """Fetch all active available menu items
         registered to a given restaurant ID.
 
         Args:
             restaurant_id (int): Primary key ID of the restaurant.
 
         Returns:
-            list[Item]: Active matching items 
+            list[Item]: Active matching items
             ordered sequentially by database ID.
         """
-        return await Item.filter(restaurant_id=restaurant_id, 
-                                 is_active=True).order_by("id")
+        return await Item.filter(restaurant_id=restaurant_id, is_active=True).order_by(
+            "id"
+        )
 
     @staticmethod
     async def get_item(item_id: int) -> ItemResponse:
@@ -97,9 +99,10 @@ class ItemService:
         return item
 
     @staticmethod
-    async def update_item(item_id: int, data: ItemUpdate, 
-                          current_user: User) -> ItemResponse:
-        """Modify fields of an existing menu item record after 
+    async def update_item(
+        item_id: int, data: ItemUpdate, current_user: User
+    ) -> ItemResponse:
+        """Modify fields of an existing menu item record after
         checking restaurant access permissions.
 
         Args:
@@ -110,8 +113,11 @@ class ItemService:
         Returns:
             Item: The updated and saved database entry configuration.
         """
-        item = await Item.filter(id=item_id, 
-                                 is_active=True).prefetch_related("restaurant").first()
+        item = (
+            await Item.filter(id=item_id, is_active=True)
+            .prefetch_related("restaurant")
+            .first()
+        )
         if item is None:
             raise ItemNotFound()
 
@@ -123,28 +129,32 @@ class ItemService:
 
         for field, value in changes.items():
             setattr(item, field, value)
-        
+
         item.updated_by_id = current_user.id
-        
+
         try:
             await item.save()
         except IntegrityError as exc:
-            raise DatabaseConflictException("Modifying item " \
-            "parameters triggered a database collision.") from exc
+            raise DatabaseConflictException(
+                "Modifying item parameters triggered a database collision."
+            ) from exc
 
         return item
 
     @staticmethod
     async def delete_item(item_id: int, current_user: User) -> None:
-        """Flag a specific menu item as inactive 
+        """Flag a specific menu item as inactive
         (soft-delete) after checking ownership access.
 
         Args:
             item_id (int): Primary key entry index of the target record.
             current_user (User): The active operational session operator.
         """
-        item = await Item.filter(id=item_id, 
-                                 is_active=True).prefetch_related("restaurant").first()
+        item = (
+            await Item.filter(id=item_id, is_active=True)
+            .prefetch_related("restaurant")
+            .first()
+        )
         if item is None:
             raise ItemNotFound()
 
