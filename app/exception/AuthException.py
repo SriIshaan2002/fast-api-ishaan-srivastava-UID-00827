@@ -176,6 +176,8 @@ class OrderConflictError(CustomBaseException):
             "Order processing failed due to a database conflict "
             "or lock failure. Please retry."
         )
+
+
 class ItemNotFound(CustomBaseException):
     """Raised when a target menu item lookup
     fails or has been soft-deleted."""
