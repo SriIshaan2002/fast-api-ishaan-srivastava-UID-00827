@@ -1,11 +1,12 @@
-"""
-This module provides CRUD database service actions for restaurant menu items.
-"""
-
-from fastapi import HTTPException, status
 from tortoise.exceptions import IntegrityError
 
-from app.exception.AuthException import OwnerNotFound, RestrauntNotFound
+from app.exception.AuthException import (
+    DatabaseConflictException,
+    ItemNotFound,
+    ItemUpdateEmpty,
+    OwnerNotFound,
+    RestrauntNotFound,
+)
 from app.models import Item, Owner, Restraunt, User
 from app.schemas.items import ItemCreate, ItemResponse, ItemUpdate
 
@@ -14,7 +15,8 @@ async def check_restaurant_access(
     restaurant: Restraunt,
     current_user: User,
 ) -> None:
-    """Verify that the current user owns the requested restaurant."""
+    """Verify that the current user
+    owns the requested restaurant."""
     owner = await Owner.get_or_none(
         user_id=current_user.id,
         restraunt_id=restaurant.id,
@@ -24,17 +26,19 @@ async def check_restaurant_access(
 
 
 class ItemService:
-    """Provides atomic service operations for manipulating menu items."""
+    """Provides atomic service operations
+    for manipulating menu items."""
 
     @staticmethod
     async def create_item(data: ItemCreate, current_user: User) -> ItemResponse:
-        """Create a new menu item bound to a restaurant 
-        after verifying owner authorization.
+        """Create a new menu item bound to a
+        restaurant after verifying owner authorization.
 
         Args:
-            data (ItemCreate): Validated Pydantic schema parameters.
-            current_user (User): The authenticated \
-                database user initiating the write step.
+            data (ItemCreate): Validated Pydantic
+            schema parameters.
+            current_user (User): The authenticated
+            database user initiating the write step.
 
         Returns:
             Item: The freshly created active database Item entry.
@@ -59,9 +63,8 @@ class ItemService:
                 price=data.price,
             )
         except IntegrityError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Failed to create item due to a database layout conflict.",
+            raise DatabaseConflictException(
+                "Failed to create item due to a database layout conflict."
             ) from exc
 
     @staticmethod
@@ -92,18 +95,15 @@ class ItemService:
         """
         item = await Item.filter(id=item_id, is_active=True).first()
         if item is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="The requested menu item could not be found.",
-            )
+            raise ItemNotFound()
         return item
 
     @staticmethod
     async def update_item(
         item_id: int, data: ItemUpdate, current_user: User
     ) -> ItemResponse:
-        """Modify fields of an existing menu item
-        record after checking restaurant access permissions.
+        """Modify fields of an existing menu item record after
+        checking restaurant access permissions.
 
         Args:
             item_id (int): Primary key entry index of the item.
@@ -119,30 +119,24 @@ class ItemService:
             .first()
         )
         if item is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="The requested menu item could not be found.",
-            )
+            raise ItemNotFound()
 
         await check_restaurant_access(item.restaurant, current_user)
 
         changes = data.model_dump(exclude_unset=True)
         if not changes:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No structural update parameters were supplied.",
-            )
+            raise ItemUpdateEmpty()
 
         for field, value in changes.items():
             setattr(item, field, value)
 
         item.updated_by_id = current_user.id
+
         try:
             await item.save()
         except IntegrityError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Modifying item parameters triggered a database collision.",
+            raise DatabaseConflictException(
+                "Modifying item parameters triggered a database collision."
             ) from exc
 
         return item
@@ -162,14 +156,10 @@ class ItemService:
             .first()
         )
         if item is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="The requested menu item could not be found.",
-            )
+            raise ItemNotFound()
 
         await check_restaurant_access(item.restaurant, current_user)
 
         item.is_active = False
         item.updated_by_id = current_user.id
-
         await item.save(update_fields=["is_active", "updated_by_id", "updated_at"])

@@ -98,21 +98,24 @@ class OwnerNotFound(CustomBaseException):
 
 
 class RestaurantAlreadyExists(CustomBaseException):
-    """Raised when an operations violation hits a unique restaurant constraint."""
+    """Raised when an operations
+    violation hits a unique restaurant constraint."""
 
     detail = RESTRAUNT_EXCEPTIONS.Restraunt_Already_exists
     status_code = status.HTTP_409_CONFLICT
 
 
 class InvalidRestaurantInput(CustomBaseException):
-    """Raised when input schemas are unsatisfied or completely empty."""
+    """Raised when input schemas
+    are unsatisfied or completely empty."""
 
     detail = RESTRAUNT_EXCEPTIONS.Input_Unsatisfied
     status_code = status.HTTP_400_BAD_REQUEST
 
 
 class InvalidLocationInput(CustomBaseException):
-    """Raised when trying to provide an invalid or null location value."""
+    """Raised when trying to provide
+    an invalid or null location value."""
 
     detail = ADDRESS_ERRORS.not_found
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -173,3 +176,28 @@ class OrderConflictError(CustomBaseException):
             "Order processing failed due to a database conflict "
             "or lock failure. Please retry."
         )
+class ItemNotFound(CustomBaseException):
+    """Raised when a target menu item lookup
+    fails or has been soft-deleted."""
+
+    detail = "The requested menu item could not be found or is inactive."
+    status_code = status.HTTP_404_NOT_FOUND
+
+
+class ItemUpdateEmpty(CustomBaseException):
+    """Raised when an update request
+    payload contains no modifications."""
+
+    detail = "No structural update parameters were supplied."
+    status_code = status.HTTP_400_BAD_REQUEST
+
+
+class DatabaseConflictException(CustomBaseException):
+    """Raised when a unique constraint or
+    structural validation rule fails in the engine."""
+
+    detail = (
+        "Failed to finalize database "
+        "operations due to a structural backend layout conflict."
+    )
+    status_code = status.HTTP_409_CONFLICT
