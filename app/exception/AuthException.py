@@ -194,7 +194,7 @@ class ItemNotFound(CustomBaseException):
     fails or has been soft-deleted."""
 
     status_code = status.HTTP_404_NOT_FOUND
-    detail = ITEM_MSG.NOT_FOUND_GENERIC
+    detail = ITEM_MSG.not_found_generic
 
 
 class ItemUpdateEmpty(CustomBaseException):
@@ -202,7 +202,7 @@ class ItemUpdateEmpty(CustomBaseException):
     contains no modifications."""
 
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = ITEM_MSG.UPDATE_EMPTY
+    detail = ITEM_MSG.update_empty
 
 
 class DatabaseConflictException(CustomBaseException):
@@ -210,4 +210,4 @@ class DatabaseConflictException(CustomBaseException):
     validation rule fails in the engine."""
 
     status_code = status.HTTP_409_CONFLICT
-    detail = DB_MSG.CONFLICT
+    detail = DB_MSG.conflict
