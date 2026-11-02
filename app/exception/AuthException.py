@@ -140,7 +140,7 @@ class OrderEmptyError(CustomBaseException):
     status_code = status.HTTP_400_BAD_REQUEST
 
     def __init__(self):
-        super().__init__(ORDER_MSG.EMPTY)
+        super().__init__(ORDER_MSG.empty)
 
 
 class InvalidQuantityError(CustomBaseException):
@@ -150,7 +150,7 @@ class InvalidQuantityError(CustomBaseException):
 
     def __init__(self, item_id: int):
         self.item_id = item_id
-        super().__init__(ITEM_MSG.INVALID_QUANTITY.format(item_id=item_id))
+        super().__init__(ITEM_MSG.invalid_quantity.format(item_id=item_id))
 
 
 class ItemNotFoundError(CustomBaseException):
@@ -160,7 +160,7 @@ class ItemNotFoundError(CustomBaseException):
 
     def __init__(self, item_id: int):
         self.item_id = item_id
-        super().__init__(ITEM_MSG.NOT_FOUND_RESTAURANT.format(item_id=item_id))
+        super().__init__(ITEM_MSG.not_found_restaurant.format(item_id=item_id))
 
 
 class InsufficientStockError(CustomBaseException):
@@ -173,7 +173,7 @@ class InsufficientStockError(CustomBaseException):
         self.available = available
         self.requested = requested
         super().__init__(
-            ITEM_MSG.INSUFFICIENT_STOCK.format(
+            ITEM_MSG.insufficient_stock.format(
                 item_name=item_name, available=available, requested=requested
             )
         )
@@ -186,7 +186,7 @@ class OrderConflictError(CustomBaseException):
     status_code = status.HTTP_409_CONFLICT
 
     def __init__(self):
-        super().__init__(ORDER_MSG.CONFLICT)
+        super().__init__(ORDER_MSG.conflict)
 
 
 class ItemNotFound(CustomBaseException):
