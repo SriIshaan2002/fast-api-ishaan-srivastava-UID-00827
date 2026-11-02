@@ -11,7 +11,7 @@ from app.models import Address, Restraunt, User
 from app.schemas.address import AddressCreate
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
-from app.util import restaurant_to_dict
+from app.util.RestrauntUtil import restaurant_to_dict
 
 async def get_active_address(address_id: int) -> Address:
     """Fetch an active address record by its unique identifier.
