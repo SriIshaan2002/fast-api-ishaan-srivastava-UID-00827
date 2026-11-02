@@ -39,7 +39,6 @@ class OwnerService:
             user = await User.get_or_none(id=data.user_id)
             if user is None:
                 raise UserNotFoundError()
-
             restraunt = await Restraunt.get_or_none(id=data.restraunt_id)
             if restraunt is None:
                 raise RestrauntNotFound()

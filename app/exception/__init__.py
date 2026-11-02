@@ -1,12 +1,15 @@
 from app.exception.AuthException import (
     AccountInactiveError,
     AddressNotFoundError,
+    InvalidLocationInput,
     InvalidPasswordError,
+    InvalidRestaurantInput,
     InvalidTokenError,
     OwnerAlreadyExistsError,
     OwnerNotFound,
     ReactivationFailedError,
     RegisteredEmail,
+    RestaurantAlreadyExists,
     RestrauntNotFound,
     SessionNotFoundError,
     UserNotFoundError,
@@ -26,4 +29,7 @@ __all__ = (
     "OwnerAlreadyExistsError",
     "RestrauntNotFound",
     "OwnerNotFound",
+    "RestaurantAlreadyExists",
+    "InvalidRestaurantInput",
+    "InvalidLocationInput",
 )

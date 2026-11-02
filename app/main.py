@@ -5,8 +5,9 @@ from tortoise.contrib.fastapi import register_tortoise
 import settings
 from app.controller.AddressController import routerAdress
 from app.controller.AuthController import authRouter
-from app.controller.OwnerController import routerAdmin as ownerAdmin
+from app.controller.ItemController import routerItems
 from app.controller.OwnerController import routerOwner
+from app.controller.RestrauntController import restaurant_router
 from app.controller.UserController import routerAdmin as userAdmin
 from app.controller.UserController import routerUser as routerUser
 from app.exception_handler import global_handler
@@ -21,8 +22,9 @@ app.include_router(authRouter)
 app.include_router(routerUser)
 app.include_router(userAdmin)
 app.include_router(routerAdress)
-app.include_router(ownerAdmin)
 app.include_router(routerOwner)
+app.include_router(restaurant_router)
+app.include_router(routerItems)
 
 global_handler(app)
 app.middleware("http")(unified_auth_middleware)

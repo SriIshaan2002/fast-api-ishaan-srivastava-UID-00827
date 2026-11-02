@@ -23,18 +23,8 @@ async def create_owner(data: OwnerCreate):
         OwnerResponse: The serialized entry
         of the newly created ownership record.
     """
+    print("inside controller")
     return await OwnerService.create_owner(data)
-
-
-@routerOwner.get("/", response_model=list[OwnerResponse])
-async def get_all_owners():
-    """Retrieve all user-restaurant ownership assignment records.
-
-    Returns:
-        list[OwnerResponse]: A list containing
-        serialized representations of all ownership entries.
-    """
-    return await OwnerService.get_all_owners()
 
 
 @routerOwner.get("/{owner_id}", response_model=OwnerResponse)
