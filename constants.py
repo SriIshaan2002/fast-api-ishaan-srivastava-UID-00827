@@ -158,3 +158,44 @@ AddressSuccessMessages = namedtuple(
     "AddressSuccessMessages",
     ["address_created", "address_updated", "address_deleted"],
 )
+
+StatusConfig = namedtuple("StatusConfig", ["not_found", "bad_request", "conflict"])
+
+OrderMessageConfig = namedtuple(
+    "OrderMessageConfig", ["not_found", "empty", "conflict"]
+)
+
+ItemMessageConfig = namedtuple(
+    "ItemMessageConfig",
+    [
+        "invalid_quantity",
+        "not_found_restaurant",
+        "not_found_generic",
+        "update_empty",
+        "insufficient_stock",
+    ],
+)
+
+DatabaseMessageConfig = namedtuple("DatabaseMessageConfig", ["conflict"])
+
+ORDER_MSG = OrderMessageConfig(
+    not_found="Order {order_id} not found.",
+    empty="An order must contain at least one item.",
+    conflict="Order processing failed due to a "
+    "database conflict or lock failure. Please retry.",
+)
+
+ITEM_MSG = ItemMessageConfig(
+    invalid_quantity="Quantity for item {item_id} must be greater than 0.",
+    not_found_restaurant="Menu item ID {item_id} is unavailable or"
+    " doesn't belong to this restaurant.",
+    not_found_generic="The requested menu item could not be found or is inactive.",
+    update_empty="No structural update parameters were supplied.",
+    insufficient_stock="Insufficient stock for item '{item_name}'."
+    "Available: {available}, Requested: {requested}.",
+)
+
+DB_MSG = DatabaseMessageConfig(
+    conflict="Failed to finalize database operations due"
+    " to a structural backend layout conflict."
+)
