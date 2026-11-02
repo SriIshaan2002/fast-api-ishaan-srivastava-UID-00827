@@ -49,7 +49,9 @@ async def create_item(
     response_model=list[ItemResponse],
     summary="Get restaurant menu",
 )
-async def get_restaurant_menu(restaurant_id: int, current_user: User = Depends(get_active_user)) -> list[ItemResponse]:
+async def get_restaurant_menu(
+    restaurant_id: int, current_user: User = Depends(get_active_user)
+) -> list[ItemResponse]:
     """Fetch all active available menu items
     registered to a given restaurant ID.
 
@@ -65,13 +67,17 @@ async def get_restaurant_menu(restaurant_id: int, current_user: User = Depends(g
         HTTPException: 404 Not Found if the restaurant
         does not exist or has no active menu.
     """
-    return await ItemService.get_restaurant_menu(restaurant_id=restaurant_id, current_user=current_user)
+    return await ItemService.get_restaurant_menu(
+        restaurant_id=restaurant_id, current_user=current_user
+    )
 
 
 @routerItems.get(
     "/{item_id}", response_model=ItemResponse, summary="Get single menu item"
 )
-async def get_item(item_id: int,current_user: User = Depends(get_active_user)) -> ItemResponse:
+async def get_item(
+    item_id: int, current_user: User = Depends(get_active_user)
+) -> ItemResponse:
     """Retrieve a specific active item
     configuration by its primary key index.
 

@@ -4,10 +4,9 @@ from app.exception.AuthException import (
     DatabaseConflictException,
     ItemNotFound,
     ItemUpdateEmpty,
-    OwnerNotFound,
     RestrauntNotFound,
 )
-from app.models import Item, Owner, Restraunt, User
+from app.models import Item, Restraunt, User
 from app.schemas.items import ItemCreate, ItemResponse, ItemUpdate
 
 
@@ -30,9 +29,9 @@ class ItemService:
             Item: The freshly created active database Item entry.
         """
         restaurant = await Restraunt.filter(
-           id=data.restaurant_id,
-           is_active=True,
-           owners__user_id=current_user.id,
+            id=data.restaurant_id,
+            is_active=True,
+            owners__user_id=current_user.id,
         ).first()
 
         if restaurant is None:
@@ -55,7 +54,9 @@ class ItemService:
             ) from exc
 
     @staticmethod
-    async def get_restaurant_menu(restaurant_id: int, current_user: User) -> list[ItemResponse]:
+    async def get_restaurant_menu(
+        restaurant_id: int, current_user: User
+    ) -> list[ItemResponse]:
         """Fetch all active available menu items
         registered to a given restaurant ID.
 
@@ -67,10 +68,11 @@ class ItemService:
             list[Item]: Active matching items
             ordered sequentially by database ID.
         """
-        return await Item.filter(restaurant_id=restaurant_id, is_active=True,
-                                restaurant__owners__user_id=current_user.id).order_by(
-            "id"
-        )
+        return await Item.filter(
+            restaurant_id=restaurant_id,
+            is_active=True,
+            restaurant__owners__user_id=current_user.id,
+        ).order_by("id")
 
     @staticmethod
     async def get_item(item_id: int, current_user: User) -> ItemResponse:
@@ -83,8 +85,9 @@ class ItemService:
         Returns:
             Item: The fetched active menu item.
         """
-        item = await Item.filter(id=item_id, is_active=True,
-                                 restaurant__owners__user_id=current_user.id).first()
+        item = await Item.filter(
+            id=item_id, is_active=True, restaurant__owners__user_id=current_user.id
+        ).first()
         if item is None:
             raise ItemNotFound()
         return item
@@ -105,14 +108,14 @@ class ItemService:
             Item: The updated and saved database entry configuration.
         """
         item = await (
-              Item.filter(
-              id=item_id,
-              is_active=True,
-              restaurant__owners__user_id=current_user.id,
-             )
-             .select_related("restaurant")
-             .first()
-             )
+            Item.filter(
+                id=item_id,
+                is_active=True,
+                restaurant__owners__user_id=current_user.id,
+            )
+            .select_related("restaurant")
+            .first()
+        )
 
         if item is None:
             raise ItemNotFound()
@@ -145,14 +148,14 @@ class ItemService:
             current_user (User): The active operational session operator.
         """
         item = await (
-                    Item.filter(
-                    id=item_id,
-                    is_active=True,
-                    restaurant__owners__user_id=current_user.id,
-                    )
-                    .select_related("restaurant")
-                    .first()
-                    )
+            Item.filter(
+                id=item_id,
+                is_active=True,
+                restaurant__owners__user_id=current_user.id,
+            )
+            .select_related("restaurant")
+            .first()
+        )
         if item is None:
             raise ItemNotFound()
 
