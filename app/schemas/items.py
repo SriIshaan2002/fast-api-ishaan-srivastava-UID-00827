@@ -55,31 +55,31 @@ class MenuItemOut(BaseModel):
     price: Decimal
     quantity: int
 
+
 class ItemFilterSchema(BaseModel):
     """Schema for filtering menu items based on various criteria."""
+
     category: str | None = Field(
         default=None,
         max_length=50,
     )
 
-    min_price:Decimal | None = Field(
+    min_price: Decimal | None = Field(
         default=None,
-        ge=Decimal('0.000'),
+        ge=Decimal("0.000"),
         max_digits=10,
         decimal_places=3,
     )
-    max_price:Decimal| None = Field(
+    max_price: Decimal | None = Field(
         default=None,
-        ge=Decimal('0.000'),
+        ge=Decimal("0.000"),
         max_digits=10,
         decimal_places=3,
     )
     min_rating: Decimal | None = Field(
         default=None,
-        ge=Decimal('0.00'),
-        le=Decimal('5.00'),
+        ge=Decimal("0.00"),
+        le=Decimal("5.00"),
         max_digits=3,
         decimal_places=2,
     )
-
-
