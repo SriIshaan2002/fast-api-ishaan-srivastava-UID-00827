@@ -71,7 +71,6 @@ class OrderService:
         ).exists()
         if not restaurant_exists:
             raise RestrauntNotFound()
-
         address_exists = await Address.filter(
             id=data.delivery_location_id,
             user_id=current_user.id,
@@ -83,6 +82,7 @@ class OrderService:
         try:
             async with in_transaction():
                 item_ids = sorted(requested)
+                user = await User.filter(id=current_user.id).select_for_update().get()
                 menu_items = await (
                     Item.filter(
                         id__in=item_ids,
@@ -112,6 +112,9 @@ class OrderService:
                 if total_order_price > current_user.balance:
                     raise InsufficientBalanceError()
 
+                user.balance -= total_order_price
+                await user.save(update_fields=["balance"])
+                
                 await Item.bulk_update(
                     [item for item, _ in validated_items_list], fields=["quantity"]
                 )

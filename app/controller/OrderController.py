@@ -83,7 +83,7 @@ async def list_restaurants(current_user: CurrentUser):
     Returns:
         list[RestaurantOut]: A list of active restaurants with their details.
     """
-    return await RestrauntService.list_by_recent_order()
+    return await RestrauntService.list_by_recent_order(user_id=current_user.id)
 
 
 @orderRouter.get("/{restaurant_id}/items", response_model=list[MenuItemOut])
