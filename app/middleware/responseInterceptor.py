@@ -1,8 +1,9 @@
-from fastapi import Request
 import json
 
-from app.schemas.GenericResponse import GenericResponse
+from fastapi import Request
 from fastapi.responses import JSONResponse
+
+from app.schemas.GenericResponse import GenericResponse
 from constants import MIDDLEWARE_MESSAGES
 
 SKIP_PATHS = {"/docs", "/redoc", "/openapi.json"}
@@ -10,8 +11,7 @@ SKIP_PATHS = {"/docs", "/redoc", "/openapi.json"}
 async def response_interceptor(request: Request, call_next):
     response = await call_next(request)
 
-    content_type = response.headers.get("content-type", "")
-    if request.url.path in SKIP_PATHS or not content_type.startswith("application/json"):
+    if request.url.path in SKIP_PATHS :
         return response
 
     chunks = []
