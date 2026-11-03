@@ -251,8 +251,8 @@ async def get_menu(restaurant_id: int, filters: ItemFilterSchema) -> list[Item]:
     )
 
     if not query:
-            if not await Restraunt.filter(id=restaurant_id, is_active=True).exists():
-                raise RestrauntNotFound()
+        if not await Restraunt.filter(id=restaurant_id, is_active=True).exists():
+            raise RestrauntNotFound()
 
     if filters.category:
         query = query.filter(category__iexact=filters.category)
