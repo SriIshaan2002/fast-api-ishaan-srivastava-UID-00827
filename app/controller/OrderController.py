@@ -44,5 +44,5 @@ async def create_order(
 async def get_order(order_id: int, current_user: CurrentUser):
     try:
         return await OrderService.get_order(order_id, current_user.id)
-    except OrderNotFoundError:
-        raise HTTPException(status_code=404, detail="Order not found")
+    except OrderNotFoundError as e:
+        raise e

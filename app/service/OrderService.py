@@ -11,7 +11,6 @@ from tortoise.transactions import in_transaction
 from app.exception.AuthException import (
     AddressNotFoundError,
     InsufficientStockError,
-    InvalidQuantityError,
     ItemNotFoundError,
     OrderConflictError,
     OrderEmptyError,
@@ -64,8 +63,6 @@ class OrderService:
             raise OrderEmptyError()
         requested: dict = {}
         for line in data.items:
-            if line.quantity <= 0:
-                raise InvalidQuantityError(line.item_id)
             requested[line.item_id] = requested.get(line.item_id, 0) + line.quantity
 
         restaurant_exists = await Restraunt.filter(
