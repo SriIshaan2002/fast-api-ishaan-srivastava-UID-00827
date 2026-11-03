@@ -4,10 +4,12 @@ from tortoise.transactions import in_transaction
 from app.exception import (
     InvalidLocationInput,
     InvalidRestaurantInput,
+    OwnerNotFound,
     RestaurantAlreadyExists,
     RestrauntNotFound,
 )
 from app.models import Address, Restraunt, User
+from app.models.model import Owner
 from app.schemas.address import AddressCreate
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
@@ -36,14 +38,25 @@ async def get_active_address(address_id: int) -> Address:
 
 
 async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
-    """Verify that the operational session user is an administrator or restaurant owner.
+    """Verify that the session user is an administrator or a restaurant owner.
 
     Arguments:
         restaurant: The restaurant record instance undergoing modification.
         current_user: The authenticated user session executing the request.
+
+    Raises:
+        HTTPException: 403 if the user is neither an admin nor an owner.
     """
     if current_user.is_admin:
         return
+
+    is_owner = await Owner.filter(
+        user_id=current_user.id,
+        restraunt_id=restaurant.id,
+    ).exists()
+
+    if not is_owner:
+        raise OwnerNotFound()
 
 
 async def create_restaurant(

@@ -3,6 +3,7 @@
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -43,4 +44,48 @@ class OrderResponse(BaseModel):
     total_price: Decimal
     status: OrderStatus
     created_at: datetime
-    delivered_in: datetime | None
+    delivered_in: datetime | None = None
+
+
+class OrderItemOut(BaseModel):
+    """Schema representing an individual line
+    item associated with an order."""
+
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    item_name: str
+    is_veg: bool
+    quantity: int
+    discount: int
+    price: Decimal
+    line_total: Decimal
+
+
+class OrderAddressOut(BaseModel):
+    """Schema representing the reference identifier
+    for the delivery address."""
+
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+
+
+class OrderRestaurantOut(BaseModel):
+    """Schema representing the reference identifier
+    for the originating restaurant."""
+
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+
+
+class OrderOut(BaseModel):
+    """Detailed summary payload schema representing
+    a finalized order record response."""
+
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    status: OrderStatus
+    total_price: Decimal
+    restaurant: OrderRestaurantOut
+    delivery_location: Optional[OrderAddressOut] = None
+    items: list[OrderItemOut]
+    delivered_in: datetime | None = None
