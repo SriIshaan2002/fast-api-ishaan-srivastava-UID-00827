@@ -11,7 +11,7 @@ from app.models import User
 from app.routes.AdminRoutes import routerAdmin
 from app.routes.UserRouter import routerUser
 from app.schemas import UserCreate, UserResponse, UserUpdate
-from app.schemas.items import MenuItemOut
+from app.schemas.items import ItemFilterSchema, MenuItemOut
 from app.schemas.restraunt import RestaurantOut
 from app.service import RestrauntService
 from app.service.UserService import UserService
@@ -166,8 +166,8 @@ async def list_restaurants(current_user: CurrentUser):
     return await RestrauntService.list_by_recent_order(current_user.id)
 
 
-@routerUser.get("/{restaurant_id}/items", response_model=list[MenuItemOut])
-async def get_menu(restaurant_id: int):
+@routerUser.post("/{restaurant_id}/items", response_model=list[MenuItemOut])
+async def get_menu(restaurant_id: int, data: ItemFilterSchema):
     """
     Fetch all available menu items of a specific restaurant.
 
@@ -181,4 +181,4 @@ async def get_menu(restaurant_id: int):
     Returns:
         list[MenuItemOut]: A list of available menu items for the restaurant.
     """
-    return await RestrauntService.get_menu(restaurant_id)
+    return await RestrauntService.get_menu(restaurant_id, data)
