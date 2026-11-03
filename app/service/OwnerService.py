@@ -12,6 +12,8 @@ from app.exception import (
 )
 from app.models import Owner, Restraunt, User
 from app.schemas import OwnerCreate, OwnerResponse
+from app.schemas.Owner import OwnerDetails
+from app.schemas.restraunt import RestaurantSummary
 
 
 class OwnerService:
@@ -67,3 +69,21 @@ class OwnerService:
         if owner is None:
             raise OwnerNotFound()
         return OwnerResponse.model_validate(owner)
+
+    @staticmethod
+    async def get_owner_details(user_id: int) -> OwnerDetails | None:
+        """Return the user's active restaurant(s), or None if not an owner."""
+        owners = await Owner.filter(
+            user_id=user_id,
+            restraunt__is_active=True,
+        ).select_related("restraunt")
+
+        if not owners:
+            return None
+
+        return OwnerDetails(
+            restaurants=[
+                RestaurantSummary.model_validate(owner.restraunt)
+                for owner in owners
+            ]
+        )

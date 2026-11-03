@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-
+from app.schemas.Owner import OwnerDetails
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -36,6 +36,7 @@ class UserResponse(BaseModel):
     balance: Decimal
     is_active: bool
     created_at: datetime
+    owner_details: OwnerDetails | None = None
     model_config["from_attributes"] = True
 
 

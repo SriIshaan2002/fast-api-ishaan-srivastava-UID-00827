@@ -7,6 +7,7 @@ from tortoise.exceptions import IntegrityError
 
 from app.models import User
 from app.schemas import UserCreate, UserUpdate
+from app.service.OwnerService import OwnerService
 from constants import AUTH_ERRORS, SUCCESS_MESSAGES
 
 
@@ -24,13 +25,15 @@ class UserService:
 
     @staticmethod
     async def get_user(user_id: int) -> User:
-        """Retrieve a specific user by their unique primary key ID.
+        """Retrieve a specific user by their unique primary key ID,
+        including owner details if the user is a restaurant owner.
 
         Args:
             user_id (int): The unique integer database ID of the user.
 
         Returns:
-            User: The retrieved User database instance.
+            User: The retrieved User database instance with an
+            `owner_details` attribute (None for non-owners).
 
         Raises:
             HTTPException: 404 error if no user matches the provided ID.
@@ -42,6 +45,8 @@ class UserService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=AUTH_ERRORS.user_not_found,
             )
+
+        user.owner_details = await OwnerService.get_owner_details(user.id)
         return user
 
     @staticmethod

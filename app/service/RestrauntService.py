@@ -54,18 +54,6 @@ async def get_active_address(address_id: int) -> Address:
         raise RestrauntNotFound
     return address
 
-
-async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
-    """Verify that the operational session user is an administrator or restaurant owner.
-
-    Arguments:
-        restaurant: The restaurant record instance undergoing modification.
-        current_user: The authenticated user session executing the request.
-    """
-    if current_user.is_admin:
-        return
-
-
 async def create_restaurant(
     payload: RestrauntCreate,
     current_user: User,
@@ -171,8 +159,6 @@ async def update_restaurant(
     if restaurant is None:
         raise RestrauntNotFound()
 
-    await check_restaurant_access(restaurant, current_user)
-
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
         raise InvalidRestaurantInput()
@@ -211,8 +197,6 @@ async def delete_restaurant(
     restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
     if restaurant is None:
         raise RestrauntNotFound()
-
-    await check_restaurant_access(restaurant, current_user)
 
     restaurant.is_active = False
     restaurant.updated_by_id = current_user.id

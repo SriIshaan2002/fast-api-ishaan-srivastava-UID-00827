@@ -121,7 +121,8 @@ async def get_profile(current_user: User = Depends(get_active_user)):
         UserResponse: The serialized details
         of the current authenticated user.
     """
-    return current_user
+    user_id = current_user.id
+    return await UserService.get_user(user_id)
 
 
 @routerUser.delete("/")
