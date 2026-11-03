@@ -210,6 +210,5 @@ MiddlewareMessages = namedtuple(
 )
 
 MIDDLEWARE_MESSAGES = MiddlewareMessages(
-    Success="Request processed successfully",
-    Failed="Request failed"
+    Success="Request processed successfully", Failed="Request failed"
 )
