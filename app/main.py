@@ -9,6 +9,7 @@ from app.controller.ItemController import routerItems
 from app.controller.OrderController import orderRouter
 from app.controller.OwnerController import routerOwner
 from app.controller.RestrauntController import restaurant_router
+from app.controller.StatsController import router
 from app.controller.UserController import routerAdmin as userAdmin
 from app.controller.UserController import routerUser as routerUser
 from app.exception_handler import global_handler
@@ -27,6 +28,7 @@ app.include_router(routerOwner)
 app.include_router(restaurant_router)
 app.include_router(routerItems)
 app.include_router(orderRouter)
+app.include_router(router)
 
 global_handler(app)
 app.middleware("http")(unified_auth_middleware)
