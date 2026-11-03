@@ -8,7 +8,7 @@ from uuid import UUID
 from tortoise.exceptions import IntegrityError, OperationalError
 from tortoise.transactions import in_transaction
 
-from app.exception.AuthException import (
+from app.exception.CustomException import (
     AddressNotFoundError,
     InsufficientBalanceError,
     InsufficientStockError,

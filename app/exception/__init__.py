@@ -1,4 +1,4 @@
-from app.exception.AuthException import (
+from app.exception.CustomException import (
     AccountInactiveError,
     AddressNotFoundError,
     InvalidLocationInput,

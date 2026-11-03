@@ -7,7 +7,7 @@ It handles user signup, login, refresh-token validation, and logout.
 from tortoise.exceptions import IntegrityError
 
 from app.auth import jwt_handler
-from app.exception.AuthException import (
+from app.exception.CustomException import (
     AccountInactiveError,
     InvalidPasswordError,
     InvalidTokenError,

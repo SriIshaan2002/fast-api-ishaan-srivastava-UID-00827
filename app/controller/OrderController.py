@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
-from app.exception.AuthException import OrderNotFoundError
+from app.exception.CustomException import OrderNotFoundError
 from app.models import User
 from app.routes.OrderRouter import orderRouter
 from app.schemas.items import MenuItemOut
