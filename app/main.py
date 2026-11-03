@@ -14,6 +14,7 @@ from app.controller.UserController import routerAdmin as userAdmin
 from app.controller.UserController import routerUser as routerUser
 from app.exception_handler import global_handler
 from app.middleware.auth import unified_auth_middleware
+from app.middleware.responseInterceptor import response_interceptor
 from constants import GENERAL
 
 app = FastAPI(title="My First FastAPI Template")
@@ -32,6 +33,7 @@ app.include_router(router)
 
 global_handler(app)
 app.middleware("http")(unified_auth_middleware)
+app.middleware("http")(response_interceptor)
 
 register_tortoise(
     app,

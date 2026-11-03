@@ -203,3 +203,13 @@ DB_MSG = DatabaseMessageConfig(
     conflict="Failed to finalize database operations due"
     " to a structural backend layout conflict."
 )
+
+MiddlewareMessages = namedtuple(
+    "MiddlewareMessages",
+    ["Success", "Failed"],
+)
+
+MIDDLEWARE_MESSAGES = MiddlewareMessages(
+    Success="Request processed successfully",
+    Failed="Request failed"
+)
