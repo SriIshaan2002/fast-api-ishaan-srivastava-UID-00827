@@ -11,6 +11,7 @@ from app.exception import (
 from app.models import Address, Restraunt, User
 from app.models.model import Item, Order
 from app.schemas.address import AddressCreate
+from app.schemas.items import ItemFilterSchema
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
 
@@ -230,7 +231,7 @@ async def list_by_recent_order(user_id: int) -> list[Restraunt]:
             )
 
 @staticmethod
-async def get_menu(restaurant_id: int) -> list[Item]:
+async def get_menu(restaurant_id: int, filters: ItemFilterSchema) -> list[Item]:
     """
     Retrieve all active menu items for a specific active restaurant.
 
@@ -239,6 +240,7 @@ async def get_menu(restaurant_id: int) -> list[Item]:
 
     Args:
         restaurant_id (int): The unique database ID of the restaurant.
+        filters (ItemFilterSchema): The filtering criteria for the menu items.
 
     Returns:
         list[Item]: A list of active menu Item ORM models belonging to the restaurant.
@@ -251,7 +253,19 @@ async def get_menu(restaurant_id: int) -> list[Item]:
     )
 
     if not items:
-        if not await Restraunt.filter(id=restaurant_id, is_active=True).exists():
-            raise RestrauntNotFound()
+            if not await Restraunt.filter(id=restaurant_id, is_active=True).exists():
+                raise RestrauntNotFound()
 
-    return items
+    if filters.category:
+        query = query.filter(category__iexact=filters.category)
+
+    if filters.min_price is not None:
+        query = query.filter(price__gte=filters.min_price)
+
+    if filters.max_price is not None:
+        query = query.filter(price__lte=filters.max_price)
+
+    if filters.min_rating is not None:
+        query = query.filter(rating__gte=filters.min_rating)
+
+    return await query
