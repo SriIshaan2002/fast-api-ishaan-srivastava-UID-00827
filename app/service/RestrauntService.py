@@ -1,16 +1,13 @@
-from http.client import HTTPException
-
 from tortoise.exceptions import IntegrityError
 from tortoise.transactions import in_transaction
 
 from app.exception import (
     InvalidLocationInput,
     InvalidRestaurantInput,
+    OwnerNotFound,
     RestaurantAlreadyExists,
     RestrauntNotFound,
-    OwnerNotFound
 )
-
 from app.models import Address, Restraunt, User
 from app.models.model import Owner
 from app.schemas.address import AddressCreate
@@ -38,6 +35,7 @@ async def get_active_address(address_id: int) -> Address:
     if address is None:
         raise RestrauntNotFound
     return address
+
 
 async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
     """Verify that the session user is an administrator or a restaurant owner.

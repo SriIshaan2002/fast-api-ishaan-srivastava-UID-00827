@@ -5,7 +5,7 @@ for managing the customer order lifecycle.
 
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.exception.AuthException import OrderNotFoundError
