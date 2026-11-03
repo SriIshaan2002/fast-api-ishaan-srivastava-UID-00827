@@ -243,8 +243,9 @@ async def get_menu(restaurant_id: int) -> list[Item]:
     Raises:
         RestrauntNotFound: If no active restaurant matches the provided ID.
     """
-    items =await Item.filter(restaurant=restaurant_id,restaurant__is_active=True,
-                              is_active=True)
+    items = await Item.filter(
+        restaurant=restaurant_id, restaurant__is_active=True, is_active=True
+    )
 
     if not items:
         if not await Restraunt.filter(id=restaurant_id, is_active=True).exists():
