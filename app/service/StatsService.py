@@ -4,7 +4,7 @@ reporting services for restaurant statistics."""
 from tortoise.functions import Count, Sum
 
 from app.exception.AuthException import RestrauntNotFound
-from app.models.model import Order, OrderItem, OrderStatus, Owner, Restraunt, User
+from app.models.model import Order, OrderItem, OrderStatus, Owner, User
 from app.schemas.stats import MenuItemStat, OrderListItem, OrderPage, TopCustomer
 
 

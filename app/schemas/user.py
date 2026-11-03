@@ -2,8 +2,10 @@
 
 from datetime import datetime
 from decimal import Decimal
-from app.schemas.Owner import OwnerDetails
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+from app.schemas.Owner import OwnerDetails
 
 
 class UserCreate(BaseModel):

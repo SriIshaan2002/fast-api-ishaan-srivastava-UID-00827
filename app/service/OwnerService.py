@@ -83,7 +83,6 @@ class OwnerService:
 
         return OwnerDetails(
             restaurants=[
-                RestaurantSummary.model_validate(owner.restraunt)
-                for owner in owners
+                RestaurantSummary.model_validate(owner.restraunt) for owner in owners
             ]
         )

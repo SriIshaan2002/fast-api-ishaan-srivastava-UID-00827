@@ -147,13 +147,14 @@ async def deactivate_my_account(current_user: User = Depends(get_active_user)):
         updated_by_id=current_user.id,
     )
 
+
 @routerUser.get("/", response_model=list[RestaurantOut])
 async def list_restaurants(current_user: CurrentUser):
     """
     List active restaurants sorted by most recent order.
 
-    Retrieves a list of all currently active restaurants. The results are 
-    ordered dynamically based on the timestamp of their most recent order, 
+    Retrieves a list of all currently active restaurants. The results are
+    ordered dynamically based on the timestamp of their most recent order,
     placing the most recently active restaurants first.
 
     Args:
@@ -170,8 +171,8 @@ async def get_menu(restaurant_id: int):
     """
     Fetch all available menu items of a specific restaurant.
 
-    Public endpoint that allows any user (authenticated or anonymous) to view 
-    the full menu of a given restaurant by its ID. Only returns items that 
+    Public endpoint that allows any user (authenticated or anonymous) to view
+    the full menu of a given restaurant by its ID. Only returns items that
     are currently marked as available.
 
     Args:

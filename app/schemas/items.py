@@ -2,7 +2,6 @@
 This module defines Pydantic validation schemas for managing restaurant menu items.
 """
 
-from datetime import datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -45,8 +44,10 @@ class ItemResponse(BaseModel):
     price: Decimal
     is_active: bool
 
+
 class MenuItemOut(BaseModel):
     """Schema for menu item output."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int

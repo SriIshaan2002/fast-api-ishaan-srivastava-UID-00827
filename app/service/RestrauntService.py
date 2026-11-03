@@ -1,9 +1,4 @@
-from datetime import datetime
-
-from pytest import Item
-from tortoise import timezone
 from tortoise.exceptions import IntegrityError
-from tortoise.functions import Max
 from tortoise.functions import Max
 from tortoise.transactions import in_transaction
 
@@ -13,8 +8,8 @@ from app.exception import (
     RestaurantAlreadyExists,
     RestrauntNotFound,
 )
-from app.models.model import Item
 from app.models import Address, Restraunt, User
+from app.models.model import Item
 from app.schemas.address import AddressCreate
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
@@ -60,6 +55,7 @@ async def get_active_address(address_id: int) -> Address:
     if address is None:
         raise RestrauntNotFound
     return address
+
 
 async def create_restaurant(
     payload: RestrauntCreate,
@@ -209,14 +205,15 @@ async def delete_restaurant(
     restaurant.updated_by_id = current_user.id
     await restaurant.save(update_fields=["is_active", "updated_by_id", "updated_at"])
 
+
 @staticmethod
 async def list_by_recent_order() -> list[Restraunt]:
     """
     Retrieve active restaurants sorted by their most recent order date.
 
-    Fetches all restaurants marked as active and annotates each with the 
-    timestamp of its latest order. Results are sorted in descending order 
-    by this timestamp. Restaurants that have never received an order are 
+    Fetches all restaurants marked as active and annotates each with the
+    timestamp of its latest order. Results are sorted in descending order
+    by this timestamp. Restaurants that have never received an order are
     sorted to the end of the list.
 
     Returns:
@@ -227,14 +224,15 @@ async def list_by_recent_order() -> list[Restraunt]:
         .annotate(last_order_at=Max("orders__created_at"))
         .order_by("-last_order_at")
     )
-    
+
+
 @staticmethod
 async def get_menu(restaurant_id: int) -> list[Item]:
     """
     Retrieve all active menu items for a specific active restaurant.
 
-    Validates that the restaurant exists and is active before fetching its 
-    menu. If the restaurant is inactive or does not exist, an exception is raised. 
+    Validates that the restaurant exists and is active before fetching its
+    menu. If the restaurant is inactive or does not exist, an exception is raised.
 
     Args:
         restaurant_id (int): The unique database ID of the restaurant.

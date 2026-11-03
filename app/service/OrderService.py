@@ -6,21 +6,19 @@ from decimal import Decimal
 from uuid import UUID
 
 from tortoise.exceptions import IntegrityError, OperationalError
-from tortoise.functions import Max
 from tortoise.transactions import in_transaction
 
 from app.exception.AuthException import (
     AddressNotFoundError,
+    InsufficientBalanceError,
     InsufficientStockError,
     ItemNotFoundError,
     OrderConflictError,
     OrderEmptyError,
     OrderNotFoundError,
     RestrauntNotFound,
-    InsufficientBalanceError,
 )
 from app.models import Address, Item, Order, OrderItem, Restraunt, User
-from app.schemas import user
 from app.schemas.orders import (
     OrderAddressOut,
     OrderCreate,
@@ -115,8 +113,8 @@ class OrderService:
                     raise InsufficientBalanceError()
 
                 await Item.bulk_update(
-                    [item for item, _ in validated_items_list],
-                    fields=["quantity"])
+                    [item for item, _ in validated_items_list], fields=["quantity"]
+                )
                 order = await Order.create(
                     user=current_user,
                     restaurant_id=data.restaurant_id,
@@ -212,4 +210,3 @@ class OrderService:
         """
         gross = item.price * item.quantity
         return gross - (gross * Decimal(item.discount) / Decimal(100))
-

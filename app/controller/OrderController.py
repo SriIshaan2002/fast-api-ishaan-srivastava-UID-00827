@@ -3,18 +3,17 @@ This module provides operational API endpoints
 for managing the customer order lifecycle.
 """
 
-
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 
 from app.dependency.dependency import get_active_user
 from app.exception.AuthException import OrderNotFoundError
 from app.models import User
 from app.routes.OrderRouter import orderRouter
+from app.schemas.items import MenuItemOut
 from app.schemas.orders import OrderCreate, OrderOut, OrderResponse
 from app.schemas.restraunt import RestaurantOut
-from app.schemas.items import MenuItemOut
 from app.service import RestrauntService
 from app.service.OrderService import OrderService
 
@@ -49,8 +48,8 @@ async def get_order(order_id: int, current_user: CurrentUser):
     """
     Retrieve details of a specific order.
 
-    Fetches the details of an order using its unique ID, provided it belongs 
-    to the currently authenticated user. If the order does not exist or 
+    Fetches the details of an order using its unique ID, provided it belongs
+    to the currently authenticated user. If the order does not exist or
     does not belong to the user, a 404 error is returned to prevent info leakage.
 
     Args:
@@ -68,13 +67,14 @@ async def get_order(order_id: int, current_user: CurrentUser):
     except OrderNotFoundError as e:
         raise e
 
+
 @orderRouter.get("/", response_model=list[RestaurantOut])
 async def list_restaurants(current_user: CurrentUser):
     """
     List active restaurants sorted by most recent order.
 
-    Retrieves a list of all currently active restaurants. The results are 
-    ordered dynamically based on the timestamp of their most recent order, 
+    Retrieves a list of all currently active restaurants. The results are
+    ordered dynamically based on the timestamp of their most recent order,
     placing the most recently active restaurants first.
 
     Args:
@@ -91,8 +91,8 @@ async def get_menu(restaurant_id: int):
     """
     Fetch all available menu items of a specific restaurant.
 
-    Public endpoint that allows any user (authenticated or anonymous) to view 
-    the full menu of a given restaurant by its ID. Only returns items that 
+    Public endpoint that allows any user (authenticated or anonymous) to view
+    the full menu of a given restaurant by its ID. Only returns items that
     are currently marked as available.
 
     Args:
