@@ -9,7 +9,7 @@ from app.exception import (
     RestrauntNotFound,
 )
 from app.models import Address, Restraunt, User
-from app.models.model import Item
+from app.models.model import Item, Order
 from app.schemas.address import AddressCreate
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
@@ -207,7 +207,7 @@ async def delete_restaurant(
 
 
 @staticmethod
-async def list_by_recent_order() -> list[Restraunt]:
+async def list_by_recent_order(user_id: int) -> list[Restraunt]:
     """
     Retrieve active restaurants sorted by their most recent order date.
 
@@ -220,11 +220,14 @@ async def list_by_recent_order() -> list[Restraunt]:
         list[Restraunt]: A list of active Restraunt ORM models.
     """
     return await (
-        Restraunt.filter(is_active=True)
-        .annotate(last_order_at=Max("orders__created_at"))
-        .order_by("-last_order_at")
-    )
-
+                Restraunt.filter(
+                    is_active=True,          
+                    restraunt_orders__user_id=user_id 
+                )
+                .annotate(last_order_at=Max("restraunt_orders__created_at")) 
+                .order_by("-last_order_at")
+                .distinct()
+            )
 
 @staticmethod
 async def get_menu(restaurant_id: int) -> list[Item]:

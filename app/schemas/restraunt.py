@@ -43,5 +43,5 @@ class RestaurantOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    name: str
+    restaurant_name: str
     last_order_at: datetime | None = None
