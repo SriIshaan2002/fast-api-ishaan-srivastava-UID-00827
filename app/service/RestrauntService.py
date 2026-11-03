@@ -1,4 +1,10 @@
+from datetime import datetime
+
+from pytest import Item
+from tortoise import timezone
 from tortoise.exceptions import IntegrityError
+from tortoise.functions import Max
+from tortoise.functions import Max
 from tortoise.transactions import in_transaction
 
 from app.exception import (
@@ -7,6 +13,7 @@ from app.exception import (
     RestaurantAlreadyExists,
     RestrauntNotFound,
 )
+from app.models.model import Item
 from app.models import Address, Restraunt, User
 from app.schemas.address import AddressCreate
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
@@ -201,3 +208,44 @@ async def delete_restaurant(
     restaurant.is_active = False
     restaurant.updated_by_id = current_user.id
     await restaurant.save(update_fields=["is_active", "updated_by_id", "updated_at"])
+
+@staticmethod
+async def list_by_recent_order() -> list[Restraunt]:
+    """
+    Retrieve active restaurants sorted by their most recent order date.
+
+    Fetches all restaurants marked as active and annotates each with the 
+    timestamp of its latest order. Results are sorted in descending order 
+    by this timestamp. Restaurants that have never received an order are 
+    sorted to the end of the list.
+
+    Returns:
+        list[Restraunt]: A list of active Restraunt ORM models.
+    """
+    return await (
+        Restraunt.filter(is_active=True)
+        .annotate(last_order_at=Max("orders__created_at"))
+        .order_by("-last_order_at")
+    )
+    
+@staticmethod
+async def get_menu(restaurant_id: int) -> list[Item]:
+    """
+    Retrieve all active menu items for a specific active restaurant.
+
+    Validates that the restaurant exists and is active before fetching its 
+    menu. If the restaurant is inactive or does not exist, an exception is raised. 
+
+    Args:
+        restaurant_id (int): The unique database ID of the restaurant.
+
+    Returns:
+        list[Item]: A list of active menu Item ORM models belonging to the restaurant.
+
+    Raises:
+        RestrauntNotFound: If no active restaurant matches the provided ID.
+    """
+    restaurant = await Restraunt.get_or_none(id=restaurant_id, is_active=True)
+    if restaurant is None:
+        raise RestrauntNotFound()
+    return await Item.filter(restaurant_id=restaurant_id, is_active=True)

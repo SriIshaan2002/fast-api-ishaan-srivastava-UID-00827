@@ -118,3 +118,4 @@ async def delete_restaurant(
     await delete_restaurant_service(
         restaurant_id=restaurant_id, current_user=current_user
     )
+

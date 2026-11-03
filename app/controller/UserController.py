@@ -5,11 +5,15 @@ user operations.
 
 from fastapi import Depends, status
 
+from app.controller.RestrauntController import CurrentUser
 from app.dependency.dependency import get_active_user
 from app.models import User
 from app.routes.AdminRoutes import routerAdmin
 from app.routes.UserRouter import routerUser
 from app.schemas import UserCreate, UserResponse, UserUpdate
+from app.schemas.items import MenuItemOut
+from app.schemas.restraunt import RestaurantOut
+from app.service import RestrauntService
 from app.service.UserService import UserService
 
 
@@ -142,3 +146,38 @@ async def deactivate_my_account(current_user: User = Depends(get_active_user)):
         user=current_user,
         updated_by_id=current_user.id,
     )
+
+@routerUser.get("/", response_model=list[RestaurantOut])
+async def list_restaurants(current_user: CurrentUser):
+    """
+    List active restaurants sorted by most recent order.
+
+    Retrieves a list of all currently active restaurants. The results are 
+    ordered dynamically based on the timestamp of their most recent order, 
+    placing the most recently active restaurants first.
+
+    Args:
+        current_user (CurrentUser): The authenticated user making the request.
+
+    Returns:
+        list[RestaurantOut]: A list of active restaurants with their details.
+    """
+    return await RestrauntService.list_by_recent_order()
+
+
+@routerUser.get("/{restaurant_id}/items", response_model=list[MenuItemOut])
+async def get_menu(restaurant_id: int):
+    """
+    Fetch all available menu items of a specific restaurant.
+
+    Public endpoint that allows any user (authenticated or anonymous) to view 
+    the full menu of a given restaurant by its ID. Only returns items that 
+    are currently marked as available.
+
+    Args:
+        restaurant_id (int): The unique identifier of the restaurant.
+
+    Returns:
+        list[MenuItemOut]: A list of available menu items for the restaurant.
+    """
+    return await RestrauntService.get_menu(restaurant_id)

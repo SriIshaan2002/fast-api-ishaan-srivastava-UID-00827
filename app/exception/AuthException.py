@@ -5,9 +5,12 @@ from fastapi import status
 from app.exception.BaseException import CustomBaseException
 from constants import (
     ADDRESS_ERRORS,
+    DB_MSG,
     EXCEPTION_MESSAGES,
     OWNER_ERRORS,
     RESTRAUNT_EXCEPTIONS,
+    ORDER_MSG,
+    ITEM_MSG,
 )
 
 
@@ -124,65 +127,77 @@ class InvalidLocationInput(CustomBaseException):
 class OrderNotFoundError(CustomBaseException):
     """Raised when an order doesn't exist or doesn't belong to the user."""
 
+    status_code = status.HTTP_404_NOT_FOUND
+
     def __init__(self, order_id):
         self.order_id = order_id
-        super().__init__(f"Order {order_id} not found")
+        self.detail = ORDER_MSG.not_found.format(order_id=order_id)
+        super().__init__()
 
 
 class OrderEmptyError(CustomBaseException):
     """Raised when an order is placed with no items."""
 
-    def __init__(self):
-        super().__init__("An order must contain at least one item.")
+    detail = ORDER_MSG.empty
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 class InvalidQuantityError(CustomBaseException):
     """Raised when a requested quantity is zero or negative."""
 
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+
     def __init__(self, item_id):
         self.item_id = item_id
-        super().__init__(f"Quantity for item {item_id} must be greater than 0.")
+        self.detail = ITEM_MSG.invalid_quantity.format(item_id=item_id)
+        super().__init__()
 
 
 class ItemNotFoundError(CustomBaseException):
     """Raised when an item is missing, inactive, or not in the restaurant."""
 
+    status_code = status.HTTP_404_NOT_FOUND
+
     def __init__(self, item_id):
         self.item_id = item_id
-        super().__init__(
-            f"Menu item ID {item_id} is unavailable or "
-            "doesn't belong to this restaurant."
-        )
+        self.detail = ITEM_MSG.not_found_restaurant.format(item_id=item_id)
+        super().__init__()
 
 
 class InsufficientStockError(CustomBaseException):
     """Raised when a requested quantity exceeds available stock."""
 
+    status_code = status.HTTP_409_CONFLICT
+
     def __init__(self, item_name: str, available: int, requested: int):
         self.item_name = item_name
         self.available = available
         self.requested = requested
-        super().__init__(
-            f"Insufficient stock for item '{item_name}'. "
-            f"Available: {available}, Requested: {requested}."
+        self.detail = ITEM_MSG.insufficient_stock.format(
+            item_name=item_name, available=available, requested=requested
         )
+        super().__init__()
 
 
 class OrderConflictError(CustomBaseException):
     """Raised on a database integrity error or lock/deadlock failure."""
 
-    def __init__(self):
-        super().__init__(
-            "Order processing failed due to a database conflict "
-            "or lock failure. Please retry."
-        )
+    detail = ORDER_MSG.conflict
+    status_code = status.HTTP_409_CONFLICT
+
+
+class InsufficientBalanceError(CustomBaseException):
+    """Raised when the order total exceeds the user's balance."""
+
+    detail = ORDER_MSG.insufficient_balance
+    status_code = status.HTTP_400_BAD_REQUEST
 
 
 class ItemNotFound(CustomBaseException):
     """Raised when a target menu item lookup
     fails or has been soft-deleted."""
 
-    detail = "The requested menu item could not be found or is inactive."
+    detail = ITEM_MSG.not_found_generic
     status_code = status.HTTP_404_NOT_FOUND
 
 
@@ -190,7 +205,7 @@ class ItemUpdateEmpty(CustomBaseException):
     """Raised when an update request
     payload contains no modifications."""
 
-    detail = "No structural update parameters were supplied."
+    detail = ITEM_MSG.update_empty
     status_code = status.HTTP_400_BAD_REQUEST
 
 
@@ -198,8 +213,5 @@ class DatabaseConflictException(CustomBaseException):
     """Raised when a unique constraint or
     structural validation rule fails in the engine."""
 
-    detail = (
-        "Failed to finalize database "
-        "operations due to a structural backend layout conflict."
-    )
+    detail = DB_MSG.conflict
     status_code = status.HTTP_409_CONFLICT
