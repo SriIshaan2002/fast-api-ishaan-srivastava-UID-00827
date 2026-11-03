@@ -114,7 +114,7 @@ class OrderService:
 
                 user.balance -= total_order_price
                 await user.save(update_fields=["balance"])
-                
+
                 await Item.bulk_update(
                     [item for item, _ in validated_items_list], fields=["quantity"]
                 )
