@@ -1,6 +1,6 @@
 import json
 
-from fastapi import Request
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
 from app.schemas.GenericResponse import GenericResponse
@@ -10,10 +10,18 @@ SKIP_PATHS = {"/docs", "/redoc", "/openapi.json"}
 
 
 async def response_interceptor(request: Request, call_next):
-    response = await call_next(request)
-
+    """Intercepts outgoing responses to wrap them in a consistent format."""
     if request.url.path in SKIP_PATHS:
-        return response
+        return await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception as e:
+        return JSONResponse(
+            content=GenericResponse(
+                success=False, message=MIDDLEWARE_MESSAGES.InternalError, data=str(e)
+            ).model_dump(mode="json"),
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     chunks = []
     async for chunk in response.body_iterator:
