@@ -69,26 +69,26 @@ async def create_user(data: UserCreate):
     return await UserService.create_user(data)
 
 
-@routerAdmin.delete("/{user_id}")
-async def delete_user(user_id: int, current_user: User = Depends(get_active_user)):
-    """Soft-delete a target user record by
-    updating their status to inactive.
+# @routerAdmin.delete("/{user_id}")
+# async def delete_user(user_id: int, current_user: User = Depends(get_active_user)):
+#     """Soft-delete a target user record by
+#     updating their status to inactive.
 
-    Args:
-        user_id (int): The database primary
-        key identifier of the user to deactivate.
-        current_user (User): The administrative
-        user executing the action.
+#     Args:
+#         user_id (int): The database primary
+#         key identifier of the user to deactivate.
+#         current_user (User): The administrative
+#         user executing the action.
 
-    Returns:
-        dict: A confirmation dictionary indicating
-        a successful soft-deletion step.
-    """
-    user = await UserService.get_user(user_id)
-    return await UserService.deactivate_user(
-        user=user,
-        updated_by_id=current_user.id,
-    )
+#     Returns:
+#         dict: A confirmation dictionary indicating
+#         a successful soft-deletion step.
+#     """
+#     user = await UserService.get_user(user_id)
+#     return await UserService.deactivate_user(
+#         user=user,
+#         updated_by_id=current_user.id,
+#     )
 
 
 @routerUser.put("/", response_model=UserResponse)
