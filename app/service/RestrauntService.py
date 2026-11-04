@@ -1,4 +1,5 @@
 from tortoise.exceptions import IntegrityError
+from tortoise.functions import Max
 from tortoise.transactions import in_transaction
 
 from app.exception import (
@@ -8,30 +9,12 @@ from app.exception import (
     RestrauntNotFound,
 )
 from app.models import Address, Restraunt, User
+from app.models.model import Item
 from app.schemas.address import AddressCreate
+from app.schemas.items import ItemFilterSchema
 from app.schemas.restraunt import RestrauntCreate, RestrauntUpdate
 from app.service.AddressService import AddressService
-
-
-def restaurant_to_dict(restaurant: Restraunt) -> dict:
-    """Convert a restaurant model into a response-compatible dictionary.
-
-    Arguments:
-        restaurant: The active database restaurant record instance.
-
-    Returns:
-        A dictionary containing serializable restaurant data fields.
-    """
-    return {
-        "id": restaurant.id,
-        "restaurant_name": restaurant.restaurant_name,
-        "location_id": restaurant.location_id_id,
-        "created_by_id": restaurant.created_by_id,
-        "is_closed": restaurant.is_closed,
-        "is_active": restaurant.is_active,
-        "created_at": restaurant.created_at,
-        "updated_at": restaurant.updated_at,
-    }
+from app.util.RestrauntUtil import restaurant_to_dict
 
 
 async def get_active_address(address_id: int) -> Address:
@@ -53,17 +36,6 @@ async def get_active_address(address_id: int) -> Address:
     if address is None:
         raise RestrauntNotFound
     return address
-
-
-async def check_restaurant_access(restaurant: Restraunt, current_user: User) -> None:
-    """Verify that the operational session user is an administrator or restaurant owner.
-
-    Arguments:
-        restaurant: The restaurant record instance undergoing modification.
-        current_user: The authenticated user session executing the request.
-    """
-    if current_user.is_admin:
-        return
 
 
 async def create_restaurant(
@@ -171,8 +143,6 @@ async def update_restaurant(
     if restaurant is None:
         raise RestrauntNotFound()
 
-    await check_restaurant_access(restaurant, current_user)
-
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
         raise InvalidRestaurantInput()
@@ -212,8 +182,68 @@ async def delete_restaurant(
     if restaurant is None:
         raise RestrauntNotFound()
 
-    await check_restaurant_access(restaurant, current_user)
-
     restaurant.is_active = False
     restaurant.updated_by_id = current_user.id
     await restaurant.save(update_fields=["is_active", "updated_by_id", "updated_at"])
+
+
+@staticmethod
+async def list_by_recent_order(user_id: int) -> list[Restraunt]:
+    """
+    Retrieve active restaurants sorted by their most recent order date.
+
+    Fetches all restaurants marked as active and annotates each with the
+    timestamp of its latest order. Results are sorted in descending order
+    by this timestamp. Restaurants that have never received an order are
+    sorted to the end of the list.
+
+    Returns:
+        list[Restraunt]: A list of active Restraunt ORM models.
+    """
+    return await (
+        Restraunt.filter(is_active=True, restraunt_orders__user_id=user_id)
+        .annotate(last_order_at=Max("restraunt_orders__created_at"))
+        .order_by("-last_order_at")
+        .distinct()
+    )
+
+
+@staticmethod
+async def get_menu(restaurant_id: int, filters: ItemFilterSchema) -> list[Item]:
+    """
+    Retrieve all active menu items for a specific active restaurant.
+
+    Validates that the restaurant exists and is active before fetching its
+    menu. If the restaurant is inactive or does not exist, an exception is raised.
+
+    Args:
+        restaurant_id (int): The unique database ID of the restaurant.
+        filters (ItemFilterSchema): The filtering criteria for the menu items.
+
+    Returns:
+        list[Item]: A list of active menu Item ORM models belonging to the restaurant.
+
+    Raises:
+        RestrauntNotFound: If no active restaurant matches the provided ID.
+    """
+    query = Item.filter(
+        restaurant=restaurant_id, restaurant__is_active=True, is_active=True
+    )
+
+    if not query:
+        if not await Restraunt.filter(id=restaurant_id, is_active=True).exists():
+            raise RestrauntNotFound()
+
+    if filters.category:
+        query = query.filter(category__iexact=filters.category)
+
+    if filters.min_price is not None:
+        query = query.filter(price__gte=filters.min_price)
+
+    if filters.max_price is not None:
+        query = query.filter(price__lte=filters.max_price)
+
+    if filters.min_rating is not None:
+        query = query.filter(rating__gte=filters.min_rating)
+
+    return await query

@@ -7,7 +7,7 @@ to AuthService. Custom application exceptions are converted into
 FastAPI HTTP exceptions with the corresponding status codes.
 """
 
-from fastapi import HTTPException, status
+from fastapi import status
 
 from app.exception import CustomBaseException
 from app.routes.AuthRouter import authRouter
@@ -35,7 +35,7 @@ async def signup(user: UserCreate) -> TokenResponse:
     try:
         return await AuthService.signup(user)
     except CustomBaseException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+        raise e
 
 
 @authRouter.post("/login", status_code=status.HTTP_200_OK, response_model=TokenResponse)
@@ -55,16 +55,16 @@ async def login(user: UserLogin) -> TokenResponse:
     try:
         return await AuthService.login(user)
     except CustomBaseException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+        raise e
 
 
 @authRouter.post("/refresh")
-async def refresh(auth_uuid: str, user_id: int) -> dict:
+async def refresh(refresh_token: str) -> dict:
     """
     Refresh the access token for an existing user session.
 
     Args:
-        auth_uuid (str): UUID identifying the refresh-token session.
+        refresh_token (str): The refresh token for the session.
 
     Returns:
         dict: A response containing the newly generated access token.
@@ -73,18 +73,18 @@ async def refresh(auth_uuid: str, user_id: int) -> dict:
         HTTPException: If the token is invalid or the refresh operation fails.
     """
     try:
-        return await AuthService.refresh(auth_uuid, user_id=user_id)
+        return await AuthService.refresh(refresh_token)
     except CustomBaseException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+        raise e
 
 
 @authRouter.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(auth_uuid: str) -> dict:
+async def logout(refresh_token: str) -> dict:
     """
     Invalidate a user session.
 
     Args:
-        auth_uuid (str): UUID identifying the session to invalidate.
+        refresh_token (str): The refresh token for the session.
 
     Returns:
         dict: A response indicating the result of the logout operation.
@@ -93,9 +93,9 @@ async def logout(auth_uuid: str) -> dict:
         HTTPException: If the session cannot be invalidated.
     """
     try:
-        return await AuthService.logout(auth_uuid=auth_uuid)
+        return await AuthService.logout(refresh_token=refresh_token)
     except CustomBaseException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+        raise e
 
 
 @authRouter.post(
@@ -117,4 +117,4 @@ async def reactivate(user: UserLogin) -> TokenResponse:
     try:
         return await AuthService.reactivate(user)
     except CustomBaseException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from e
+        raise e

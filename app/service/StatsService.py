@@ -3,8 +3,8 @@ reporting services for restaurant statistics."""
 
 from tortoise.functions import Count, Sum
 
-from app.exception.AuthException import RestrauntNotFound
-from app.models.model import Order, OrderItem, OrderStatus, Restraunt, User
+from app.exception.CustomException import RestrauntNotFound
+from app.models.model import Order, OrderItem, OrderStatus, Owner, User
 from app.schemas.stats import MenuItemStat, OrderListItem, OrderPage, TopCustomer
 
 
@@ -12,7 +12,7 @@ class RestaurantStatsService:
     """Provides reporting functionality for tracking restaurant operation summaries."""
 
     @staticmethod
-    async def _get_owned_restaurant(restaurant_id: int, owner: User) -> Restraunt:
+    async def _get_owned_restaurant(restaurant_id: int, owner: User):
         """Return the restaurant only if the matching owner created it.
 
         Arguments:
@@ -26,12 +26,14 @@ class RestaurantStatsService:
             RestrauntNotFound: If the restaurant is missing,
               inactive, or owned by someone else.
         """
-        restaurant = await Restraunt.get_or_none(
-            id=restaurant_id, created_by_id=owner.id, is_active=True
+        owner_link = await Owner.get_or_none(
+            user_id=owner.id,
+            restraunt_id=restaurant_id,
+            restraunt__is_active=True,
         )
-        if restaurant is None:
+        if owner_link is None:
             raise RestrauntNotFound()
-        return restaurant
+        return owner_link.restraunt
 
     @staticmethod
     async def menu_item_stats(restaurant_id: int, owner: User) -> list[MenuItemStat]:

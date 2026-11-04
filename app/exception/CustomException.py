@@ -129,28 +129,28 @@ class OrderNotFoundError(CustomBaseException):
 
     status_code = status.HTTP_404_NOT_FOUND
 
-    def __init__(self, order_id: int):
+    def __init__(self, order_id):
         self.order_id = order_id
-        super().__init__(ORDER_MSG.NOT_FOUND.format(order_id=order_id))
+        self.detail = ORDER_MSG.not_found.format(order_id=order_id)
+        super().__init__()
 
 
 class OrderEmptyError(CustomBaseException):
     """Raised when an order is placed with no items."""
 
-    status_code = status.HTTP_400_BAD_REQUEST
-
-    def __init__(self):
-        super().__init__(ORDER_MSG.EMPTY)
+    detail = ORDER_MSG.empty
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 class InvalidQuantityError(CustomBaseException):
     """Raised when a requested quantity is zero or negative."""
 
-    status_code = status.HTTP_400_BAD_REQUEST
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def __init__(self, item_id: int):
+    def __init__(self, item_id):
         self.item_id = item_id
-        super().__init__(ITEM_MSG.INVALID_QUANTITY.format(item_id=item_id))
+        self.detail = ITEM_MSG.invalid_quantity.format(item_id=item_id)
+        super().__init__()
 
 
 class ItemNotFoundError(CustomBaseException):
@@ -158,56 +158,60 @@ class ItemNotFoundError(CustomBaseException):
 
     status_code = status.HTTP_404_NOT_FOUND
 
-    def __init__(self, item_id: int):
+    def __init__(self, item_id):
         self.item_id = item_id
-        super().__init__(ITEM_MSG.NOT_FOUND_RESTAURANT.format(item_id=item_id))
+        self.detail = ITEM_MSG.not_found_restaurant.format(item_id=item_id)
+        super().__init__()
 
 
 class InsufficientStockError(CustomBaseException):
     """Raised when a requested quantity exceeds available stock."""
 
-    status_code = status.HTTP_400_BAD_REQUEST
+    status_code = status.HTTP_409_CONFLICT
 
     def __init__(self, item_name: str, available: int, requested: int):
         self.item_name = item_name
         self.available = available
         self.requested = requested
-        super().__init__(
-            ITEM_MSG.INSUFFICIENT_STOCK.format(
-                item_name=item_name, available=available, requested=requested
-            )
+        self.detail = ITEM_MSG.insufficient_stock.format(
+            item_name=item_name, available=available, requested=requested
         )
+        super().__init__()
 
 
 class OrderConflictError(CustomBaseException):
-    """Raised on a database integrity
-    error or lock/deadlock failure."""
+    """Raised on a database integrity error or lock/deadlock failure."""
 
+    detail = ORDER_MSG.conflict
     status_code = status.HTTP_409_CONFLICT
 
-    def __init__(self):
-        super().__init__(ORDER_MSG.CONFLICT)
+
+class InsufficientBalanceError(CustomBaseException):
+    """Raised when the order total exceeds the user's balance."""
+
+    detail = ORDER_MSG.insufficient_balance
+    status_code = status.HTTP_400_BAD_REQUEST
 
 
 class ItemNotFound(CustomBaseException):
     """Raised when a target menu item lookup
     fails or has been soft-deleted."""
 
+    detail = ITEM_MSG.not_found_generic
     status_code = status.HTTP_404_NOT_FOUND
-    detail = ITEM_MSG.NOT_FOUND_GENERIC
 
 
 class ItemUpdateEmpty(CustomBaseException):
-    """Raised when an update request payload
-    contains no modifications."""
+    """Raised when an update request
+    payload contains no modifications."""
 
+    detail = ITEM_MSG.update_empty
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = ITEM_MSG.UPDATE_EMPTY
 
 
 class DatabaseConflictException(CustomBaseException):
-    """Raised when a unique constraint or structural
-    validation rule fails in the engine."""
+    """Raised when a unique constraint or
+    structural validation rule fails in the engine."""
 
+    detail = DB_MSG.conflict
     status_code = status.HTTP_409_CONFLICT
-    detail = DB_MSG.CONFLICT

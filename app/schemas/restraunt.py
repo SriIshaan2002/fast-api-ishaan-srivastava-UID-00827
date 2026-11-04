@@ -31,3 +31,17 @@ class RestrauntResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime | None
+
+
+class RestaurantSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    restaurant_name: str
+
+
+class RestaurantOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    restaurant_name: str
+    last_order_at: datetime | None = None

@@ -8,10 +8,10 @@ from uuid import UUID
 from tortoise.exceptions import IntegrityError, OperationalError
 from tortoise.transactions import in_transaction
 
-from app.exception.AuthException import (
+from app.exception.CustomException import (
     AddressNotFoundError,
+    InsufficientBalanceError,
     InsufficientStockError,
-    InvalidQuantityError,
     ItemNotFoundError,
     OrderConflictError,
     OrderEmptyError,
@@ -64,8 +64,6 @@ class OrderService:
             raise OrderEmptyError()
         requested: dict = {}
         for line in data.items:
-            if line.quantity <= 0:
-                raise InvalidQuantityError(line.item_id)
             requested[line.item_id] = requested.get(line.item_id, 0) + line.quantity
 
         restaurant_exists = await Restraunt.filter(
@@ -73,7 +71,6 @@ class OrderService:
         ).exists()
         if not restaurant_exists:
             raise RestrauntNotFound()
-
         address_exists = await Address.filter(
             id=data.delivery_location_id,
             user_id=current_user.id,
@@ -84,36 +81,43 @@ class OrderService:
 
         try:
             async with in_transaction():
+                item_ids = sorted(requested)
+                user = await User.filter(id=current_user.id).select_for_update().get()
+                menu_items = await (
+                    Item.filter(
+                        id__in=item_ids,
+                        restaurant_id=data.restaurant_id,
+                        is_active=True,
+                    )
+                    .select_for_update()
+                    .order_by("id")
+                )
+                items_by_id = {item.id: item for item in menu_items}
+
                 total_order_price = Decimal("0.000")
                 validated_items_list = []
-
-                for item_id in sorted(requested):
-                    quantity = requested[item_id]
-
-                    menu_item = (
-                        await Item.filter(
-                            id=item_id,
-                            restaurant_id=data.restaurant_id,
-                            is_active=True,
-                        )
-                        .select_for_update()
-                        .first()
-                    )
-
+                for item_id in item_ids:
+                    menu_item = items_by_id.get(item_id)
                     if not menu_item:
                         raise ItemNotFoundError(item_id)
-
+                    quantity = requested[item_id]
                     if menu_item.quantity < quantity:
                         raise InsufficientStockError(
                             menu_item.item_name, menu_item.quantity, quantity
                         )
-
                     menu_item.quantity -= quantity
-                    await menu_item.save(update_fields=["quantity"])
-
                     total_order_price += Decimal(menu_item.price) * quantity
                     validated_items_list.append((menu_item, quantity))
+                total_order_price = total_order_price.quantize(Decimal("0.001"))
+                if total_order_price > current_user.balance:
+                    raise InsufficientBalanceError()
 
+                user.balance -= total_order_price
+                await user.save(update_fields=["balance"])
+
+                await Item.bulk_update(
+                    [item for item, _ in validated_items_list], fields=["quantity"]
+                )
                 order = await Order.create(
                     user=current_user,
                     restaurant_id=data.restaurant_id,

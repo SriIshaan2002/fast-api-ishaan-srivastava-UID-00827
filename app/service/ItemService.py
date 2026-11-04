@@ -1,6 +1,6 @@
 from tortoise.exceptions import IntegrityError
 
-from app.exception.AuthException import (
+from app.exception.CustomException import (
     DatabaseConflictException,
     ItemNotFound,
     ItemUpdateEmpty,

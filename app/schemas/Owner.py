@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.restraunt import RestaurantSummary
+
 
 class OwnerCreate(BaseModel):
     """Schema for creating an owner."""
@@ -16,3 +18,7 @@ class OwnerResponse(BaseModel):
     id: int
     user_id: int
     restraunt_id: int
+
+
+class OwnerDetails(BaseModel):
+    restaurants: list[RestaurantSummary]

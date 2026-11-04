@@ -162,7 +162,8 @@ AddressSuccessMessages = namedtuple(
 StatusConfig = namedtuple("StatusConfig", ["not_found", "bad_request", "conflict"])
 
 OrderMessageConfig = namedtuple(
-    "OrderMessageConfig", ["not_found", "empty", "conflict"]
+    "OrderMessageConfig",
+    ["not_found", "empty", "conflict", "update_conflict", "insufficient_balance"],
 )
 
 ItemMessageConfig = namedtuple(
@@ -183,6 +184,9 @@ ORDER_MSG = OrderMessageConfig(
     empty="An order must contain at least one item.",
     conflict="Order processing failed due to a "
     "database conflict or lock failure. Please retry.",
+    update_conflict="Order update failed due to a "
+    "database conflict or lock failure. Please retry.",
+    insufficient_balance="Order total exceeds your balance.",
 )
 
 ITEM_MSG = ItemMessageConfig(
@@ -198,4 +202,13 @@ ITEM_MSG = ItemMessageConfig(
 DB_MSG = DatabaseMessageConfig(
     conflict="Failed to finalize database operations due"
     " to a structural backend layout conflict."
+)
+
+MiddlewareMessages = namedtuple(
+    "MiddlewareMessages",
+    ["Success", "Failed"],
+)
+
+MIDDLEWARE_MESSAGES = MiddlewareMessages(
+    Success="Request processed successfully", Failed="Request failed"
 )

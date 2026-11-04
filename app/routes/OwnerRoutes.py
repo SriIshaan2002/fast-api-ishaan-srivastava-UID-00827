@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.dependency.dependency import get_active_user
-from app.exception.AuthException import AccountInactiveError
+from app.exception.CustomException import AccountInactiveError
 from app.models.model import User
 
 

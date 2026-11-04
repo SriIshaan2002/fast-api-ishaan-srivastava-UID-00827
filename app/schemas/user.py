@@ -5,6 +5,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.schemas.Owner import OwnerDetails
+
 
 class UserCreate(BaseModel):
     """Validate the data required to register a new user."""
@@ -36,6 +38,7 @@ class UserResponse(BaseModel):
     balance: Decimal
     is_active: bool
     created_at: datetime
+    owner_details: OwnerDetails | None = None
     model_config["from_attributes"] = True
 
 

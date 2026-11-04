@@ -143,6 +143,8 @@ class Item(AuditModel):
         related_name="created_items",
         on_delete=fields.RESTRICT,
     )
+    rating: Decimal = fields.DecimalField(max_digits=3, decimal_places=2, default=0)
+    category: str | None = fields.CharField(max_length=50, null=True)
     quantity: int = fields.IntField(default=0)
     is_veg: bool = fields.BooleanField()
     description: str | None = fields.CharField(max_length=500, null=True)

@@ -61,17 +61,12 @@ async def unified_auth_middleware(request: Request, call_next):
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={"detail": AUTH_ERRORS.invalid_token},
         )
-    if path.startswith("/admin"):
+    if path.startswith("/admin") or path.startswith("/restaurants"):
         if not current_user.is_admin:
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={"detail": AUTH_ERRORS.invalid_credentials},
             )
-    if path.startswith("/owners"):
-        if not (current_user.is_admin):
-            return JSONResponse(
-                status_code=status.HTTP_403_FORBIDDEN,
-                content={"detail": AUTH_ERRORS.invalid_credentials},
-            )
+
     request.state.user = current_user
     return await call_next(request)

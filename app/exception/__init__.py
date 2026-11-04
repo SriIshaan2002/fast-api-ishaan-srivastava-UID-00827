@@ -1,4 +1,5 @@
-from app.exception.AuthException import (
+from app.exception.BaseException import CustomBaseException
+from app.exception.CustomException import (
     AccountInactiveError,
     AddressNotFoundError,
     InvalidLocationInput,
@@ -14,7 +15,6 @@ from app.exception.AuthException import (
     SessionNotFoundError,
     UserNotFoundError,
 )
-from app.exception.BaseException import CustomBaseException
 
 __all__ = (
     "AccountInactiveError",
