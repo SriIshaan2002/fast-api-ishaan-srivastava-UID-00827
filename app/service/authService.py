@@ -85,11 +85,11 @@ class AuthService:
         )
 
     @staticmethod
-    async def refresh(auth_uuid: str, user_id: int) -> dict:
+    async def refresh(refresh_token: str) -> dict:
         """
         Validate a refresh token and generate a new access token.
         Args:
-            auth_uuid: UUID as the jti for refresh token in the db
+            refresh_token: The refresh token for the session.
 
         Returns:
             Access token and refresh-token UUID.
@@ -98,24 +98,24 @@ class AuthService:
             InvalidTokenError
 
         """
-        existing_token = await Token.filter(uuid=auth_uuid, user_id=user_id).first()
+        existing_token = await Token.filter(uuid=refresh_token).first()
         if not existing_token or existing_token.revoked_at is not None:
             raise InvalidTokenError()
-        user = await User.filter(id=user_id).first()
+        user = await User.filter(id=existing_token.user_id).first()
         if not user or not user.is_active:
             raise InvalidTokenError(detail=AUTH_ERRORS.user_inactive)
         access_token = jwt_handler.create_access_token(
-            user_id=user_id,
+            user_id=user.id,
             is_admin=user.is_admin,
         )
         return {GENERAL.access_token: access_token}
 
     @staticmethod
-    async def logout(auth_uuid: str) -> dict:
+    async def logout(refresh_token: str) -> dict:
         """
         Invalidate a stored refresh-token session.
         Args:
-            auth_uuid: UUID as the jti for refresh token in the db
+            refresh_token: The refresh token for the session.
 
         Returns:
             Dictionary for logged out message
@@ -123,7 +123,7 @@ class AuthService:
         Raises:
             SessionNotFoundError
         """
-        deleted_count = await Token.filter(uuid=auth_uuid).delete()
+        deleted_count = await Token.filter(uuid=refresh_token).delete()
         if deleted_count == 0:
             raise SessionNotFoundError()
         return {"detail": AUTH_SUCCESS.logged_out}
@@ -133,8 +133,7 @@ class AuthService:
         """
         Reactivate a soft-deleted account and return authentication tokens.
         Args:
-                auth_uuid: UUID as the jti for refresh token in the db
-
+                user_data: Validated login credentials.
         Returns:
             TokenResponse
 
