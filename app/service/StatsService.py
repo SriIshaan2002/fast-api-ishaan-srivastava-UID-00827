@@ -12,7 +12,7 @@ class RestaurantStatsService:
     """Provides reporting functionality for tracking restaurant operation summaries."""
 
     @staticmethod
-    async def _get_owned_restaurant(restaurant_id: int, owner: User):
+    async def check_owner(restaurant_id: int, owner: User):
         """Return the restaurant only if the matching owner created it.
 
         Arguments:
@@ -33,7 +33,7 @@ class RestaurantStatsService:
         )
         if owner_link is None:
             raise RestrauntNotFound()
-        return owner_link.restraunt
+        return owner_link.restraunt.exists
 
     @staticmethod
     async def menu_item_stats(restaurant_id: int, owner: User) -> list[MenuItemStat]:
@@ -51,15 +51,17 @@ class RestaurantStatsService:
             RestrauntNotFound: If authorization checks
             drop or the record target is missing.
         """
-        await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
+        print("Inside menu_item_stats", restaurant_id, owner.id)
+
+        await RestaurantStatsService.check_owner(restaurant_id, owner)
 
         rows = (
             await OrderItem.filter(order__restaurant_id=restaurant_id)
             .exclude(order__status=OrderStatus.CANCELLED)
             .annotate(times_ordered=Count("id"), total_quantity=Sum("quantity"))
-            .group_by("item_name")
+            .group_by("item__item_name")
             .order_by("-total_quantity")
-            .values("item_name", "times_ordered", "total_quantity")
+            .values("item__item_name", "times_ordered", "total_quantity")
         )
         return [MenuItemStat(**row) for row in rows]
 
@@ -83,7 +85,7 @@ class RestaurantStatsService:
             RestrauntNotFound: If authorization
             checks drop or the record target is missing.
         """
-        await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
+        await RestaurantStatsService.check_owner(restaurant_id, owner)
 
         rows = await (
             Order.filter(restaurant_id=restaurant_id)
@@ -130,7 +132,7 @@ class RestaurantStatsService:
             RestrauntNotFound: If authorization checks
             drop or the record target is missing.
         """
-        await RestaurantStatsService._get_owned_restaurant(restaurant_id, owner)
+        await RestaurantStatsService.check_owner(restaurant_id, owner)
 
         query = Order.filter(restaurant_id=restaurant_id)
         if status:

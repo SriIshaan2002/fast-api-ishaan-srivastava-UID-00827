@@ -112,7 +112,7 @@ class UserService:
         """
         update_data = data.model_dump(exclude_unset=True)
         if "email" in update_data and update_data["email"] is not None:
-            update_data["email"] = str(update_data["email"]).strip().lower()
+            update_data["email"] = str(update_data["email"]).strip()
         for field, value in update_data.items():
             setattr(user, field, value)
 
@@ -122,7 +122,7 @@ class UserService:
             except IntegrityError as exc:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail=AUTH_ERRORS.user_already_exists,
+                    detail=str(exc),
                 ) from exc
         return user
 

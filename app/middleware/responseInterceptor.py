@@ -18,7 +18,7 @@ async def response_interceptor(request: Request, call_next):
     except Exception as e:
         return JSONResponse(
             content=GenericResponse(
-                success=False, message=MIDDLEWARE_MESSAGES.InternalError, data=str(e)
+                success=False, message=MIDDLEWARE_MESSAGES.Failed, data=str(e)
             ).model_dump(mode="json"),
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
