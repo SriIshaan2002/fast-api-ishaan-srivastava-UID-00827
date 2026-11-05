@@ -139,6 +139,7 @@ async def update_restaurant(
     restaurant = await Restraunt.filter(
         id=restaurant_id,
         is_active=True,
+        owners__id=[current_user.id],
     ).first()
     if restaurant is None:
         raise RestrauntNotFound()
@@ -178,7 +179,11 @@ async def delete_restaurant(
         RestrauntNotFound: If the target restaurant
         does not exist or is already inactive.
     """
-    restaurant = await Restraunt.filter(id=restaurant_id, is_active=True).first()
+    restaurant = await Restraunt.filter(
+        id=restaurant_id,
+        is_active=True,
+        owners__id=[current_user.id]
+    ).first()
     if restaurant is None:
         raise RestrauntNotFound()
 

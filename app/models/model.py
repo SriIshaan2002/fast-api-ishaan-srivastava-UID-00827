@@ -148,7 +148,7 @@ class Item(AuditModel):
     quantity: int = fields.IntField(default=0)
     is_veg: bool = fields.BooleanField()
     description: str | None = fields.CharField(max_length=500, null=True)
-    price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
+    price: int = fields.IntField(max_length=5)
 
     class Meta:
         table = tab.ITEM.value
@@ -194,11 +194,16 @@ class OrderItem(BaseModel):
         related_name="order_items",
         on_delete=fields.CASCADE,
     )
+    item: fields.ForeignKeyRelation[Item] = fields.ForeignKeyField(
+        "models.Item",
+        related_name="item_orders",
+        on_delete=fields.RESTRICT,
+    )
     item_name: str = fields.CharField(max_length=50)
     is_veg: bool = fields.BooleanField(default=True)
     quantity: int = fields.IntField()
     discount: int = fields.IntField(default=0)
-    price: Decimal = fields.DecimalField(max_digits=10, decimal_places=3)
+    price: int = fields.IntField(max_length=5)
     is_active: bool = fields.BooleanField(default=True)
 
     class Meta:

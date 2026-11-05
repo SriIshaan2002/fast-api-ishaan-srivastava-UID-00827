@@ -141,7 +141,7 @@ class AuthService:
             UserNotFoundError
             InvalidPasswordError
         """
-        email = user_data.email.lower()
+        email = user_data.email
         existing_user = await User.filter(email=email).first()
         if not existing_user:
             raise UserNotFoundError()
@@ -150,6 +150,8 @@ class AuthService:
         if not existing_user.is_active:
             existing_user.is_active = True
             await existing_user.save(update_fields=["is_active"])
+        else:
+            raise AccountInactiveError(detail=AUTH_ERRORS.account_already_active)
         return await AuthService._generate_tokens(
             user=existing_user, is_admin=existing_user.is_admin
         )

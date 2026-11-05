@@ -45,5 +45,5 @@ class UserResponse(BaseModel):
 class UserLogin(BaseModel):
     """Validate the credentials submitted when a user logs in."""
 
-    email: str
+    email: EmailStr
     password: str
