@@ -19,6 +19,7 @@ class DatabaseConfig(BaseSettings):
         extra="ignore",
     )
 
+
 settings = DatabaseConfig()
 
 

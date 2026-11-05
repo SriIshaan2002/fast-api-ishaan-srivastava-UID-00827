@@ -180,9 +180,7 @@ async def delete_restaurant(
         does not exist or is already inactive.
     """
     restaurant = await Restraunt.filter(
-        id=restaurant_id,
-        is_active=True,
-        owners__id=[current_user.id]
+        id=restaurant_id, is_active=True, owners__id=[current_user.id]
     ).first()
     if restaurant is None:
         raise RestrauntNotFound()
